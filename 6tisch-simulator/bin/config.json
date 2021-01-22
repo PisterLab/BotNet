@@ -1,0 +1,69 @@
+{
+    "version":                                             0,
+    "execution": {
+        "numCPUs":                                         1,
+        "numRuns":                                         1
+    },
+    "settings": {
+        "combination": {
+            "exec_numMotes":                               [4]
+        },
+        "regular": {
+            "exec_numSlotframesPerRun":                    1000,
+            "exec_minutesPerRun":                          null,
+            "exec_randomSeed":                             "random",
+
+            "secjoin_enabled":                             true,
+
+            "app":                                         "AppPeriodic",
+            "app_pkPeriod":                                60,
+            "app_pkPeriodVar":                             0.05,
+            "app_pkLength":                                90,
+            "app_burstTimestamp":                          null,
+            "app_burstNumPackets":                         0,
+
+            "rpl_of":                                      "OF0",
+            "rpl_daoPeriod":                               60,
+            "rpl_extensions":                              ["dis_unicast"],
+
+            "fragmentation":                               "FragmentForwarding",
+            "sixlowpan_reassembly_buffers_num":            1,
+            "fragmentation_ff_discard_vrb_entry_policy":   [],
+            "fragmentation_ff_vrb_table_size":             50,
+            "tsch_max_payload_len":                        90,
+
+            "sf_class":                                    "SFNone",
+
+            "tsch_slotDuration":                           0.010,
+            "tsch_slotframeLength":                        101,
+            "tsch_probBcast_ebProb":                       0.33,
+            "tsch_clock_max_drift_ppm":                    30,
+            "tsch_clock_frequency":                        32768,
+            "tsch_keep_alive_interval":                    10,
+            "tsch_tx_queue_size":                          10,
+            "tsch_max_tx_retries":                         5,
+
+
+            "radio_stats_log_period_s":                    60,
+
+            "conn_class":                                  "Linear",
+            "conn_simulate_ack_drop":                      false,
+
+            "conn_trace":                                  null,
+
+            "conn_random_square_side":                     2.000,
+            "conn_random_init_min_pdr":                    0.5,
+            "conn_random_init_min_neighbors":              3,
+
+            "phy_numChans":                                16,
+
+            "motes_eui64":                                 []
+        }
+    },
+    "logging":                                             "all",
+    "log_directory_name":                                  "startTime",
+    "post": [
+        "python compute_kpis.py",
+        "python plot.py"
+    ]
+}

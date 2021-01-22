@@ -1,0 +1,11 @@
+pytest
+matplotlib
+scipy
+numpy
+k7
+netaddr
+eel>=0.9.11
+watchdog
+gitpython
+psutil
+future
