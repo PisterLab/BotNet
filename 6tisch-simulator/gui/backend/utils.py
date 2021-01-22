@@ -95,7 +95,7 @@ def create_config_json():
         stdin  = subprocess.PIPE,
         stdout = subprocess.PIPE
     )
-    _ = popen.communicate(json.dumps(default_config))
+    _ = popen.communicate(json.dumps(default_config).encode("utf-8"))
     if popen.returncode != 0:
         raise ValueError('invalid default config.json')
 

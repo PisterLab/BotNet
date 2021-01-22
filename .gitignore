@@ -156,7 +156,6 @@ venv.bak/
 .mypy_cache/
 
 system.log
-config.ini
 
 .dropbox
 core/__pycache__/*

@@ -8,7 +8,7 @@ from . import test_utils as u
 '''
 def test_create_destroy_engine(repeat4times):
     engine = SimEngine.DiscreteEventEngine()
-    print id(engine)
+    print(id(engine))
     engine.destroy()
 '''
 def test_create_start_destroy_engine(repeat4times):

@@ -59,4 +59,4 @@ for repo in [webapp_git_repo, simulator_git_repo]:
     else:
         raise NotImplementedError()
 
-print json.dumps(ret)
+print(json.dumps(ret))

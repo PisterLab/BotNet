@@ -9,3 +9,8 @@ watchdog
 gitpython
 psutil
 future
+pandas
+PyOpenGL
+Pillow
+PyQt5
+opencv-python

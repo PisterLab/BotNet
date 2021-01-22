@@ -880,7 +880,7 @@ class ConnectivityMatrixRandom(ConnectivityMatrixBase):
                 coordinate = (
                     square_side * random.random(),
                     square_side * random.random()
-                )
+                ) # TODO: make this depend on SwarmSim
 
                 # count deployed motes who have enough PDR values to this
                 # mote
