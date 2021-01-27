@@ -11,7 +11,7 @@ import threading
 import os
 import datetime
 
-from core import agent, item, location, vis3d
+from core import agent, item, location, vis3d, velo_controlled_agent
 from core.visualization.utils import show_msg, TopQFileDialog, VisualizationError, Level
 
 def load_scenario(mod, world):
@@ -381,7 +381,8 @@ class World:
     def set_location_deleted(self):
         self.__location_deleted = False
 
-    def add_agent(self, coordinates, color=None, new_class=agent.Agent):
+    ##TODO: add ability to set initial velocities.
+    def add_agent(self, coordinates, color=None, new_class=agent.Agent, velocities = None):
         """
         Add an agent to the world database
 
@@ -390,6 +391,9 @@ class World:
         :param new_class: the Agent class to be created (default: agent.Agent)
         :return: Added Matter; False: Unsuccessful
         """
+        if self.config_data.agent_type == 1:
+            new_class = velo_controlled_agent.VeloAgent
+
         if isinstance(coordinates, int) or isinstance(coordinates, float):
             coordinates = (coordinates, color, 0.0)
             color = None
@@ -403,7 +407,10 @@ class World:
                     if color is None:
                         color = self.config_data.agent_color
                     self.agent_id_counter += 1
-                    self.new_agent = new_class(self, coordinates, color, self.agent_id_counter)
+                    if self.config_data.agent_type == 1:
+                        self.new_agent = new_class(self, coordinates, color, self.agent_id_counter, velocities)
+                    else:
+                        self.new_agent = new_class(self, coordinates, color, self.agent_id_counter)
                     if self.vis is not None:
                         self.vis.agent_changed(self.new_agent)
                     self.agents_created.append(self.new_agent)
