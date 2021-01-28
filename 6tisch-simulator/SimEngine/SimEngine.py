@@ -27,6 +27,12 @@ from . import SimLog
 from . import Connectivity
 from . import SimConfig
 
+# special SwarmSim import
+# insert at 1, 0 is the script path (or '' in REPL)
+sys.path.insert(1, '/Users/felipecampos/Berkeley/research/swarm/sim/6-tisch-swarm-sim/gym-swarm-sim/envs/swarmsimmaster') # FIXME: should be relative or just generically imported
+import swarmsim
+
+
 # =========================== defines =========================================
 
 # =========================== body ============================================
@@ -70,6 +76,9 @@ class DiscreteEventEngine(threading.Thread):
             self.random_seed                    = None
             self._init_additional_local_variables()
 
+            # SwarmSim
+            self.robot_sim                      = None # FIXME: should be called robot sim object
+
             # initialize parent class
             threading.Thread.__init__(self)
             self.name                           = u'DiscreteEventEngine'
@@ -111,7 +120,8 @@ class DiscreteEventEngine(threading.Thread):
 
             # consume events until self.goOn is False
             while self.goOn:
-
+                # tell robotic simulator to run for ASN_STEP_MS amount of time
+                # self.robot_sim.run(asn) # conversion needs to be done in init
                 with self.dataLock:
 
                     # abort simulation when no more events
@@ -120,6 +130,14 @@ class DiscreteEventEngine(threading.Thread):
 
                     # update the current ASN
                     self.asn += 1
+
+                    # perform all synchronization
+                    # states = self.robot_sim.get_agent_states()
+                    
+                    # set all robot poses here and update connectivity matrix
+                    # pull all agent state data --> update propagation model
+                    # self.set_agent_poses(states)
+                    # self.settings.connectivity.update_connectivity_matrix() <-- basically additional init (TODO: helper function!!)
 
                     if self.asn not in self.events:
                         continue
@@ -130,6 +148,7 @@ class DiscreteEventEngine(threading.Thread):
                     cbs = []
                     for intraSlotOrder in intraSlotOrderKeys:
                         for uniqueTag, cb in list(self.events[self.asn][intraSlotOrder].items()):
+                            # if uniqueTag == "recvTag": populate rcving_mote neighbor pose table
                             cbs += [cb]
                             del self.uniqueTagSchedule[uniqueTag]
                     del self.events[self.asn]
@@ -137,6 +156,10 @@ class DiscreteEventEngine(threading.Thread):
                 # call the callbacks (outside the dataLock)
                 for cb in cbs:
                     cb()
+                    # if rcv_cb: update rcving_mote neighbor pose table
+
+                # send all control updates (over UART)
+                # self.robot_sim.control_update(self.controller.potential())
 
         except Exception as e:
             # thread crashed
@@ -208,12 +231,6 @@ class DiscreteEventEngine(threading.Thread):
 
     def getAsn(self):
         return self.asn
-
-    def get_mote_by_mac_addr(self, mac_addr):
-        for mote in self.motes:
-            if mote.is_my_mac_addr(mac_addr):
-                return mote
-        return None
 
     #=== scheduling
 
@@ -364,6 +381,17 @@ class SimEngine(DiscreteEventEngine):
 
     DAGROOT_ID = 0
 
+    def get_mote_by_mac_addr(self, mac_addr):
+        for mote in self.motes:
+            if mote.is_my_mac_addr(mac_addr):
+                return mote
+        return None
+
+    def get_mote_by_id(self, mote_id):
+        # there must be a mote having mote_id. otherwise, the following line
+        # raises an exception.
+        return [mote for mote in self.motes if mote.id == mote_id][0]
+
     def _init_additional_local_variables(self):
         self.settings                   = SimSettings.SimSettings()
 
@@ -458,6 +486,11 @@ class SimEngine(DiscreteEventEngine):
             intraSlotOrder   = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
         )
 
+        # TODO: communicate with robo-sim (abstract class with interface)
+        # perform synchronization
+        #   communicate next ASN, have simulator run until then
+        # when finished (semaphore or sth) send back positions
+
     def _routine_thread_crashed(self):
         # log
         self.log(
@@ -477,3 +510,16 @@ class SimEngine(DiscreteEventEngine):
                 "state": "stopped"
             }
         )
+
+    # ============== Robot Simulator Communication ====================
+
+    # def mote_pose_updates(self):
+
+    #     self.connectivity.update_connectivity_matrix()
+
+    #     self.scheduleAtAsn(
+    #         asn = self.asn + self.settings.pose_update_period,
+    #         cb = self.updateLocation,
+    #         uniqueTag = (u'PoseUpdate', u'mote_pose_updates'),
+    #         intraSlotOrder     = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
+    #     )

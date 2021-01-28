@@ -127,6 +127,89 @@ class SchedulingFunctionSFNone(SchedulingFunctionBase):
         # always return True
         return True
 
+class SchedulingFunctionRRSF(SchedulingFunctionBase):
+
+    MAX_RETRY = 3
+
+    def __init__(self, mote):
+        super(SchedulingFunctionRRSF, self).__init__(mote)
+
+        # additional initialization
+        self.slotframe            = self.mote.tsch.get_slotframe(0)
+        self.locked_slots         = set([]) # slots in on-going ADD transactions
+
+    def start(self):
+        pass # allocate all Rx cells within the base channel, then allocate Tx cells based on mote id???
+
+    def stop(self):
+        pass # deallocate cells?
+
+    def indication_neighbor_added(self, neighbor_mac_addr):
+        pass # not sure
+
+    def indication_tx_cell_elapsed(self, cell, sent_packet):
+        pass # not sure
+
+    def indication_rx_cell_elapsed(self, cell, received_packet):
+        pass # not sure
+
+    def indication_parent_change(self, old_parent, new_parent):
+        pass # doesn't matter? I'm just round robin broadcasting to 0xFFFF
+
+    def detect_schedule_inconsistency(self, peerMac):
+        pass # hmm...
+
+    def recv_request(self, packet):
+        pass # how is this supposed to be handled? is this per mote or what, I guess so right
+
+    def clear_to_send_EBs_DATA(self):
+        # always return True <-- how do others handle this?
+        return True
+
+    def allocate_rx_cells(self, cell_list, cell_options):
+        for cell in cell_list:
+            self.mote.tsch.addCell(
+                slotOffset         = cell[u'slotOffset'],
+                channelOffset      = cell[u'channelOffset'],
+                neighbor           = None,
+                cellOptions        = [d.CELLOPTION_RX],
+                slotframe_handle   = 0
+            ) # TODO: should be base channel offset and just loop through slotframe length slot offsets
+
+    def allocate_tx_cell(self, cell, neighbor=0xFFFF):
+        """
+        Defaults to broadcast.
+        """
+        slotOffset, channelOffset = cell[u'slotOffset'], cell[u'channelOffset']
+        self.deallocate_rx_cell(slotOffset, channelOffset)
+        self.mote.tsch.addCell(
+            slotOffset         = slotOffset,
+            channelOffset      = channelOffset,
+            neighbor           = neighbor,
+            cellOptions        = None,
+            slotframe_handle   = 0
+        )
+
+    def deallocate_rx_cell(self, slotOffset, channelOffset):
+        self.mote.tsch.deleteCell(
+            slotOffset       = slotOffset,
+            channelOffset    = channelOffset,
+            neighbor         = None,
+            cellOptions      = [d.CELLOPTION_RX],
+            slotframe_handle = 0
+        )
+
+    # ============ private ===============
+
+    def _lock_cells(self, cell_list):
+        for cell in cell_list:
+            self.locked_slots.add(cell[u'slotOffset'])
+    
+    def _get_available_slots(self):
+        return list(
+            set(self.mote.tsch.get_available_slots(0)) - self.locked_slots
+        )
+
 
 class SchedulingFunctionMSF(SchedulingFunctionBase):
 
