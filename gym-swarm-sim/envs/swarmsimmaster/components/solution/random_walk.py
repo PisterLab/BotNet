@@ -1,6 +1,5 @@
 import random
 
-
 def solution(world):
 
     if world.get_actual_round() % 1 == 0:

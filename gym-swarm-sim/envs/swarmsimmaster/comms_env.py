@@ -70,9 +70,9 @@ def get_solution(config_data):
 def get_scenario(config_data):
     return importlib.import_module('components.scenario.' + config_data.scenario)
 
-
+##threading with the passing of initial conditions
 class SwarmSimCommsEnv():
-    def __init__(self):
+    def __init__(self, goons=[(0,0,0)]):
 
         #get config data
         self.config_data = config.ConfigData()
@@ -110,6 +110,7 @@ class SwarmSimCommsEnv():
                 self.do_reset(self.swarm_sim_world)
 
             i += 1
+
     def end(self):
         ##TODO: Edit this because it is for end
         if self.config_data.visualization:
@@ -161,10 +162,13 @@ if __name__ == "__main__":
     test = SwarmSimCommsEnv()
     motes = test.get_all_mote_states().keys()
     velos = {}
+
+    print(test.get_all_mote_states())
     while True:
-        print(test.get_all_mote_states())
+        test.main_loop(100)
         for agent in motes:
             velos[agent] = ((random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0)))
-        test.assign_velos(velos)
-        test.main_loop(10)
+            test.assign_velos(velos)
+
+
     

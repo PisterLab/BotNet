@@ -24,6 +24,7 @@ class ConfigData:
             "window_size_x": ConfigType.INTEGER,
             "window_size_y": ConfigType.INTEGER,
             "close_at_end": ConfigType.BOOLEAN,
+            "agent_type": ConfigType.INTEGER,
         },
         "Visualization": {
             "visualization": ConfigType.BOOLEAN,

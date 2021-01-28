@@ -18,8 +18,7 @@ class Agent(matter.Matter):
 
     def __init__(self, world, coordinates, color, agent_counter=0):
         """Initializing the agent"""
-        super().__init__(world, coordinates, color,
-                         matter_type=MatterType.AGENT, mm_size=world.config_data.agent_mm_size)
+        super().__init__(world, coordinates, color, agent_counter)
         self.number = agent_counter
         self.__isCarried = False
         self.carried_item = None
@@ -1027,3 +1026,6 @@ class Agent(matter.Matter):
         super().set_color(color)
         if self.world.vis is not None:
             self.world.vis.agent_changed(self)
+
+
+
