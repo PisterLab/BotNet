@@ -391,7 +391,8 @@ class World:
         :param new_class: the Agent class to be created (default: agent.Agent)
         :return: Added Matter; False: Unsuccessful
         """
-        if self.config_data.agent_type == 1:
+        if self.config_data.agent_type == "1":
+            print("[World.py] Velocity Controlled Agent")
             new_class = velo_controlled_agent.VeloAgent
 
         if isinstance(coordinates, int) or isinstance(coordinates, float):

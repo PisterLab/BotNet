@@ -1,0 +1,10 @@
+image: python:2.7.14
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - pip
+        script:
+          - pip install -r requirements.txt
+          - pytest --junitxml=./test-reports/junit.xml

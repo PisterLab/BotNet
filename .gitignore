@@ -156,7 +156,27 @@ venv.bak/
 .mypy_cache/
 
 system.log
-config.ini
 
 .dropbox
 core/__pycache__/*
+
+*.py[cod]
+*.so
+*.log
+*.log.*
+*.dat
+*.png
+*.eps
+*.zip
+Thumbs.db
+*.templog
+/bin/templog.txt
+/bin/simData/
+/gui/simData/
+/gui/backend/var/
+
+# pycharm
+.idea/
+.cache/
+/test-reports
+.pytest_cache
