@@ -14,6 +14,7 @@ import datetime
 from core import agent, item, location, vis3d, velo_controlled_agent
 from core.visualization.utils import show_msg, TopQFileDialog, VisualizationError, Level
 
+
 def load_scenario(mod, world):
     try:
         mod.scenario(world)
@@ -200,7 +201,7 @@ class World:
     def get_max_round(self):
         """
         The max round number
-    
+
         :return: maximum round number
         """
         return self.config_data.max_round
@@ -382,7 +383,7 @@ class World:
         self.__location_deleted = False
 
     ##TODO: add ability to set initial velocities.
-    def add_agent(self, coordinates, color=None, new_class=agent.Agent, velocities = None):
+    def add_agent(self, coordinates, color=None, new_class=agent.Agent, velocities=None):
         """
         Add an agent to the world database
 
@@ -391,8 +392,7 @@ class World:
         :param new_class: the Agent class to be created (default: agent.Agent)
         :return: Added Matter; False: Unsuccessful
         """
-        if self.config_data.agent_type == "1":
-            print("[World.py] Velocity Controlled Agent")
+        if self.config_data.agent_type == 1:
             new_class = velo_controlled_agent.VeloAgent
 
         if isinstance(coordinates, int) or isinstance(coordinates, float):
@@ -625,3 +625,4 @@ class World:
             return self.remove_location(self.location_map_coordinates[coordinates].get_id())
         else:
             return False
+

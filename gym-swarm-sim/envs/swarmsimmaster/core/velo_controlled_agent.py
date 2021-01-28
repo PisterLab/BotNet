@@ -17,13 +17,12 @@ class VeloAgent(agent.Agent):
 
     #TODO: Refactor with the parent class to remove the code written twice.
     def move(self):
-        # check to make sure that this doesnt throw an error and conforms to grid types.
-        direction_coord = tuple(np.add(self.velocities, self.coordinates))
+        #check to make sure that this doesnt throw an error and conforms to grid types.
+        direction_coord =   tuple(np.add(self.velocities, self.coordinates))
         direction_coord = self.check_within_border(self.velocities, direction_coord)
-        print(f"valid coords: {self.world.grid.are_valid_coordinates(direction_coord)} {direction_coord not in self.world.agent_map_coordinates} {self._Agent__isCarried}")
         if self.world.grid.are_valid_coordinates(direction_coord) \
                 and direction_coord not in self.world.agent_map_coordinates \
-                and not self._Agent__isCarried: #this is a little jank IK
+                and not self._Agent__isCarried:#this is a little jank IK
             if self.coordinates in self.world.agent_map_coordinates:
                 del self.world.agent_map_coordinates[self.coordinates]
             self.coordinates = direction_coord
@@ -46,6 +45,7 @@ class VeloAgent(agent.Agent):
     #adds to the velocities.
     def add_velocities(self, dv):
         self.velocities = tuple(np.add(self.velocities, dv))
+
 
 
 
