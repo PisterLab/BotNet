@@ -46,7 +46,7 @@
 
             "radio_stats_log_period_s":                    60,
 
-            "conn_class":                                  "Linear",
+            "conn_class":                                  "Realistic",
             "conn_simulate_ack_drop":                      false,
 
             "conn_trace":                                  null,

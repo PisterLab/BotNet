@@ -36,7 +36,7 @@ class Mote(object):
     IPV6_ADDR_TYPE_LINK_LOCAL = u'link-local'
     IPV6_ADDR_TYPE_GLOBAL     = u'global'
 
-    def __init__(self, id, eui64=None):
+    def __init__(self, id, eui64=None, x=None, y=None):
 
         # store params
         self.id                        = id
@@ -63,6 +63,10 @@ class Mote(object):
         self.sixp                      = sixp.SixP(self)
         self.tsch                      = tsch.Tsch(self)
         self.radio                     = radio.Radio(self)
+
+        # location
+        self.x                         = x
+        self.y                         = y
 
     # ======================= stack ===========================================
 

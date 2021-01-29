@@ -119,6 +119,7 @@ class DiscreteEventEngine(threading.Thread):
             # consume events until self.goOn is False
             while self.goOn:
                 # tell robotic simulator to run for 1 ASN
+                print(f"ASN: {self.asn}")
                 self._robo_sim_loop()
                 with self.dataLock:
 
@@ -434,10 +435,12 @@ class SimEngine(DiscreteEventEngine):
         self.robot_sim.mote_key_map     = {}
 
         moteStates = self.robot_sim.get_all_mote_states()
+        print(moteStates) # hmmm
         for i, robot_mote_id in enumerate(moteStates.keys()):
-            mote = motes[i]
+            mote = self.motes[i]
             self.robot_sim.mote_key_map[mote.id] = robot_mote_id
-            mote.setLocation(moteStates[robot_mote_id])
+            mote.setLocation(*(moteStates[robot_mote_id][:2]))
+            print(mote.getLocation())
 
         self.connectivity               = Connectivity.Connectivity(self)
         self.log                        = SimLog.SimLog().log
@@ -532,8 +535,8 @@ class SimEngine(DiscreteEventEngine):
 
     def _robo_sim_sync(self):
         states = self.robot_sim.get_all_mote_states()
-        for i, mote in enumerate(self.motes):
-            mote.setLocation(states[self.robot_sim.mote_keys[i]])
+        for mote in self.motes:
+            mote.setLocation(*(states[self.robot_sim.mote_key_map[mote.id]][:2]))
         
         self.connectivity.update_connectivity_matrix() # TODO: make sure initial update_connectivity_matrix can get even dummy locations...
 
