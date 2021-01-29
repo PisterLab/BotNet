@@ -6,7 +6,7 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [4]
+            "exec_numMotes":                               [5]
         },
         "regular": {
             "exec_numSlotframesPerRun":                    1000,

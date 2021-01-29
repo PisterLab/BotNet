@@ -627,6 +627,9 @@ class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
     """
 
     def _additional_initialization(self):
+        self.update_connectivity_matrix()
+
+    def update_connectivity_matrix(self):
         # additional local variables
         self.coordinates = {}  # (x, y) indexed by mote_id
         self.pister_hack = PisterHackModel(self.engine)

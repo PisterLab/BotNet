@@ -12,10 +12,10 @@ class VeloAgent(agent.Agent):
         self.velocities = (0.0,) * self.world.grid.get_dimension_count()
 
 
-    #change in time is one round
-    #function adds the velo to the position
+    # change in time is one round
+    # function adds the velo to the position
 
-    #TODO: Refactor with the parent class to remove the code written twice.
+    # TODO: Refactor with the parent class to remove the code written twice.
     def move(self):
         #check to make sure that this doesnt throw an error and conforms to grid types.
         direction_coord =   tuple(np.add(self.velocities, self.coordinates))

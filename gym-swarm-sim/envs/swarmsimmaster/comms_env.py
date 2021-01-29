@@ -9,8 +9,6 @@ import random
 from core import world, config
 from core.vis3d import ResetException
 
-
-
 def read_cmd_args(config_data, argv=[]):
     try:
         opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:", ["solution=", "scenario="])
@@ -158,8 +156,6 @@ class SwarmSimCommsEnv():
             positions[agent_id] = mote.coordinates #mb an access function in the agent class rather than this
 
         return positions
-
-
 
 if __name__ == "__main__":
     test = SwarmSimCommsEnv()
