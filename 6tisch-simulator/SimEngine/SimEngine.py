@@ -427,10 +427,11 @@ class SimEngine(DiscreteEventEngine):
         eui64_list = set([mote.get_mac_addr() for mote in self.motes])
         if len(eui64_list) != len(self.motes):
             assert len(eui64_list) < len(self.motes)
-            raise ValueError(u'given motes_eui64 causes dulicates')
+            raise ValueError(u'given motes_eui64 causes duplicates')
 
         # SwarmSim, TODO: this will be an RPC call implemented by the socket recipent
-        robotCoords                     = [(float(i) / 10, 0, 0) for i in range(self.settings.exec_numMotes)] 
+        robotCoords                     = [(float(i) / 10, 0, 0) for i in range(self.settings.exec_numMotes)] # FIXME: this isn't actually changing coordinates
+        print(robotCoords)
         self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords)
         self.robot_sim.mote_key_map     = {}
 
@@ -465,6 +466,8 @@ class SimEngine(DiscreteEventEngine):
         # boot all motes
         for i in range(len(self.motes)):
             self.motes[i].boot()
+
+        print("Completed SimEngine Init.")
 
     def _routine_thread_started(self):
         # log
@@ -531,14 +534,16 @@ class SimEngine(DiscreteEventEngine):
     # ============== Robot Simulator Communication ====================
 
     def _robo_sim_loop(self, steps=1):
+        print("Running main loop.")
         self.robot_sim.main_loop(steps)
+        print("Ran main loop.")
 
     def _robo_sim_sync(self):
         states = self.robot_sim.get_all_mote_states()
         for mote in self.motes:
             mote.setLocation(*(states[self.robot_sim.mote_key_map[mote.id]][:2]))
         
-        self.connectivity.update_connectivity_matrix() # TODO: make sure initial update_connectivity_matrix can get even dummy locations...
+        self.connectivity.matrix.update() # TODO: make sure initial update_connectivity_matrix can get even dummy locations...
 
     def _robo_sim_control(self):
         R_COLLISION, R_CONNECTION = 1, 10
@@ -557,11 +562,11 @@ class SimEngine(DiscreteEventEngine):
                 if agent == neighbor:
                     continue
                 
-                vx += 2*(x1-x2) * (k_conn*exp((distance)/(R2*R2)) / (R2*R2) - k_col*exp(-(distance)/(R1*R1)) / (R1*R1))
-                vy += 2*(y1-y2) * (k_conn*exp((distance)/(R2*R2)) / (R2*R2) - k_col*exp(-(distance)/(R1*R1)) / (R1*R1))
+                vx += 2*(x1-x2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
+                vy += 2*(y1-y2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
                 vz += 0
                 
-            control_inputs[agent] = (-vx, -vy, -vz)
+            control_inputs[self.robot_sim.mote_key_map[agent.id]] = (-vx, -vy, -vz)
 
         # potential control math (need numpy prolly) <-- can make this very easily modular (have an abstract control class that's set in config)
         self.robot_sim.assign_velos(control_inputs) # TODO: update velocities with potential control (use get all mote states and loop through lol)

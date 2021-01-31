@@ -524,6 +524,10 @@ class ConnectivityMatrixBase(object):
         # for instance, to fill the matrix with some values
         pass
 
+    def update(self):
+        # override this method if you want to periodically update the connectivity matrix
+        pass
+
     def set_pdr(self, src_id, dst_id, channel, pdr):
         self._matrix[src_id][dst_id][channel][u'pdr'] = pdr
 
@@ -627,9 +631,9 @@ class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
     """
 
     def _additional_initialization(self):
-        self.update_connectivity_matrix()
+        self.update()
 
-    def update_connectivity_matrix(self):
+    def update(self):
         # additional local variables
         self.coordinates = {}  # (x, y) indexed by mote_id
         self.pister_hack = PisterHackModel(self.engine)
@@ -656,6 +660,10 @@ class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
                     }
                 )
                 pdr = self.pister_hack.convert_rssi_to_pdr(rssi)
+
+                # TODO: this should only update PDR and RSSI if the mote has moved
+                # TODO: if the mote has moved less than lambda / 10, perform weighted average of previous and current
+                #       otherwise, sample new Hack Model RSSI --> PDR
 
                 # memorize the rssi and pdr values at the base channel
                 self.set_pdr_both_directions(
