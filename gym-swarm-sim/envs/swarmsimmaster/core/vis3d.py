@@ -260,6 +260,7 @@ class Visualization:
         :param round_start_timestamp: timestamp of the start of the round.
         :return:
         """
+        # TODO: MARK - print stuff here to find exact seg fault location
         try:
             self._run_iteration(round_start_timestamp)
         except VisualizationError as ve:

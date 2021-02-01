@@ -101,7 +101,7 @@ class SwarmSimCommsEnv():
             try:
                 # check to see if its neccessary to run the vis
                 if self.config_data.visualization:
-                    self.swarm_sim_world.vis.run(round_start_timestamp)
+                    self.swarm_sim_world.vis.run(round_start_timestamp) # FIXME: seg fault when visualization enabled with 6TiSCH
                 # run the solution for 1 step
                 self.run_solution()
             except ResetException: # TODO: need to improve exception handlng

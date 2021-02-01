@@ -57,13 +57,15 @@
 
             "phy_numChans":                                16,
 
-            "motes_eui64":                                 []
+            "motes_eui64":                                 [],
+
+            "control_connectivity_model":                  "Full"
         }
     },
     "logging":                                             "all",
     "log_directory_name":                                  "startTime",
-    "post": [
-        "python compute_kpis.py",
-        "python plot.py"
+    "post_python": [
+        "compute_kpis.py",
+        "plot.py"
     ]
 }
