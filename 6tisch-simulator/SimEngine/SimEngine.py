@@ -27,6 +27,13 @@ from . import SimLog
 from . import Connectivity
 from . import SimConfig
 
+# special SwarmSim import
+# insert at 1, 0 is the script path (or '' in REPL)
+sys.path.insert(1, '/Users/felipecampos/Berkeley/research/swarm/sim/6-tisch-swarm-sim/gym-swarm-sim/envs/swarmsimmaster') # FIXME: should be relative or just generically imported
+import comms_env
+import numpy as np
+
+
 # =========================== defines =========================================
 
 # =========================== body ============================================
@@ -111,7 +118,9 @@ class DiscreteEventEngine(threading.Thread):
 
             # consume events until self.goOn is False
             while self.goOn:
-
+                # tell robotic simulator to run for 1 ASN
+                print(f"ASN: {self.asn}")
+                self._robo_sim_loop()
                 with self.dataLock:
 
                     # abort simulation when no more events
@@ -120,6 +129,9 @@ class DiscreteEventEngine(threading.Thread):
 
                     # update the current ASN
                     self.asn += 1
+
+                    # perform any inter-simulator synchronization
+                    self._robo_sim_sync()
 
                     if self.asn not in self.events:
                         continue
@@ -130,6 +142,7 @@ class DiscreteEventEngine(threading.Thread):
                     cbs = []
                     for intraSlotOrder in intraSlotOrderKeys:
                         for uniqueTag, cb in list(self.events[self.asn][intraSlotOrder].items()):
+                            # if uniqueTag == "recvTag": populate rcving_mote neighbor pose table # TODO: figure this out as abstract call
                             cbs += [cb]
                             del self.uniqueTagSchedule[uniqueTag]
                     del self.events[self.asn]
@@ -137,6 +150,9 @@ class DiscreteEventEngine(threading.Thread):
                 # call the callbacks (outside the dataLock)
                 for cb in cbs:
                     cb()
+                    # if rcv_cb: update rcving_mote neighbor pose table
+
+                self._robo_sim_control()
 
         except Exception as e:
             # thread crashed
@@ -208,12 +224,6 @@ class DiscreteEventEngine(threading.Thread):
 
     def getAsn(self):
         return self.asn
-
-    def get_mote_by_mac_addr(self, mac_addr):
-        for mote in self.motes:
-            if mote.is_my_mac_addr(mac_addr):
-                return mote
-        return None
 
     #=== scheduling
 
@@ -359,6 +369,17 @@ class DiscreteEventEngine(threading.Thread):
     def _routine_thread_ended(self):
         pass
 
+    # ======================= Robotic Simulator Abstract ===============================
+
+    def _robo_sim_loop(self):
+        pass
+
+    def _robo_sim_sync(self):
+        pass
+
+    def _robo_sim_control(self):
+        pass
+
 
 class SimEngine(DiscreteEventEngine):
 
@@ -406,7 +427,21 @@ class SimEngine(DiscreteEventEngine):
         eui64_list = set([mote.get_mac_addr() for mote in self.motes])
         if len(eui64_list) != len(self.motes):
             assert len(eui64_list) < len(self.motes)
-            raise ValueError(u'given motes_eui64 causes dulicates')
+            raise ValueError(u'given motes_eui64 causes duplicates')
+
+        # SwarmSim, TODO: this will be an RPC call implemented by the socket recipent
+        robotCoords                     = [(float(i) / 10, 0, 0) for i in range(self.settings.exec_numMotes)] # FIXME: this isn't actually changing coordinates
+        print(robotCoords)
+        self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords)
+        self.robot_sim.mote_key_map     = {}
+
+        moteStates = self.robot_sim.get_all_mote_states()
+        print(moteStates) # hmmm
+        for i, robot_mote_id in enumerate(moteStates.keys()):
+            mote = self.motes[i]
+            self.robot_sim.mote_key_map[mote.id] = robot_mote_id
+            mote.setLocation(*(moteStates[robot_mote_id][:2]))
+            print(mote.getLocation())
 
         self.connectivity               = Connectivity.Connectivity(self)
         self.log                        = SimLog.SimLog().log
@@ -431,6 +466,8 @@ class SimEngine(DiscreteEventEngine):
         # boot all motes
         for i in range(len(self.motes)):
             self.motes[i].boot()
+
+        print("Completed SimEngine Init.")
 
     def _routine_thread_started(self):
         # log
@@ -458,6 +495,11 @@ class SimEngine(DiscreteEventEngine):
             intraSlotOrder   = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
         )
 
+        # TODO: communicate with robo-sim (abstract class with interface)
+        # perform synchronization
+        #   communicate next ASN, have simulator run until then
+        # when finished (semaphore or sth) send back positions
+
     def _routine_thread_crashed(self):
         # log
         self.log(
@@ -477,3 +519,65 @@ class SimEngine(DiscreteEventEngine):
                 "state": "stopped"
             }
         )
+
+    def get_mote_by_mac_addr(self, mac_addr):
+        for mote in self.motes:
+            if mote.is_my_mac_addr(mac_addr):
+                return mote
+        return None
+
+    def get_mote_by_id(self, mote_id):
+        # there must be a mote having mote_id. otherwise, the following line
+        # raises an exception.
+        return [mote for mote in self.motes if mote.id == mote_id][0]
+
+    # ============== Robot Simulator Communication ====================
+
+    def _robo_sim_loop(self, steps=1):
+        print("Running main loop.")
+        self.robot_sim.main_loop(steps)
+        print("Ran main loop.")
+
+    def _robo_sim_sync(self):
+        states = self.robot_sim.get_all_mote_states()
+        for mote in self.motes:
+            mote.setLocation(*(states[self.robot_sim.mote_key_map[mote.id]][:2]))
+        
+        self.connectivity.matrix.update() # TODO: make sure initial update_connectivity_matrix can get even dummy locations...
+
+    def _robo_sim_control(self):
+        R_COLLISION, R_CONNECTION = 1, 10
+        R1, R2 = R_COLLISION, R_CONNECTION
+        k_col, k_conn = R1*R1 + R2, R2
+
+        control_inputs = {}
+        for agent in self.motes:
+            vx, vy, vz = 0, 0, 0
+            for neighbor in self.motes: # TODO: self.agent.rx'ed / self.agent.neighbors
+                x1, y1 = agent.getLocation()
+                x2, y2 = neighbor.getLocation()
+
+                dist = np.sqrt((x2-x1)**2 + (y2-y1)**2)
+
+                if agent == neighbor:
+                    continue
+                
+                vx += 2*(x1-x2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
+                vy += 2*(y1-y2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
+                vz += 0
+                
+            control_inputs[self.robot_sim.mote_key_map[agent.id]] = (-vx, -vy, -vz)
+
+        # potential control math (need numpy prolly) <-- can make this very easily modular (have an abstract control class that's set in config)
+        self.robot_sim.assign_velos(control_inputs) # TODO: update velocities with potential control (use get all mote states and loop through lol)
+
+    # def mote_pose_updates(self):
+
+    #     self.connectivity.update_connectivity_matrix()
+
+    #     self.scheduleAtAsn(
+    #         asn = self.asn + self.settings.pose_update_period,
+    #         cb = self.updateLocation,
+    #         uniqueTag = (u'PoseUpdate', u'mote_pose_updates'),
+    #         intraSlotOrder     = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
+    #     )

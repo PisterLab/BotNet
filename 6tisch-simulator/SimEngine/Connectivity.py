@@ -524,6 +524,10 @@ class ConnectivityMatrixBase(object):
         # for instance, to fill the matrix with some values
         pass
 
+    def update(self):
+        # override this method if you want to periodically update the connectivity matrix
+        pass
+
     def set_pdr(self, src_id, dst_id, channel, pdr):
         self._matrix[src_id][dst_id][channel][u'pdr'] = pdr
 
@@ -614,6 +618,106 @@ class ConnectivityMatrixLinear(ConnectivityMatrixBase):
                     )
             parent_id = child_id
 
+class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
+    """Realistic (topology) connectivity using the Pister-Hack model
+    and mote coordinates.
+
+    Note that it doesn't guarantee every motes has always at least as
+    many neighbors as 'conn_random_init_min_neighbors', who have good
+    PDR values with the mote.
+
+    Computed PDR and RSSI are computed on the fly; they could vary at
+    every transmission.
+    """
+
+    def _additional_initialization(self):
+        self.update()
+
+    def update(self):
+        # additional local variables
+        self.coordinates = {}  # (x, y) indexed by mote_id
+        self.pister_hack = PisterHackModel(self.engine)
+
+        # loop through all pairs of motes and set RSSI/PDR both directions
+        for target_mote_id in self.mote_id_list:
+
+            coordinate = self._get_mote(target_mote_id).getLocation()
+
+            if target_mote_id == 0:
+                self.coordinates[target_mote_id] = coordinate
+                continue
+
+            base_channel = d.TSCH_HOPPING_SEQUENCE[0]
+            for deployed_mote_id in self.coordinates:
+                rssi = self.pister_hack.compute_rssi(
+                    {
+                        u'mote'      : self._get_mote(target_mote_id),
+                        u'coordinate': coordinate
+                    },
+                    {
+                        u'mote'      : self._get_mote(deployed_mote_id),
+                        u'coordinate': self.coordinates[deployed_mote_id]
+                    }
+                )
+                pdr = self.pister_hack.convert_rssi_to_pdr(rssi)
+
+                # TODO: this should only update PDR and RSSI if the mote has moved
+                # TODO: if the mote has moved less than lambda / 10, perform weighted average of previous and current
+                #       otherwise, sample new Hack Model RSSI --> PDR
+
+                # memorize the rssi and pdr values at the base channel
+                self.set_pdr_both_directions(
+                    target_mote_id,
+                    deployed_mote_id,
+                    base_channel,
+                    pdr
+                ) # TODO: should be able to take these out, but acceptable redundancy for now
+                self.set_rssi_both_directions(
+                    target_mote_id,
+                    deployed_mote_id,
+                    base_channel,
+                    rssi
+                ) # TODO: should be able to take these out, but acceptable redundancy for now
+
+                # copy the rssi and pdr values to other channels
+                for channel in d.TSCH_HOPPING_SEQUENCE[:self.num_channels]:
+                    if channel == base_channel:
+                        # do nothing
+                        pass
+                    else:
+                        self.set_pdr_both_directions(
+                            target_mote_id,
+                            deployed_mote_id,
+                            channel,
+                            pdr
+                        )
+                        self.set_rssi_both_directions(
+                            target_mote_id,
+                            deployed_mote_id,
+                            channel,
+                            rssi
+                        )
+
+    def _get_mote(self, mote_id):
+        # there must be a mote having mote_id. otherwise, the following line
+        # raises an exception.
+        return [mote for mote in self.engine.motes if mote.id == mote_id][0]
+
+    def _clear_rssi(self, mote_id_1, mote_id_2, channel):
+        self.set_rssi_both_directions(
+            mote_id_1,
+            mote_id_2,
+            channel,
+            self.LINK_NONE[u'rssi']
+        )
+
+    def _clear_pdr(self, mote_id_1, mote_id_2, channel):
+        self.set_rssi_both_directions(
+            mote_id_1,
+            mote_id_2,
+            channel,
+            self.LINK_NONE[u'pdr']
+        )
 
 class ConnectivityMatrixK7(ConnectivityMatrixBase):
     """
@@ -866,6 +970,8 @@ class ConnectivityMatrixRandom(ConnectivityMatrixBase):
 
         assert init_min_neighbors <= self.settings.exec_numMotes
 
+        # TODO: make poses depend on SwarmSim based on config file and initialize RPC socket
+
         # determine coordinates of the motes
         for target_mote_id in self.mote_id_list:
             mote_is_deployed = False
@@ -880,7 +986,7 @@ class ConnectivityMatrixRandom(ConnectivityMatrixBase):
                 coordinate = (
                     square_side * random.random(),
                     square_side * random.random()
-                ) # TODO: make this depend on SwarmSim
+                )
 
                 # count deployed motes who have enough PDR values to this
                 # mote

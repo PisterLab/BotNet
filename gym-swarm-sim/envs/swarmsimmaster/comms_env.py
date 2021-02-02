@@ -9,8 +9,6 @@ import random
 from core import world, config
 from core.vis3d import ResetException
 
-
-
 def read_cmd_args(config_data, argv=[]):
     try:
         opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:", ["solution=", "scenario="])
@@ -106,21 +104,24 @@ class SwarmSimCommsEnv():
                     self.swarm_sim_world.vis.run(round_start_timestamp)
                 # run the solution for 1 step
                 self.run_solution()
-            except ResetException: #need to improve exception handlng
-                self.do_reset(self.swarm_sim_world)
+            except ResetException: # TODO: need to improve exception handlng
+                self.do_reset()
+                return False
 
             i += 1
         print(self.get_all_mote_states())
 
+        return True
+
     def end(self):
-        ##TODO: Edit this because it is for end
+        # TODO: Edit this because it is for end
         if self.config_data.visualization:
             try:
                 self.swarm_sim_world.vis.run(round_start_timestamp)
                 while not self.config_data.close_at_end:
                     self.swarm_sim_world.vis.run(round_start_timestamp)
             except ResetException:
-                self.do_reset(self.swarm_sim_world)
+                self.do_reset()
                 return True
 
         logging.info('Finished')
@@ -157,8 +158,6 @@ class SwarmSimCommsEnv():
 
         return positions
 
-
-
 if __name__ == "__main__":
     test = SwarmSimCommsEnv()
     motes = test.get_all_mote_states().keys()
@@ -166,7 +165,7 @@ if __name__ == "__main__":
 
     print(test.get_all_mote_states())
     while True:
-        test.main_loop(100)
+        test.main_loop(1)
         for agent in motes:
             velos[agent] = ((random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0)))
             test.assign_velos(velos)
