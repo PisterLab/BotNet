@@ -29,7 +29,14 @@ from . import SimConfig
 
 # special SwarmSim import
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(1, '/gym-swarm-sim/envs/swarmsimmaster') # FIXME: should be relative or just generically imported
+
+import os
+SIMENGINE_ROOT_PATH = os.path.dirname(__file__)
+SWARM_SIM_MASTER_PATH = os.path.join(
+    SIMENGINE_ROOT_PATH,
+    '../../gym-swarm-sim/envs/swarmsimmaster'
+)
+sys.path.insert(1, SWARM_SIM_MASTER_PATH)
 import comms_env
 import numpy as np
 
@@ -119,7 +126,6 @@ class DiscreteEventEngine(threading.Thread):
             # consume events until self.goOn is False
             while self.goOn:
                 # tell robotic simulator to run for 1 ASN
-                print(f"ASN: {self.asn}")
                 self._robo_sim_loop()
                 with self.dataLock:
 
@@ -371,7 +377,7 @@ class DiscreteEventEngine(threading.Thread):
 
     # ======================= Robotic Simulator Abstract ===============================
 
-    def _robo_sim_loop(self):
+    def _robo_sim_loop(self, steps=1):
         pass
 
     def _robo_sim_sync(self):
@@ -430,6 +436,8 @@ class SimEngine(DiscreteEventEngine):
             raise ValueError(u'given motes_eui64 causes duplicates')
 
         # SwarmSim, TODO: this will be an RPC call implemented by the socket recipent
+        # TODO: perform exchange of ASN information for SwarmSim timesteps
+        # TODO: scale velocities accordingly, not terribly important right now
         robotCoords                     = [(float(i) / 10, 0, 0) for i in range(self.settings.exec_numMotes)] # FIXME: this isn't actually changing coordinates
         print(robotCoords)
         self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords)
@@ -495,11 +503,6 @@ class SimEngine(DiscreteEventEngine):
             intraSlotOrder   = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
         )
 
-        # TODO: communicate with robo-sim (abstract class with interface)
-        # perform synchronization
-        #   communicate next ASN, have simulator run until then
-        # when finished (semaphore or sth) send back positions
-
     def _routine_thread_crashed(self):
         # log
         self.log(
@@ -534,18 +537,18 @@ class SimEngine(DiscreteEventEngine):
     # ============== Robot Simulator Communication ====================
 
     def _robo_sim_loop(self, steps=1):
-        print("Running main loop.")
         self.robot_sim.main_loop(steps)
-        print("Ran main loop.")
 
     def _robo_sim_sync(self):
         states = self.robot_sim.get_all_mote_states()
         for mote in self.motes:
             mote.setLocation(*(states[self.robot_sim.mote_key_map[mote.id]][:2]))
         
-        self.connectivity.matrix.update() # TODO: make sure initial update_connectivity_matrix can get even dummy locations...
+        self.connectivity.matrix.update()
 
     def _robo_sim_control(self):
+        # TODO: can make this modular (have an abstract control class that's set in config)
+
         R_COLLISION, R_CONNECTION = 1, 10
         R1, R2 = R_COLLISION, R_CONNECTION
         k_col, k_conn = R1*R1 + R2, R2
@@ -553,7 +556,7 @@ class SimEngine(DiscreteEventEngine):
         control_inputs = {}
         for agent in self.motes:
             vx, vy, vz = 0, 0, 0
-            for neighbor in self.motes: # TODO: self.agent.rx'ed / self.agent.neighbors
+            for neighbor in self.mote_neighbors(agent):
                 x1, y1 = agent.getLocation()
                 x2, y2 = neighbor.getLocation()
 
@@ -568,16 +571,15 @@ class SimEngine(DiscreteEventEngine):
                 
             control_inputs[self.robot_sim.mote_key_map[agent.id]] = (-vx, -vy, -vz)
 
-        # potential control math (need numpy prolly) <-- can make this very easily modular (have an abstract control class that's set in config)
-        self.robot_sim.assign_velos(control_inputs) # TODO: update velocities with potential control (use get all mote states and loop through lol)
+        self.robot_sim.assign_velos(control_inputs)
 
-    # def mote_pose_updates(self):
+    def mote_neighbors(self, agent):
+        # TODO: include other cases (i.e. everyone needs to be updated??)
+        # TODO: should maybe include a frequency at which things can be propagated for potential control
+        conn_model = self.settings.control_connectivity_model
+        if conn_model == "Full":
+            return self.motes
+        elif conn_model == "Updated":
+            raise NotImplementedError()
 
-    #     self.connectivity.update_connectivity_matrix()
-
-    #     self.scheduleAtAsn(
-    #         asn = self.asn + self.settings.pose_update_period,
-    #         cb = self.updateLocation,
-    #         uniqueTag = (u'PoseUpdate', u'mote_pose_updates'),
-    #         intraSlotOrder     = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
-    #     )
+        return self.motes

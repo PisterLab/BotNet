@@ -129,20 +129,30 @@ class SchedulingFunctionSFNone(SchedulingFunctionBase):
 
 class SchedulingFunctionRRSF(SchedulingFunctionBase):
 
+    SLOTFRAME_HANDLE_LOCATION_BROADCAST = 1
     MAX_RETRY = 3
 
     def __init__(self, mote):
         super(SchedulingFunctionRRSF, self).__init__(mote)
 
         # additional initialization
-        self.slotframe            = self.mote.tsch.get_slotframe(0)
         self.locked_slots         = set([]) # slots in on-going ADD transactions
 
     def start(self):
-        pass # allocate all Rx cells within the base channel, then allocate Tx cells based on mote id???
+        # allocate all Rx cells within the base channel, then allocate Tx cells based on mote id???
+        slotframe_0 = self.mote.tsch.get_slotframe(0)
+        self.mote.tsch.add_slotframe(
+            slotframe_handle = self.SLOTFRAME_HANDLE_LOCATION_BROADCAST,
+            length           = slotframe_0.length
+        )
+
+        self.broadcast_slotframe = self.mote.tsch.get_slotframe(self.SLOTFRAME_HANDLE_LOCATION_BROADCAST)
+
+        self.allocate_rx_cells(self.broadcast_slotframe)
 
     def stop(self):
-        pass # deallocate cells?
+        # deallocate cells? and remove any future events
+        self.mote.tsch.delete_slotframe(self.SLOTFRAME_HANDLE_LOCATION_BROADCAST)
 
     def indication_neighbor_added(self, neighbor_mac_addr):
         pass # not sure
@@ -166,19 +176,23 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
         # always return True <-- how do others handle this?
         return True
 
-    def allocate_rx_cells(self, cell_list, cell_options):
-        for cell in cell_list:
+    def allocate_rx_cells(self, slotframe):
+        # TODO: check that offsets are correct
+        for slot in range(slotframe.length):
             self.mote.tsch.addCell(
-                slotOffset         = cell[u'slotOffset'],
-                channelOffset      = cell[u'channelOffset'],
+                slotOffset         = slot,
+                channelOffset      = 0,
                 neighbor           = None,
                 cellOptions        = [d.CELLOPTION_RX],
-                slotframe_handle   = 0
-            ) # TODO: should be base channel offset and just loop through slotframe length slot offsets
+                slotframe_handle   = slotframe.slotframe_handle
+            )
 
     def allocate_tx_cell(self, cell, neighbor=0xFFFF):
         """
         Defaults to broadcast.
+
+        TODO: how should I negotiate the correct Tx cell round robin? callbacks likely
+            maybe with schedule inconsistency, ask Yatch
         """
         slotOffset, channelOffset = cell[u'slotOffset'], cell[u'channelOffset']
         self.deallocate_rx_cell(slotOffset, channelOffset)
@@ -186,7 +200,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
             slotOffset         = slotOffset,
             channelOffset      = channelOffset,
             neighbor           = neighbor,
-            cellOptions        = None,
+            cellOptions        = [d.CELLOPTION_TX],
             slotframe_handle   = 0
         )
 

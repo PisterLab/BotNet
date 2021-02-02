@@ -14,6 +14,12 @@ import os
 import platform
 import sys
 
+SIM_ROOT_PATH = os.path.dirname(__file__)
+DEFAULT_CONFIG_PATH = os.path.join(
+    SIM_ROOT_PATH,
+    'config.json'
+)
+
 if __name__ == '__main__':
     here = sys.path[0]
     sys.path.insert(0, os.path.join(here, '..'))
@@ -47,7 +53,7 @@ def parseCliParams():
         '--config',
         dest       = 'config',
         action     = 'store',
-        default    = 'config.json',
+        default    = DEFAULT_CONFIG_PATH,
         help       = 'Location of the configuration file.',
     )
     cliparams      = parser.parse_args()
@@ -315,9 +321,11 @@ def main():
         # after merging log files by mergeLogs.py.
         pass
     else:
-        for c in simconfig.post:
-            print('calling "{0}"'.format(c))
-            rc = subprocess.call(c, shell=True)
+        for c in simconfig.post_python:
+            joined_script_path = os.path.join(SIM_ROOT_PATH, c)
+            cmd = "python {0}".format(joined_script_path)
+            print('calling "{0}"'.format(cmd))
+            rc = subprocess.call(cmd, shell=True)
             assert rc==0
 
 if __name__ == '__main__':
