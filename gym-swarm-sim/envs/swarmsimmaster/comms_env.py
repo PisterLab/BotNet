@@ -110,6 +110,7 @@ class SwarmSimCommsEnv():
                 self.do_reset(self.swarm_sim_world)
 
             i += 1
+        print(self.get_all_mote_states())
 
     def end(self):
         ##TODO: Edit this because it is for end
