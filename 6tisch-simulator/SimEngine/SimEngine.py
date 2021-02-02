@@ -29,7 +29,7 @@ from . import SimConfig
 
 # special SwarmSim import
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(1, '/Users/felipecampos/Berkeley/research/swarm/sim/6-tisch-swarm-sim/gym-swarm-sim/envs/swarmsimmaster') # FIXME: should be relative or just generically imported
+sys.path.insert(1, '/gym-swarm-sim/envs/swarmsimmaster') # FIXME: should be relative or just generically imported
 import comms_env
 import numpy as np
 
