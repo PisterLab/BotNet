@@ -13,3 +13,5 @@ cd gym-swarm-sim/envs/swarmsimmaster/
 
 ### 6TiSCH + Swarm Sim: Networked Multi-Agent Control (No RPC & Real-time Viz)
 `python ../../../6tisch-simulator/bin/runSim.py`
+
+Running Google Doc: https://docs.google.com/document/d/1OhyHHBxHN3_bAwsYYcrqfswcTrh-pLQrN6X59aoQMSg/edit?usp=sharing
