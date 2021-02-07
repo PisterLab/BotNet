@@ -91,7 +91,7 @@ class SwarmSimCommsEnv():
 
         #set up world
         self.swarm_sim_world = world.World(self.config_data)
-        self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data))
+        self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), goons)
 
     def main_loop(self, iterations=1):
         round_start_timestamp = time.perf_counter()  # TODO: work with this
@@ -100,8 +100,10 @@ class SwarmSimCommsEnv():
         while i < iterations:
             try:
                 # check to see if its neccessary to run the vis
+                print("checking visualizaiton")
                 if self.config_data.visualization:
                     self.swarm_sim_world.vis.run(round_start_timestamp) # FIXME: seg fault when visualization enabled with 6TiSCH
+                    print("made it past")
                 # run the solution for 1 step
                 self.run_solution()
             except ResetException: # TODO: need to improve exception handlng
@@ -159,11 +161,11 @@ class SwarmSimCommsEnv():
         return positions
 
 if __name__ == "__main__":
-    test = SwarmSimCommsEnv()
+    test = SwarmSimCommsEnv([(0,0,0), (0,0,1), (0, 1, 0)])
     motes = test.get_all_mote_states().keys()
     velos = {}
 
-    print(test.get_all_mote_states())
+   # print(test.get_all_mote_states())
     while True:
         test.main_loop(1)
         for agent in motes:
