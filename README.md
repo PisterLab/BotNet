@@ -1,4 +1,4 @@
-# Swarm-Sim: A Simulator for (Optionally) Networked Multi-Agent Control and Swarm vs. Swarm Games
+# SwarmCommSim: A Simulator for (Optionally) Networked Multi-Agent Control and Swarm vs. Swarm Games
 
 ## Setup:
 
