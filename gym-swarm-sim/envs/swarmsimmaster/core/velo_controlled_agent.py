@@ -6,7 +6,7 @@ from core.swarm_sim_header import *
 from core import agent
 import numpy as np
 
-TIMESTEP = .01
+TIMESTEP = .1
 
 class VeloAgent(agent.Agent):
     def __init__(self, world, coordinates, color, agent_counter=0, velocities = None):
