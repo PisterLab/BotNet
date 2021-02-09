@@ -92,6 +92,7 @@ class SwarmSimCommsEnv():
         #set up world
         self.swarm_sim_world = world.World(self.config_data)
         self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data))
+        self.mote_neighbors = {}
 
     def main_loop(self, iterations=1):
         round_start_timestamp = time.perf_counter()  # TODO: work with this
@@ -147,6 +148,11 @@ class SwarmSimCommsEnv():
         id_map = self.swarm_sim_world.get_agent_map_id()
         for mote in new_velos:
             id_map[mote].set_velocities(new_velos[mote])
+
+    def set_all_mote_neighbors(self, agent_neighbor_dict):
+        for i, (agent_id, neighbors) in agent_neighbor_dict:
+            mote = id_map[agent_id]
+            mote.neighbors = neighbors
 
     def get_all_mote_states(self):
         id_map = self.swarm_sim_world.get_agent_map_id()

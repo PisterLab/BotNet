@@ -157,7 +157,7 @@ class DiscreteEventEngine(threading.Thread):
                     cb()
                     # if rcv_cb: update rcving_mote neighbor pose table
 
-                self._robo_sim_control()
+                self._robo_sim_update()
 
         except Exception as e:
             # thread crashed
@@ -382,7 +382,7 @@ class DiscreteEventEngine(threading.Thread):
     def _robo_sim_sync(self):
         pass
 
-    def _robo_sim_control(self):
+    def _robo_sim_update(self):
         pass
 
 
@@ -544,6 +544,13 @@ class SimEngine(DiscreteEventEngine):
             mote.setLocation(*(states[self.robot_sim.mote_key_map[mote.id]][:2]))
         
         self.connectivity.matrix.update()
+
+    def _robo_sim_update(self):
+        agent_neighbor_dict = {}
+        for agent in self.motes:
+            agent_neighbor_dict[self.robot_sim.mote_key_map[agent.id]] = self.mote_neighbors(agent)
+
+        self.robot_sim.set_all_mote_neighbors(agent_neighbor_dict)
 
     def _robo_sim_control(self):
         # TODO: can make this modular (have an abstract control class that's set in config)
