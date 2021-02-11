@@ -51,7 +51,7 @@ def main(argv):
     child_processes = []
     process_cnt=0
     for seed in range(seed_start, seed_end+1):
-        process ="python3.6", "swarm-sim.py", "-n"+ str(max_round), "-m 1", "-d"+str(n_time),\
+        process ="python3.6", "swarmsim.py", "-n"+ str(max_round), "-m 1", "-d"+str(n_time),\
                               "-r"+ str(seed), "-v" + str(0)
         p = subprocess.Popen(process, stdout=out, stderr=out)
         child_processes.append(p)
