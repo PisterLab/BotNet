@@ -6,7 +6,7 @@ from core.swarm_sim_header import *
 from core import agent
 import numpy as np
 
-TIMESTEP = .1
+TIMESTEP = .1 # NOTE: atm this is roughly equivalent to the length of a slotframe, should be much higher fidelity when fully 6TiSCH integrated
 
 class VeloAgent(agent.Agent):
     def __init__(self, world, coordinates, color, agent_counter=0, velocities = None):

@@ -68,11 +68,11 @@ def communication_model(x1, y1, x2, y2):
 
 def leader_agent_move(world, agent):
     if world.get_actual_round() < 200:
-        agent.set_velocities((10, 0, 0))
+        agent.set_velocities((1, 0, 0))
     elif world.get_actual_round() < 300:
-        agent.set_velocities((10, 10, 0))
+        agent.set_velocities((1, 10, 0))
     elif world.get_actual_round() < 400:
-        agent.set_velocities((0, 10, 0))
+        agent.set_velocities((0, 1, 0))
     elif world.get_actual_round() < 650:
         agent.set_velocities((-1, -2, 0))
     else:
@@ -88,6 +88,8 @@ def friis(distance, txPower=0, gain=0):
         txPower + gain +
         (20 * math.log10(free_space_path_loss))
     )
+
+    # NOTE: how does 6TiSCH model interferences? wouldn't really make sense here I guess
 
     return pr
 

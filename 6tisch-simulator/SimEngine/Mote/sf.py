@@ -143,7 +143,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
         slotframe_0 = self.mote.tsch.get_slotframe(0)
         self.mote.tsch.add_slotframe(
             slotframe_handle = self.SLOTFRAME_HANDLE_LOCATION_BROADCAST,
-            length           = slotframe_0.length
+            length           = slotframe_0.length # TODO: should be equal to the number motes
         )
 
         self.broadcast_slotframe = self.mote.tsch.get_slotframe(self.SLOTFRAME_HANDLE_LOCATION_BROADCAST)
@@ -158,13 +158,13 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
         pass # not sure
 
     def indication_tx_cell_elapsed(self, cell, sent_packet):
-        pass # not sure
+        pass # for monitoring usage of tx cells <-- used in MSF
 
     def indication_rx_cell_elapsed(self, cell, received_packet):
-        pass # not sure
+        pass # for monitoring usage of rx cells <-- used in MSF
 
     def indication_parent_change(self, old_parent, new_parent):
-        pass # doesn't matter? I'm just round robin broadcasting to 0xFFFF
+        pass # doesn't matter? I'm just round robin broadcasting to 0xFFFF, here you would start a new negotiation aha
 
     def detect_schedule_inconsistency(self, peerMac):
         pass # hmm...
@@ -187,7 +187,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
                 slotframe_handle   = slotframe.slotframe_handle
             )
 
-    def allocate_tx_cell(self, cell, neighbor=0xFFFF):
+    def allocate_tx_cell(self, cell):
         """
         Defaults to broadcast.
 
@@ -199,7 +199,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
         self.mote.tsch.addCell(
             slotOffset         = slotOffset,
             channelOffset      = channelOffset,
-            neighbor           = neighbor,
+            neighbor           = None,
             cellOptions        = [d.CELLOPTION_TX],
             slotframe_handle   = 0
         )
