@@ -444,6 +444,7 @@ class SimEngine(DiscreteEventEngine):
 
         moteStates = self.robot_sim.get_all_mote_states()
         print(moteStates) # hmmm
+        print(self.motes)
         for i, robot_mote_id in enumerate(moteStates.keys()):
             mote = self.motes[i]
             self.robot_sim.mote_key_map[mote.id] = robot_mote_id
@@ -546,13 +547,19 @@ class SimEngine(DiscreteEventEngine):
         self.connectivity.matrix.update()
 
     def _robo_sim_update(self):
+        if self.asn % self.settings.rrsf_slotframe_len != 0:
+            return
+
         agent_neighbor_dict = {}
         for agent in self.motes:
-            agent_neighbor_dict[self.robot_sim.mote_key_map[agent.id]] = self.mote_neighbors(agent)
+            if agent.neighbors:
+                agent_neighbor_dict[self.robot_sim.mote_key_map[agent.id]] = agent.neighbors
+                agent.neighbors = [] # flush neighbors
 
         self.robot_sim.set_all_mote_neighbors(agent_neighbor_dict)
 
     def _robo_sim_control(self):
+        # NOTE: DEPRECATED
         # TODO: can make this modular (have an abstract control class that's set in config)
 
         R_COLLISION, R_CONNECTION = 1, 10
@@ -587,5 +594,7 @@ class SimEngine(DiscreteEventEngine):
             return self.motes
         elif conn_model == "Updated":
             raise NotImplementedError()
+
+        # TODO: move this to connectivity matrix modelling yeah?
 
         return self.motes

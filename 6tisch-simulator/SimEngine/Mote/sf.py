@@ -140,15 +140,17 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
 
     def start(self):
         # allocate all Rx cells within the base channel, then allocate Tx cells based on mote id???
-        slotframe_0 = self.mote.tsch.get_slotframe(0)
+        print("STARTING RRSF")
         self.mote.tsch.add_slotframe(
             slotframe_handle = self.SLOTFRAME_HANDLE_LOCATION_BROADCAST,
-            length           = slotframe_0.length # TODO: should be equal to the number motes
+            length           = self.mote.settings.rrsf_slotframe_len
         )
 
         self.broadcast_slotframe = self.mote.tsch.get_slotframe(self.SLOTFRAME_HANDLE_LOCATION_BROADCAST)
 
         self.allocate_rx_cells(self.broadcast_slotframe)
+        self.allocate_tx_cell(self.broadcast_slotframe, self.mote.id)
+        print("COMPLETED RRSF INIT")
 
     def stop(self):
         # deallocate cells? and remove any future events
@@ -176,41 +178,42 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
         # always return True <-- how do others handle this?
         return True
 
-    def allocate_rx_cells(self, slotframe):
-        # TODO: check that offsets are correct
+    def allocate_rx_cells(self, slotframe, channelOffsets=None):
+        """
+        Allocates all cells for receive mode.
+        """
         for slot in range(slotframe.length):
             self.mote.tsch.addCell(
                 slotOffset         = slot,
-                channelOffset      = 0,
+                channelOffset      = 0 if channelOffsets is None else channelOffsets[slot],
                 neighbor           = None,
                 cellOptions        = [d.CELLOPTION_RX],
                 slotframe_handle   = slotframe.slotframe_handle
             )
 
-    def allocate_tx_cell(self, cell):
+    def allocate_tx_cell(self, slotframe, slotOffset, channelOffset = 0):
         """
-        Defaults to broadcast.
-
-        TODO: how should I negotiate the correct Tx cell round robin? callbacks likely
-            maybe with schedule inconsistency, ask Yatch
+        Allocates cell for transmission.
         """
-        slotOffset, channelOffset = cell[u'slotOffset'], cell[u'channelOffset']
-        self.deallocate_rx_cell(slotOffset, channelOffset)
+        self.deallocate_rx_cell(slotframe, slotOffset, channelOffset) # likely don't need to do
         self.mote.tsch.addCell(
             slotOffset         = slotOffset,
             channelOffset      = channelOffset,
             neighbor           = None,
             cellOptions        = [d.CELLOPTION_TX],
-            slotframe_handle   = 0
+            slotframe_handle   = slotframe.slotframe_handle
         )
 
-    def deallocate_rx_cell(self, slotOffset, channelOffset):
+    def deallocate_rx_cell(self, slotframe, slotOffset, channelOffset):
+        """
+        Removes receive cell. NOTE: likely unnecessary since transmit mode always takes precedence over receive, remove if buggy
+        """
         self.mote.tsch.deleteCell(
             slotOffset       = slotOffset,
             channelOffset    = channelOffset,
             neighbor         = None,
             cellOptions      = [d.CELLOPTION_RX],
-            slotframe_handle = 0
+            slotframe_handle = slotframe.slotframe_handle
         )
 
     # ============ private ===============

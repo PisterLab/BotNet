@@ -92,7 +92,6 @@ class SwarmSimCommsEnv():
         #set up world
         self.swarm_sim_world = world.World(self.config_data)
         self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data))
-        self.mote_neighbors = {}
 
     def main_loop(self, iterations=1):
         round_start_timestamp = time.perf_counter()  # TODO: work with this
@@ -153,6 +152,8 @@ class SwarmSimCommsEnv():
         for i, (agent_id, neighbors) in agent_neighbor_dict:
             mote = id_map[agent_id]
             mote.neighbors = neighbors
+            if mote.id != 0 or _leader_agent_move(self.swarm_sim_world, mote):
+                mote.control_update()
 
     def get_all_mote_states(self):
         id_map = self.swarm_sim_world.get_agent_map_id()
@@ -162,6 +163,19 @@ class SwarmSimCommsEnv():
             positions[agent_id] = mote.coordinates #mb an access function in the agent class rather than this
 
         return positions
+
+    def _leader_agent_move(world, agent):
+        if world.get_actual_round() < 200:
+            agent.set_velocities((1, 0, 0))
+        elif world.get_actual_round() < 300:
+            agent.set_velocities((1, 10, 0))
+        elif world.get_actual_round() < 400:
+            agent.set_velocities((0, 1, 0))
+        elif world.get_actual_round() < 650:
+            agent.set_velocities((-1, -2, 0))
+        else:
+            return False
+        return True
 
 if __name__ == "__main__":
     test = SwarmSimCommsEnv()

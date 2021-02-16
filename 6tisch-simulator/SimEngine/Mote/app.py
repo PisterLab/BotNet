@@ -278,8 +278,10 @@ class AppLocation(AppBase):
     asn, (next asn + pkPeriod)].
     """
 
+    BROADCAST_IP = "ff02::1"
+
     def __init__(self, mote, **kwargs):
-        super(AppPeriodic, self).__init__(mote)
+        super(AppLocation, self).__init__(mote)
         self.sending_first_packet = True
 
     #======================== public ==========================================
@@ -288,6 +290,10 @@ class AppLocation(AppBase):
         if self.sending_first_packet:
             self._schedule_transmission()
 
+    def recvPacket(self, packet):
+        print(f"PACKET RECEIVED: {self.mote.id} : {packet}")
+        self.mote.neighbors[packet[u'app'][u'id']] = packet[u'app'][u'location']
+
     #======================== public ==========================================
 
     def _schedule_transmission(self):
@@ -295,7 +301,7 @@ class AppLocation(AppBase):
         if self.settings.app_pkPeriod == 0:
             return
 
-        if self.sending_first_packet:
+        if self.sending_first_packet: # NOTE: ohhhh this might be relevant
             # compute initial time within the range of [next asn, next asn+pkPeriod]
             delay = self.settings.tsch_slotDuration + (self.settings.app_pkPeriod * random.random())
             self.sending_first_packet = False
@@ -305,29 +311,88 @@ class AppLocation(AppBase):
             delay = self.settings.app_pkPeriod * (1 + random.uniform(-self.settings.app_pkPeriodVar, self.settings.app_pkPeriodVar))
 
         # schedule
-        self.engine.scheduleIn(
-            delay           = delay,
-            cb              = self._send_a_single_packet,
+        slotframe_len = self.mote.settings.rrsf_slotframe_len
+        current_slotframe_base_asn = slotframe_len * (self.engine.getAsn() // slotframe_len)
+        if self.mote.id + current_slotframe_base_asn > self.engine.getAsn():
+            current_slotframe_base_asn += slotframe_len # TODO: check this math for off by ones, right idea though
+        self.engine.scheduleAtAsn(
+            asn             = current_slotframe_base_asn + self.mote.id, # NOTE: how does this work at beginning? i.e.
+            cb              = self._broadcast_location,
             uniqueTag       = (
-                u'AppPeriodic',
+                u'AppLocation',
                 u'scheduled_by_{0}'.format(self.mote.id)
             ),
-            intraSlotOrder  = d.INTRASLOTORDER_ADMINTASKS,
+            intraSlotOrder  = d.INTRASLOTORDER_STARTSLOT, # TODO: check that this means high priority
         )
 
         # schedule the application timing to broadcast just before the ASN (1 or 2 slots before), have the mote broadcast it's location
         # e.g. slot 10 is your broadcast, send packet in ASN 9, next slot lower layers broadcast
-        # TODO: def scheduleAtAsn(self, asn, cb, uniqueTag, intraSlotOrder) <-- callback send to you
 
-    def _send_a_single_packet(self):
+    def _broadcast_location(self):
         if self.mote.rpl.dodagId == None:
-            # it seems we left the dodag; stop the transmission
-            self.sending_first_packet = True
+            # it seems we left the dodag; stop the transmission # NOTE: network hasn't started yet yea? should i handle it differently??
+            # TODO: also seems like i should be able to schedule things to transmit on the ASN it happens
+            self.sending_first_packet = False
             return
 
         self._send_packet(
-            dstIp          = self.mote.rpl.dodagId,
+            dstIp          = self.mote.rpl.dodagId, # TODO: change to everybody
             packet_length  = self.settings.app_pkLength
         )
         # schedule the next transmission
         self._schedule_transmission()
+
+    #======================== private ==========================================
+
+    def _generate_packet(
+            self,
+            dstIp,
+            packet_type,
+            packet_length,
+        ):
+
+        # create data packet
+        dataPacket = {
+            u'type':              packet_type,
+            u'net': {
+                u'srcIp':         self.mote.get_ipv6_global_addr(),
+                u'dstIp':         dstIp, # TODO: 0xFFFF? Yatch: "ff02::1"
+                u'packet_length': packet_length
+            },
+            u'app': {
+                u'appcounter':    self.appcounter,
+                u'timestamp':     self.engine.getAsn(),
+                u'location':      (self.mote.x, self.mote.y),
+                u'id':            self.mote.id
+            }
+        }
+
+        # update appcounter
+        self.appcounter += 1
+
+        return dataPacket
+
+    def _send_packet(self, dstIp, packet_length):
+
+        # abort if I'm not ready to send DATA yet
+        if self.mote.clear_to_send_EBs_DATA()==False:
+            return
+
+        # create
+        packet = self._generate_packet(
+            dstIp          = dstIp,
+            packet_type    = d.PKT_TYPE_DATA,
+            packet_length  = packet_length
+        )
+
+        # log
+        self.log(
+            SimEngine.SimLog.LOG_APP_TX,
+            {
+                u'_mote_id':       self.mote.id,
+                u'packet':         packet,
+            }
+        )
+
+        # send
+        self.mote.sixlowpan.sendPacket(packet)

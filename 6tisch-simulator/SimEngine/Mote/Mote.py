@@ -68,6 +68,9 @@ class Mote(object):
         self.x                         = x
         self.y                         = y
 
+        # potential control
+        self.neighbors                 = {} # TODO: this should be passed to swarm sim with most recent update, cleared at each new step
+
     # ======================= stack ===========================================
 
     # ===== role
