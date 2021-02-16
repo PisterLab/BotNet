@@ -13,7 +13,7 @@
             "exec_minutesPerRun":                          null,
             "exec_randomSeed":                             "random",
 
-            "secjoin_enabled":                             false,
+            "secjoin_enabled":                             true,
 
             "app":                                         "AppLocation",
             "app_pkLength":                                90,
@@ -21,7 +21,7 @@
             "app_burstNumPackets":                         0,
 
             "rpl_of":                                      "OF0",
-            "rpl_daoPeriod":                               0,
+            "rpl_daoPeriod":                               60,
             "rpl_extensions":                              ["dis_unicast"],
 
             "fragmentation":                               "FragmentForwarding",
@@ -34,7 +34,7 @@
             "rrsf_slotframe_len":                          3,
 
             "tsch_slotDuration":                           0.010,
-            "tsch_slotframeLength":                        101,
+            "tsch_slotframeLength":                        3,
             "tsch_probBcast_ebProb":                       0.33,
             "tsch_clock_max_drift_ppm":                    30,
             "tsch_clock_frequency":                        32768,

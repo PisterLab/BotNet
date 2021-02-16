@@ -641,7 +641,7 @@ class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
         # loop through all pairs of motes and set RSSI/PDR both directions
         for target_mote_id in self.mote_id_list:
 
-            coordinate = self._get_mote(target_mote_id).getLocation()
+            coordinate = [x / 1000 for x in self._get_mote(target_mote_id).getLocation()]
 
             if target_mote_id == 0:
                 self.coordinates[target_mote_id] = coordinate
@@ -660,6 +660,8 @@ class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
                     }
                 )
                 pdr = self.pister_hack.convert_rssi_to_pdr(rssi)
+
+                print(f"{target_mote_id} {deployed_mote_id} PDR: {pdr} {coordinate} {self.coordinates}")
 
                 # TODO: this should only update PDR and RSSI if the mote has moved
                 # TODO: if the mote has moved less than lambda / 10, perform weighted average of previous and current
@@ -697,6 +699,8 @@ class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
                             channel,
                             rssi
                         )
+
+            self.coordinates[target_mote_id] = coordinate
 
     def _get_mote(self, mote_id):
         # there must be a mote having mote_id. otherwise, the following line

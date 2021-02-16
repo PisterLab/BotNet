@@ -278,7 +278,7 @@ class AppLocation(AppRoot):
     asn, (next asn + pkPeriod)].
     """
 
-    BROADCAST_IP = "ff02::1"
+    BROADCAST_IP = "ff02::1a"
 
     def __init__(self, mote, **kwargs):
         super(AppLocation, self).__init__(mote)
@@ -336,7 +336,7 @@ class AppLocation(AppRoot):
             u'type':              packet_type,
             u'net': {
                 u'srcIp':         self.mote.get_ipv6_global_addr(),
-                u'dstIp':         dstIp, # TODO: 0xFFFF? Yatch: "ff02::1"
+                u'dstIp':         dstIp,
                 u'packet_length': packet_length
             },
             u'app': {
