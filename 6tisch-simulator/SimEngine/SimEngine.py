@@ -29,6 +29,7 @@ from . import SimConfig
 
 # special SwarmSim import
 # insert at 1, 0 is the script path (or '' in REPL)
+
 import os
 SIMENGINE_ROOT_PATH = os.path.dirname(__file__)
 SWARM_SIM_MASTER_PATH = os.path.join(
