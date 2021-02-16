@@ -22,7 +22,7 @@ class TriangularGrid(Grid):
                 "W":   (-1,    0, 0),
                 "NW":  (-0.5,  1, 0)}
 
-    def get_box(self, width):
+    def get_box(self, width): # TODO: change grid to have all these dudes be valid
         locs = []
         for y in range(-width, width+1):
             for x in range(-width, width+1):

@@ -151,6 +151,11 @@ class SwarmSimCommsEnv():
         for mote in new_velos:
             id_map[mote].set_velocities(new_velos[mote])
 
+    def set_all_mote_neighbors(self, agent_neighbor_dict):
+        for i, (agent_id, neighbors) in agent_neighbor_dict:
+            mote = id_map[agent_id]
+            mote.neighbors = neighbors
+
     def get_all_mote_states(self):
         id_map = self.swarm_sim_world.get_agent_map_id()
         positions = {}

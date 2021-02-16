@@ -26,10 +26,7 @@ class QuadraticGrid(Grid):
         return locations
 
     def are_valid_coordinates(self, coordinates):
-        if coordinates[0] % 1 == 0 and coordinates[1] % 1 == 0:
-            return True
-        else:
-            return False
+        return True
 
     def get_nearest_valid_coordinates(self, coordinates):
         return (round(coordinates[0]),

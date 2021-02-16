@@ -113,6 +113,7 @@ class Mote(object):
             return str(self.eui64.ipv6(self.ipv6_prefix))
 
     def get_ipv6_link_local_addr(self):
+        # TODO: print this to see format --> actually you should debug haha
         return str(self.eui64.ipv6_link_local())
 
     def get_mac_addr(self):

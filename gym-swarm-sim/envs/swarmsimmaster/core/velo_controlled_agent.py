@@ -6,11 +6,13 @@ from core.swarm_sim_header import *
 from core import agent
 import numpy as np
 
+TIMESTEP = .1 # NOTE: atm this is roughly equivalent to the length of a slotframe, should be much higher fidelity when fully 6TiSCH integrated
+
 class VeloAgent(agent.Agent):
     def __init__(self, world, coordinates, color, agent_counter=0, velocities = None):
         super().__init__(world, coordinates, color)
-        self.velocities = (0.0,) * self.world.grid.get_dimension_count()
-
+        self.velocities = (0.0,) * 3 # self.world.grid.get_dimension_count()
+        self.neighbors = []
 
     # change in time is one round
     # function adds the velo to the position
@@ -18,11 +20,11 @@ class VeloAgent(agent.Agent):
     # TODO: Refactor with the parent class to remove the code written twice.
     def move(self):
         #check to make sure that this doesnt throw an error and conforms to grid types.
-        direction_coord =   tuple(np.add(self.velocities, self.coordinates))
+        direction_coord = tuple(np.add(np.array(self.velocities) * TIMESTEP, self.coordinates))
         direction_coord = self.check_within_border(self.velocities, direction_coord)
         if self.world.grid.are_valid_coordinates(direction_coord) \
                 and direction_coord not in self.world.agent_map_coordinates \
-                and not self._Agent__isCarried:#this is a little jank IK
+                and not self._Agent__isCarried: # this is a little jank IK
             if self.coordinates in self.world.agent_map_coordinates:
                 del self.world.agent_map_coordinates[self.coordinates]
             self.coordinates = direction_coord
@@ -37,15 +39,10 @@ class VeloAgent(agent.Agent):
 
         return False
 
-
-    #updates the velocities
+    # updates the velocities
     def set_velocities(self, new_velocities):
-        self.velocities = new_velocities
+        self.velocities = tuple(np.hstack([np.array(new_velocities), np.zeros(1)])[:3])
 
-    #adds to the velocities.
+    # adds to the velocities.
     def add_velocities(self, dv):
         self.velocities = tuple(np.add(self.velocities, dv))
-
-
-
-
