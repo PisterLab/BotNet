@@ -429,6 +429,8 @@ class SimEngine(DiscreteEventEngine):
             )
         ]
 
+        print(f"{len(self.motes)} MOTES: {[m.id for m in self.motes]}")
+
         eui64_list = set([mote.get_mac_addr() for mote in self.motes])
         if len(eui64_list) != len(self.motes):
             assert len(eui64_list) < len(self.motes)

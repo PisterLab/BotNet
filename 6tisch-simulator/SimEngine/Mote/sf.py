@@ -137,6 +137,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
 
         # additional initialization
         self.locked_slots         = set([]) # slots in on-going ADD transactions
+        print(f"RRSF {self.mote.id}")
 
     def start(self):
         # allocate all Rx cells within the base channel, then allocate Tx cells based on mote id???
@@ -190,6 +191,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
                 cellOptions        = [d.CELLOPTION_RX],
                 slotframe_handle   = slotframe.slotframe_handle
             )
+        print(f"Added {slotframe.length} Rx cells.")
 
     def allocate_tx_cell(self, slotframe, slotOffset, channelOffset = 0):
         """
@@ -203,6 +205,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
             cellOptions        = [d.CELLOPTION_TX],
             slotframe_handle   = slotframe.slotframe_handle
         )
+        print(f"Allocated slot {slotOffset} for Tx mode.")
 
     def deallocate_rx_cell(self, slotframe, slotOffset, channelOffset):
         """

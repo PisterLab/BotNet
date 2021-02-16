@@ -13,14 +13,15 @@
             "exec_minutesPerRun":                          null,
             "exec_randomSeed":                             "random",
 
-            "secjoin_enabled":                             true,
+            "secjoin_enabled":                             false,
 
             "app":                                         "AppLocation",
+            "app_pkLength":                                90,
             "app_burstTimestamp":                          null,
             "app_burstNumPackets":                         0,
 
             "rpl_of":                                      "OF0",
-            "rpl_daoPeriod":                               60,
+            "rpl_daoPeriod":                               0,
             "rpl_extensions":                              ["dis_unicast"],
 
             "fragmentation":                               "FragmentForwarding",

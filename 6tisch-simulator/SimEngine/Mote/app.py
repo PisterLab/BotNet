@@ -31,7 +31,7 @@ def App(mote):
     # use mote.id to determine whether it is the root or not instead of using
     # mote.dagRoot because mote.dagRoot is not initialized when application is
     # instantiated
-    if mote.id == 0:
+    if settings.app != "AppLocation" and mote.id == 0:
         return AppRoot(mote)
     else:
         return globals()[settings.app](mote)
@@ -267,7 +267,7 @@ class AppBurst(AppBase):
                 packet_length = self.settings.app_pkLength
             )
 
-class AppLocation(AppBase):
+class AppLocation(AppRoot):
 
     """Send a packet with location information periodically
 
@@ -282,41 +282,32 @@ class AppLocation(AppBase):
 
     def __init__(self, mote, **kwargs):
         super(AppLocation, self).__init__(mote)
+        print(f"INITIALIZED APP LOCATION {self.mote.id}")
         self.sending_first_packet = True
 
     #======================== public ==========================================
 
     def startSendingData(self):
+        print("SENDING DATA")
         if self.sending_first_packet:
+            print(f"SCHEDULING TRANSMISSION {self.mote.id}")
             self._schedule_transmission()
 
     def recvPacket(self, packet):
         print(f"PACKET RECEIVED: {self.mote.id} : {packet}")
         self.mote.neighbors[packet[u'app'][u'id']] = packet[u'app'][u'location']
 
-    #======================== public ==========================================
+    #======================== private ==========================================
 
     def _schedule_transmission(self):
-        assert self.settings.app_pkPeriod >= 0
-        if self.settings.app_pkPeriod == 0:
-            return
-
-        if self.sending_first_packet: # NOTE: ohhhh this might be relevant
-            # compute initial time within the range of [next asn, next asn+pkPeriod]
-            delay = self.settings.tsch_slotDuration + (self.settings.app_pkPeriod * random.random())
-            self.sending_first_packet = False
-        else:
-            # compute random delay
-            assert self.settings.app_pkPeriodVar < 1
-            delay = self.settings.app_pkPeriod * (1 + random.uniform(-self.settings.app_pkPeriodVar, self.settings.app_pkPeriodVar))
-
-        # schedule
+        # schedule to transmit slot before RRSF scheduled Tx
         slotframe_len = self.mote.settings.rrsf_slotframe_len
-        current_slotframe_base_asn = slotframe_len * (self.engine.getAsn() // slotframe_len)
-        if self.mote.id + current_slotframe_base_asn > self.engine.getAsn():
-            current_slotframe_base_asn += slotframe_len # TODO: check this math for off by ones, right idea though
+        asn_schedule_tx = slotframe_len * (self.engine.getAsn() // slotframe_len) + self.mote.id
+        if asn_schedule_tx <= self.engine.getAsn():
+            asn_schedule_tx += slotframe_len # TODO: check this math for off by ones, right idea though
+        print(f"{self.engine.getAsn()} | {self.mote.id} SCHEDULING AT ASN: {asn_schedule_tx}")
         self.engine.scheduleAtAsn(
-            asn             = current_slotframe_base_asn + self.mote.id, # NOTE: how does this work at beginning? i.e.
+            asn             = asn_schedule_tx,
             cb              = self._broadcast_location,
             uniqueTag       = (
                 u'AppLocation',
@@ -325,24 +316,13 @@ class AppLocation(AppBase):
             intraSlotOrder  = d.INTRASLOTORDER_STARTSLOT, # TODO: check that this means high priority
         )
 
-        # schedule the application timing to broadcast just before the ASN (1 or 2 slots before), have the mote broadcast it's location
-        # e.g. slot 10 is your broadcast, send packet in ASN 9, next slot lower layers broadcast
-
     def _broadcast_location(self):
-        if self.mote.rpl.dodagId == None:
-            # it seems we left the dodag; stop the transmission # NOTE: network hasn't started yet yea? should i handle it differently??
-            # TODO: also seems like i should be able to schedule things to transmit on the ASN it happens
-            self.sending_first_packet = False
-            return
-
         self._send_packet(
-            dstIp          = self.mote.rpl.dodagId, # TODO: change to everybody
+            dstIp          = self.BROADCAST_IP,
             packet_length  = self.settings.app_pkLength
         )
         # schedule the next transmission
         self._schedule_transmission()
-
-    #======================== private ==========================================
 
     def _generate_packet(
             self,
@@ -373,7 +353,6 @@ class AppLocation(AppBase):
         return dataPacket
 
     def _send_packet(self, dstIp, packet_length):
-
         # abort if I'm not ready to send DATA yet
         if self.mote.clear_to_send_EBs_DATA()==False:
             return
@@ -384,6 +363,8 @@ class AppLocation(AppBase):
             packet_type    = d.PKT_TYPE_DATA,
             packet_length  = packet_length
         )
+
+        print(f"{self.mote.id} SENDING PACKET: {packet[u'app'][u'timestamp']}")
 
         # log
         self.log(
