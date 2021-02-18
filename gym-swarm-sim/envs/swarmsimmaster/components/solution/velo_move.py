@@ -1,14 +1,13 @@
 import numpy as np
 import math
 
-COMMS_MODEL = "friis_upper"
 DISK_RANGE_M = 3
 
 SPEED_OF_LIGHT = 3e8 # m / s
 TWO_DOT_FOUR_GHZ = 2.4e9 # Hz
 PISTER_HACK_LOWER_SHIFT = 40 # dB
 
-def solution(world):
+def solution(world, comms_model="friis_upper"):
 
     if world.get_actual_round() % 1 == 0:
         R_COLLISION, R_CONNECTION = .8, inverse_friis(pdr=1, shift=PISTER_HACK_LOWER_SHIFT / 2)
@@ -29,7 +28,7 @@ def solution(world):
                 x1, y1, _ = agent.coordinates
                 x2, y2, _ = neighbor.coordinates
 
-                dist, comm_range = communication_model(x1, y1, x2, y2)
+                dist, comm_range = communication_model(x1, y1, x2, y2, comms_model)
 
                 if not comm_range:
                     continue
@@ -45,13 +44,13 @@ def solution(world):
         for agent in world.get_agent_list():
             agent.move()
 
-def communication_model(x1, y1, x2, y2):
-    comms_model = COMMS_MODEL
+def communication_model(x1, y1, x2, y2, comms_model="friis_upper"):
     dist = np.sqrt((x2-x1)**2 + (y2-y1)**2)
     comms_range = True
     if comms_model == "full":
         comms_range = True
     elif comms_model == "disk":
+        print("disk")
         comms_range = dist <= DISK_RANGE_M
     elif comms_model == "los":
         comms_range = False # TODO: implement line of sight

@@ -6,8 +6,8 @@ import configparser
 
 def main(argv):
     max_round = 10
-    seed_start = 1
-    seed_end = 2
+    seed_start = 122
+    seed_end = 132
     config = configparser.ConfigParser(allow_no_value=True)
     config.read("config.ini")
 
@@ -43,24 +43,29 @@ def main(argv):
         elif opt in ("-n", "--maxrounds"):
             max_round = int(arg)
 
-    direction = "./outputs/mulitple/" + str(n_time) + "_" + scenario_file.rsplit('.', 1)[0] + "_" + \
+    direction = "./outputs/csv/mulitple/" + str(n_time) + "_" + scenario_file.rsplit('.', 1)[0] + "_" + \
           solution_file.rsplit('.', 1)[0]
     if not os.path.exists(direction):
         os.makedirs(direction)
     out = open(direction + "/multiprocess.txt", "w")
     child_processes = []
     process_cnt=0
-    for seed in range(seed_start, seed_end+1):
-        process ="python3.6", "swarmsim.py", "-n"+ str(max_round), "-m 1", "-d"+str(n_time),\
-                              "-r"+ str(seed), "-v" + str(0)
-        p = subprocess.Popen(process, stdout=out, stderr=out)
-        child_processes.append(p)
-        process_cnt += 1
-        print("Process Nr. ", process_cnt, "started")
-        if len(child_processes) == os.cpu_count():
-            for cp in child_processes:
-                cp.wait()
-            child_processes.clear()
+    #THIS IS WHERE YOU ITERATE THROUGH ARGUMENTS
+    scenario_arguments = ["center_radius_flock"]
+    solution_arguments = ["disk"]
+    for y in scenario_arguments:
+        for x in solution_arguments:
+            for seed in range(seed_start, seed_end+1):
+                process ="python3.6", "swarmsim.py", "-n"+ str(max_round), "-m 1", "-d"+str(n_time),\
+                                      "-r"+ str(seed), "-v" + str(0), "-x" + x, "-y" + y
+                p = subprocess.Popen(process, stdout=out, stderr=out)
+                child_processes.append(p)
+                process_cnt += 1
+                print("Process Nr. ", process_cnt, "started")
+                if len(child_processes) == os.cpu_count():
+                    for cp in child_processes:
+                        cp.wait()
+                    child_processes.clear()
 
     for cp in child_processes:
         cp.wait()

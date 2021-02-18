@@ -28,7 +28,10 @@ def swarm_sim(argv=[]):
     create_directory_for_data(config_data, unique_descriptor)
     random.seed(config_data.seed_value)
     swarm_sim_world = world.World(config_data)
-    swarm_sim_world.init_scenario(get_scenario(swarm_sim_world.config_data))
+    try:
+        swarm_sim_world.init_scenario(get_scenario(swarm_sim_world.config_data), config_data.scenario_arg)
+    except:
+        swarm_sim_world.init_scenario(get_scenario(swarm_sim_world.config_data))
 
     reset = True
     while reset:
@@ -75,7 +78,7 @@ def do_reset(swarm_sim_world):
 
 def read_cmd_args(config_data, argv=[]):
     try:
-        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:", ["solution=", "scenario="])
+        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:x:y:", ["solution=", "scenario="])
     except getopt.GetoptError:
         print('Error: swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
         sys.exit(2)
@@ -97,6 +100,10 @@ def read_cmd_args(config_data, argv=[]):
             config_data.visualization = int(arg)
         elif opt in "-d":
             config_data.local_time = str(arg)
+        elif opt in "-x":
+            config_data.solution_arg = arg
+        elif opt in "-y":
+            config_data.scenario_arg = arg
 
 
 def create_directory_for_data(config_data, unique_descriptor):
@@ -121,7 +128,10 @@ def create_directory_for_data(config_data, unique_descriptor):
 def run_solution(swarm_sim_world):
     if swarm_sim_world.config_data.agent_random_order_always:
         random.shuffle(swarm_sim_world.agents)
-    get_solution(swarm_sim_world.config_data).solution(swarm_sim_world)
+    try:
+        get_solution(swarm_sim_world.config_data).solution(swarm_sim_world, swarm_sim_world.config_data.solution_arg)
+    except:
+        get_solution(swarm_sim_world.config_data).solution(swarm_sim_world)
     swarm_sim_world.csv_round.next_line(swarm_sim_world.get_actual_round(), swarm_sim_world.get_agent_list())
     swarm_sim_world.inc_round_counter_by(number=1)
 
