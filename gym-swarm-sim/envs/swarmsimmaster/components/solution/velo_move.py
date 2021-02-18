@@ -11,7 +11,8 @@ PISTER_HACK_LOWER_SHIFT = 40 # dB
 def solution(world):
 
     if world.get_actual_round() % 1 == 0:
-        R_COLLISION, R_CONNECTION = .8, 10
+        R_COLLISION, R_CONNECTION = .8, inverse_friis(pdr=1, shift=PISTER_HACK_LOWER_SHIFT / 2)
+        print(R_CONNECTION)
         R1, R2 = R_COLLISION, R_CONNECTION
         k_col, k_conn = R1*R1 + R2, R2
 
@@ -37,7 +38,7 @@ def solution(world):
                 vy += 2*(y1-y2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
                 vz += 0
                 
-            print(f"{agent.neighbors} new vels {vx} {vy}")
+            # print(f"{agent.neighbors} new vels {vx} {vy}")
             agent.set_velocities((-vx, -vy, -vz))
             # agent.neighbors = []
 
@@ -66,18 +67,24 @@ def communication_model(x1, y1, x2, y2):
         comms_range = rssi_to_pdr_check(friis(dist) - np.random.rand() * PISTER_HACK_LOWER_SHIFT)
     return dist, comms_range
 
+VELOCITY_SCALE = 5
 def leader_agent_move(world, agent):
     if world.get_actual_round() < 200:
-        agent.set_velocities((1, 0, 0))
+        agent.set_velocities((VELOCITY_SCALE, 0, 0))
     elif world.get_actual_round() < 300:
-        agent.set_velocities((1, 10, 0))
+        agent.set_velocities((VELOCITY_SCALE, VELOCITY_SCALE, 0))
     elif world.get_actual_round() < 400:
-        agent.set_velocities((0, 1, 0))
+        agent.set_velocities((0, VELOCITY_SCALE, 0))
     elif world.get_actual_round() < 650:
-        agent.set_velocities((-1, -2, 0))
+        agent.set_velocities((-VELOCITY_SCALE, -VELOCITY_SCALE, 0))
     else:
         return False
     return True
+
+def inverse_friis(pdr=.5, txPower=0, gain=0, shift=0):
+    rssi = -79 # 0.5 : -93.6 # NOTE: hardcoded
+    distance = SPEED_OF_LIGHT / (4 * math.pi * np.power(10, (rssi - txPower - gain + shift) / 20) * TWO_DOT_FOUR_GHZ)
+    return distance
 
 def friis(distance, txPower=0, gain=0):
     # sqrt and inverse of the free space path loss (fspl)
@@ -118,6 +125,8 @@ RSSI_PDR_TABLE = {
     -80:    0.9903,
     -79:    1.0000,  # this value is not from experiment
 }
+
+PDR_RSSI_TABLE = dict((v,k) for k,v in RSSI_PDR_TABLE.items())
 
 def rssi_to_pdr_check(rssi):
     minRssi = min(RSSI_PDR_TABLE.keys())
