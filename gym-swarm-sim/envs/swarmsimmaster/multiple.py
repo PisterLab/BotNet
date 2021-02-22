@@ -2,12 +2,14 @@ import sys, getopt, subprocess
 from datetime import datetime
 import os
 import configparser
+from itertools import product, chain
 
+OLD_LOGGING = False
 
 def main(argv):
-    max_round = 10
+    max_round = 1000
     seed_start = 122
-    seed_end = 132
+    seed_end = seed_start + os.cpu_count()
     config = configparser.ConfigParser(allow_no_value=True)
     config.read("config.ini")
 
@@ -43,42 +45,59 @@ def main(argv):
         elif opt in ("-n", "--maxrounds"):
             max_round = int(arg)
 
-    direction = "./outputs/csv/mulitple/" + str(n_time) + "_" + scenario_file.rsplit('.', 1)[0] + "_" + \
-          solution_file.rsplit('.', 1)[0]
+    # TODO: random seeds, monte carlo, etc.
+
+    run_id = str(n_time).strip(":") + "_" + scenario_file.rsplit('.', 1)[0] + "_" + solution_file.rsplit('.', 1)[0]
+    direction = "./outputs/csv/multiple/" + run_id
     if not os.path.exists(direction):
         os.makedirs(direction)
     out = open(direction + "/multiprocess.txt", "w")
+
     child_processes = []
-    process_cnt=0
-    #THIS IS WHERE YOU ITERATE THROUGH ARGUMENTS
-    scenario_arguments = ["center_radius_flock"]
-    solution_arguments = ["disk"]
-    spacing = [3.0]
-    for y in scenario_arguments:
-        for x in solution_arguments:
-            for z in spacing:
-                for seed in range(seed_start, seed_end+1):
-                    process ="python3.6", "swarmsim.py", "-n"+ str(max_round), "-m 1", "-d"+str(n_time),\
-                                          "-r"+ str(seed), "-v" + str(0), "-x" + x, "-y" + y, "-z" + str(z)
-                    p = subprocess.Popen(process, stdout=out, stderr=out)
-                    child_processes.append(p)
-                    process_cnt += 1
-                    print("Process Nr. ", process_cnt, "started")
-                    if len(child_processes) == os.cpu_count():
-                        for cp in child_processes:
-                            cp.wait()
-                        child_processes.clear()
+    process_cnt = 0
+
+    # NOTE: THIS IS WHERE YOU ITERATE THROUGH ARGUMENTS
+    scenario_arguments = ["edge_line_flock"]
+    comms_arguments = ["friis_upper"] # "friis_average", "friis_lower", "pister_hack"]
+    spacing = [2.0]
+    FLOCK_START, FLOCK_END = 5, 100
+    flock_rads = [10.0] # [5, 10, 20, 40, 80] # list(np.linspace(FLOCK_START, FLOCK_END, FLOCK_END - FLOCK_START + 1))
+    flock_vels = [5.0] # [1, 5, 10, 20, 50]
+    follow_bools = [1] # [0, 1]
+    num_agents = [10]
+    enumerated_params = (scenario_arguments, comms_arguments, spacing, flock_rads, flock_vels, follow_bools, num_agents)
+
+    for (init, comms, spacing, flock_rad, flock_vel, follow, num_agents) in product(*enumerated_params):
+        for seed in range(seed_start, seed_end):
+            process = ("python", "swarmsim.py",
+                                    "-r", str(seed),
+                                    "-v", str(0),
+                                    "-w", scenario_file,
+                                    "-s", solution_file,
+                                    "-n", str(max_round),
+                                    "-m", "1",
+                                    "-d", str(n_time),
+                                    "--init", init,
+                                    "--comms", comms,
+                                    "--spacing", str(spacing),
+                                    "--num_agents", str(num_agents),
+                                    "--flock_rad", str(flock_rad),
+                                    "--flock_vel", str(flock_vel),
+                                    "--follow", str(follow),
+                                    "--run_id", str(run_id))
+            # TODO: other args? env
+            # TODO: follow the leader boolean
+            p = subprocess.Popen(process, stdout=out, stderr=out)
+            child_processes.append(p)
+            process_cnt += 1
+            print(f"Process #{process_cnt} started - {process}")
+            if len(child_processes) == os.cpu_count():
+                for cp in child_processes:
+                    cp.wait()
+                child_processes.clear()
 
     for cp in child_processes:
         cp.wait()
-    fout = open(direction+"/all_aggregates.csv","w+")
-    for seed in range(seed_start, seed_end+1):
-        f = open(direction+"/"+str(seed)+"/aggregate_rounds.csv")
-        f.__next__() # skip the header
-        for line in f:
-            fout.write(line)
-        f.close() # not really needed
-    fout.close()
 
 
 if __name__ == "__main__":

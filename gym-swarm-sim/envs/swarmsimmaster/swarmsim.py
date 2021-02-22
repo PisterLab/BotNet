@@ -78,7 +78,11 @@ def do_reset(swarm_sim_world):
 
 def read_cmd_args(config_data, argv=[]):
     try:
-        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:x:y:z:", ["solution=", "scenario="])
+        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:",
+                        ["solution=", "scenario=",
+                        "init=", "comms=", "spacing=", "num_agents=",
+                        "flock_rad=", "flock_vel=",
+                        "run_id=", "follow="])
     except getopt.GetoptError:
         print('Error: swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
         sys.exit(2)
@@ -100,20 +104,30 @@ def read_cmd_args(config_data, argv=[]):
             config_data.visualization = int(arg)
         elif opt in "-d":
             config_data.local_time = str(arg)
-        elif opt in "-x":
-            config_data.solution_arg = arg
-        elif opt in "-y":
+        elif opt in "--comms":
+            config_data.comms_model = arg
+        elif opt in "--init":
             config_data.scenario_arg = arg
-        elif opt in "-z":
+        elif opt in "--spacing":
             config_data.spacing = float(arg)
+        elif opt in "--num_agents":
+            config_data.num_agents = int(arg)
+        elif opt in "--flock_rad":
+            config_data.flock_rad = float(arg)
+        elif opt in "--flock_vel":
+            config_data.flock_vel = float(arg)
+        elif opt in "--run_id":
+            config_data.id = arg
+        elif opt in "--follow":
+            config_data.follow = bool(int(arg))
 
 
 def create_directory_for_data(config_data, unique_descriptor):
     if config_data.multiple_sim == 1:
         config_data.directory_name = "%s/%s" % (unique_descriptor, str(config_data.seed_value))
 
-        config_data.directory_csv = "./outputs/csv/mulitple/" + config_data.directory_name
-        config_data.directory_plot = "./outputs/plot/mulitple/" + config_data.directory_name
+        config_data.directory_csv = "./outputs/csv/multiple/" + config_data.directory_name
+        config_data.directory_plot = "./outputs/plot/multiple/" + config_data.directory_name
 
 
     else:
@@ -130,10 +144,7 @@ def create_directory_for_data(config_data, unique_descriptor):
 def run_solution(swarm_sim_world):
     if swarm_sim_world.config_data.agent_random_order_always:
         random.shuffle(swarm_sim_world.agents)
-    try:
-        get_solution(swarm_sim_world.config_data).solution(swarm_sim_world, swarm_sim_world.config_data.solution_arg)
-    except:
-        get_solution(swarm_sim_world.config_data).solution(swarm_sim_world)
+    get_solution(swarm_sim_world.config_data).solution(swarm_sim_world)
     swarm_sim_world.csv_round.next_line(swarm_sim_world.get_actual_round(), swarm_sim_world.get_agent_list())
     swarm_sim_world.inc_round_counter_by(number=1)
 
