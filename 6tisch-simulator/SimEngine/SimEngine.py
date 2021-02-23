@@ -42,6 +42,8 @@ import numpy as np
 
 # =========================== defines =========================================
 
+ROBOT_SIM_ENABLED = False
+
 # =========================== body ============================================
 
 class DiscreteEventEngine(threading.Thread):
@@ -125,7 +127,8 @@ class DiscreteEventEngine(threading.Thread):
             # consume events until self.goOn is False
             while self.goOn:
                 # tell robotic simulator to run for 1 ASN
-                self._robo_sim_loop()
+                if ROBOT_SIM_ENABLED:
+                    self._robo_sim_loop()
                 with self.dataLock:
 
                     # abort simulation when no more events
@@ -136,7 +139,8 @@ class DiscreteEventEngine(threading.Thread):
                     self.asn += 1
 
                     # perform any inter-simulator synchronization
-                    self._robo_sim_sync()
+                    if ROBOT_SIM_ENABLED:
+                        self._robo_sim_sync()
 
                     if self.asn not in self.events:
                         continue
@@ -157,7 +161,8 @@ class DiscreteEventEngine(threading.Thread):
                     cb()
                     # if rcv_cb: update rcving_mote neighbor pose table
 
-                self._robo_sim_update()
+                if ROBOT_SIM_ENABLED:
+                    self._robo_sim_update()
 
         except Exception as e:
             # thread crashed
@@ -440,18 +445,24 @@ class SimEngine(DiscreteEventEngine):
         # TODO: perform exchange of ASN information for SwarmSim timesteps
         # TODO: scale velocities accordingly, not terribly important right now
         robotCoords                     = [(float(i) / 10, 0, 0) for i in range(self.settings.exec_numMotes)] # FIXME: this isn't actually changing coordinates
-        print(robotCoords)
-        self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords)
-        self.robot_sim.mote_key_map     = {}
+        
+        if ROBOT_SIM_ENABLED:
+            self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords)
+            self.robot_sim.mote_key_map     = {}
 
-        moteStates = self.robot_sim.get_all_mote_states()
-        print(moteStates) # hmmm
-        print(self.motes)
-        for i, robot_mote_id in enumerate(moteStates.keys()):
-            mote = self.motes[i]
-            self.robot_sim.mote_key_map[mote.id] = robot_mote_id
-            mote.setLocation(*(moteStates[robot_mote_id][:2]))
-            print(mote.getLocation())
+            moteStates = self.robot_sim.get_all_mote_states()
+            print(moteStates) # hmmm
+            print(self.motes)
+            for i, robot_mote_id in enumerate(moteStates.keys()):
+                mote = self.motes[i]
+                self.robot_sim.mote_key_map[mote.id] = robot_mote_id
+                mote.setLocation(*(moteStates[robot_mote_id][:2]))
+                print(mote.getLocation())
+        else:
+            for i, coord in enumerate(robotCoords):
+                mote = self.motes[i]
+                mote.setLocation(*(coord[:2]))
+                print(mote.getLocation())
 
         self.connectivity               = Connectivity.Connectivity(self)
         self.log                        = SimLog.SimLog().log
@@ -476,6 +487,7 @@ class SimEngine(DiscreteEventEngine):
         # boot all motes
         for i in range(len(self.motes)):
             self.motes[i].boot()
+            print(f"MOTE IPV6 ADDR: {self.motes[i].get_ipv6_global_addr()}")
 
         print("Completed SimEngine Init.")
 

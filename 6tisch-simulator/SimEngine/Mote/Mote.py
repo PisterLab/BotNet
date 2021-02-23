@@ -148,7 +148,7 @@ class Mote(object):
             # tsch
             self.tsch.clock.sync()
             self.tsch.setIsSync(True)       # dagRoot
-            self.tsch.add_minimal_cell()    # dagRpot
+            self.tsch.add_minimal_cell()    # dagRoot
             self.tsch.startSendingEBs()     # dagRoot
 
         else:
@@ -184,6 +184,8 @@ class Mote(object):
         # ask SF if its schedule is ready for EB/Data
         if returnVal is True:
             returnVal = self.sf.clear_to_send_EBs_DATA()
+
+        print(f"{self.id} CLEAR TO SEND: {returnVal}")
 
         return returnVal
 

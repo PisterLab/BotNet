@@ -124,6 +124,7 @@ class SchedulingFunctionSFNone(SchedulingFunctionBase):
         pass # do nothing
 
     def clear_to_send_EBs_DATA(self):
+        print(f"CLEAR WOOT {self.mote.id}")
         # always return True
         return True
 

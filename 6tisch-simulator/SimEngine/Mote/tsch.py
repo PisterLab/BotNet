@@ -507,6 +507,7 @@ class Tsch(object):
                         and
                         self._decided_to_send_eb()
                     ):
+                    print("SENDING EB")
                     packet_to_send = self._create_EB()
                 else:
                     packet_to_send = None
@@ -921,6 +922,7 @@ class Tsch(object):
                     # take care of the retransmission backoff algorithm
                     if _packet_to_send is not None:
                         if _packet_to_send[u'type'] == d.PKT_TYPE_EB:
+                            print("**TRYING TO SEND EB**")
                             if (
                                     (
                                         (cell.mac_addr is None)
@@ -940,6 +942,7 @@ class Tsch(object):
                                 packet_to_send = _packet_to_send
                                 active_cell = cell
                             else:
+                                print("hmmmm...")
                                 # we don't send an EB on a NORMAL
                                 # link; skip this one
                                 pass
@@ -1039,6 +1042,7 @@ class Tsch(object):
         else:
             # identify a cell to be activated
             self.active_cell, self.pktToSend = self._select_active_cell(candidate_cells)
+            print(self.active_cell, self.pktToSend)
 
         if self.active_cell:
             if self.pktToSend is None:
@@ -1103,6 +1107,8 @@ class Tsch(object):
             pktToSend[u'mac'][u'pending_bit'] = True
         else:
             pktToSend[u'mac'][u'pending_bit'] = False
+
+        print(pktToSend[u'mac'][u'pending_bit'])
 
         # send packet to the radio
         self.mote.radio.startTx(channel, pktToSend)
@@ -1169,6 +1175,8 @@ class Tsch(object):
         return newEB
 
     def _action_receiveEB(self, packet):
+
+        print(f"EB RECEIVED WOOT {self.mote.id}")
 
         assert packet[u'type'] == d.PKT_TYPE_EB
 

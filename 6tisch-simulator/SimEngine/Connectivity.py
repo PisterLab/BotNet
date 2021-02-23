@@ -618,6 +618,7 @@ class ConnectivityMatrixLinear(ConnectivityMatrixBase):
                     )
             parent_id = child_id
 
+# TODO: add weighted pister hack option (weights by last sampled RSSI value & distance (inverse?), easy money b/c connectivity matrix)
 class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
     """Realistic (topology) connectivity using the Pister-Hack model
     and mote coordinates.
