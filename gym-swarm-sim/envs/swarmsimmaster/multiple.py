@@ -58,14 +58,16 @@ def main(argv):
 
     # NOTE: THIS IS WHERE YOU ITERATE THROUGH ARGUMENTS
     scenario_arguments = ["edge_line_flock"]
-    comms_arguments = ["friis_upper"] # "friis_average", "friis_lower", "pister_hack"]
+    comms_arguments = ["full", "friis_upper", "friis_average", "friis_lower", "pister_hack"]
     spacing = [2.0]
     FLOCK_START, FLOCK_END = 5, 100
-    flock_rads = [10.0] # [5, 10, 20, 40, 80] # list(np.linspace(FLOCK_START, FLOCK_END, FLOCK_END - FLOCK_START + 1))
+    flock_rads = [5, 10, 20, 40, 80] # list(np.linspace(FLOCK_START, FLOCK_END, FLOCK_END - FLOCK_START + 1))
     flock_vels = [5.0] # [1, 5, 10, 20, 50]
     follow_bools = [1] # [0, 1]
     num_agents = [10]
     enumerated_params = (scenario_arguments, comms_arguments, spacing, flock_rads, flock_vels, follow_bools, num_agents)
+
+    input(f"Press any key to run the following enumerations:\n\n{list(product(*enumerated_params))}.")
 
     for (init, comms, spacing, flock_rad, flock_vel, follow, num_agents) in product(*enumerated_params):
         for seed in range(seed_start, seed_end):
