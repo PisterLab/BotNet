@@ -55,6 +55,7 @@ class Sixlowpan(object):
             d.PKT_TYPE_DIO,
             d.PKT_TYPE_DAO,
             d.PKT_TYPE_DATA,
+            d.PKT_TYPE_DATA_BROADCAST
         ]
         assert u'srcIp' in packet[u'net']
         assert u'dstIp' in packet[u'net']
@@ -136,6 +137,7 @@ class Sixlowpan(object):
 
         assert packet[u'type'] in [
             d.PKT_TYPE_DATA,
+            d.PKT_TYPE_DATA_BROADCAST,
             d.PKT_TYPE_DIS,
             d.PKT_TYPE_DIO,
             d.PKT_TYPE_DAO,
@@ -195,7 +197,7 @@ class Sixlowpan(object):
                     self.mote.rpl.action_receiveDIO(packet)
                 elif packet[u'type'] == d.PKT_TYPE_DIS:
                     self.mote.rpl.action_receiveDIS(packet)
-                elif packet[u'type'] == d.PKT_TYPE_DATA:
+                elif packet[u'type'] == d.PKT_TYPE_DATA or packet[u'type'] == d.PKT_TYPE_DATA_BROADCAST:
                     self.mote.app.recvPacket(packet)
 
             else:
@@ -450,6 +452,7 @@ class Fragmentation(object):
         """
         assert packet[u'type'] in [
             d.PKT_TYPE_DATA,
+            d.PKT_TYPE_DATA_BROADCAST,
             d.PKT_TYPE_DIS,
             d.PKT_TYPE_DIO,
             d.PKT_TYPE_DAO,

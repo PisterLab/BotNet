@@ -445,6 +445,7 @@ class SimEngine(DiscreteEventEngine):
         # TODO: perform exchange of ASN information for SwarmSim timesteps
         # TODO: scale velocities accordingly, not terribly important right now
         robotCoords                     = [(float(i) / 10, 0, 0) for i in range(self.settings.exec_numMotes)] # FIXME: this isn't actually changing coordinates
+        self.networkStarted             = False
         
         if ROBOT_SIM_ENABLED:
             self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords)
@@ -554,13 +555,21 @@ class SimEngine(DiscreteEventEngine):
         self.robot_sim.main_loop(steps)
 
     def _robo_sim_sync(self):
+        networkStartSwitch = True
+
         states = self.robot_sim.get_all_mote_states()
         for mote in self.motes:
             mote.setLocation(*(states[self.robot_sim.mote_key_map[mote.id]][:2]))
+            networkStartSwitch = networkStartSwitch and mote.tsch.isSync
         
         self.connectivity.matrix.update()
 
+        self.networkStarted = self.networkStarted or networkStartSwitch
+
     def _robo_sim_update(self):
+        if not self.networkStarted:
+            return
+
         if self.asn % self.settings.rrsf_slotframe_len != 0:
             return
 

@@ -602,7 +602,8 @@ class Tsch(object):
             assert self.pktToSend[u'type'] in [
                 d.PKT_TYPE_EB,
                 d.PKT_TYPE_DIO,
-                d.PKT_TYPE_DIS
+                d.PKT_TYPE_DIS,
+                d.PKT_TYPE_DATA_BROADCAST
             ]
             assert isACKed == False
 
@@ -813,7 +814,8 @@ class Tsch(object):
                 elif u'net' in packet:
                     assert packet[u'type'] in [
                         d.PKT_TYPE_DIO,
-                        d.PKT_TYPE_DIS
+                        d.PKT_TYPE_DIS,
+                        d.PKT_TYPE_DATA_BROADCAST
                     ]
                     self.mote.sixlowpan.recvPacket(packet)
                 else:

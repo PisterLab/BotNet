@@ -295,7 +295,7 @@ class AppLocation(AppRoot):
 
     def recvPacket(self, packet):
         print(f"PACKET RECEIVED: {self.mote.id} : {packet}")
-        # self.mote.neighbors[packet[u'app'][u'id']] = packet[u'app'][u'location']
+        self.mote.neighbors[packet[u'app'][u'id']] = packet[u'app'][u'location']
 
     #======================== private ==========================================
 
@@ -342,8 +342,8 @@ class AppLocation(AppRoot):
             u'app': {
                 u'appcounter':    self.appcounter,
                 u'timestamp':     self.engine.getAsn(),
-                # u'location':      (self.mote.x, self.mote.y),
-                # u'id':            self.mote.id
+                u'location':      (self.mote.x, self.mote.y),
+                u'id':            self.mote.id
             }
         }
 
@@ -360,7 +360,7 @@ class AppLocation(AppRoot):
         # create
         packet = self._generate_packet(
             dstIp          = dstIp,
-            packet_type    = d.PKT_TYPE_DATA,
+            packet_type    = d.PKT_TYPE_DATA_BROADCAST,
             packet_length  = packet_length
         )
 
