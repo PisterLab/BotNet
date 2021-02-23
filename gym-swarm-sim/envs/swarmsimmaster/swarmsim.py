@@ -11,7 +11,7 @@ from core.vis3d import ResetException
 
 
 def swarm_sim(argv=[]):
-    """In the main function first the config is getting parsed and than
+    """In the main function first the config is getting parsed and then
     the swarm_sim_world and the swarm_sim_world item is created. Afterwards the run method of the swarm_sim_world
     is called in which the simulator is going to start to run"""
     config_data = config.ConfigData()
