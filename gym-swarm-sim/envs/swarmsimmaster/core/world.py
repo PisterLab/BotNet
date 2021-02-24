@@ -15,7 +15,15 @@ from core import agent, item, location, vis3d, velo_controlled_agent
 from core.visualization.utils import show_msg, TopQFileDialog, VisualizationError, Level
 
 
-def load_scenario(mod, world, goons):
+def load_scenario(mod, world, goons=None):
+    """
+    Function to load the scenario into the world.
+
+    Parameters:
+    -----------
+        goons = a place to pass optional arguments into the scenario functions. Must be used in conjuction with a scenario which accepts args.
+
+    """
     if goons:
         try:
             mod.scenario(world, goons)
@@ -119,6 +127,7 @@ class World:
             self.vis.reset()
 
     def init_scenario(self, scenario_module, goons=None):
+        """Manages Threads and calls load scenario"""
         if self.config_data.visualization:
             # if visualization is on, run the scenario in a separate thread and show that the program runs..
             x = threading.Thread(target=load_scenario, args=(scenario_module, self, goons))
@@ -387,7 +396,7 @@ class World:
     def set_location_deleted(self):
         self.__location_deleted = False
 
-    ##TODO: add ability to set initial velocities.
+
     def add_agent(self, coordinates, color=None, new_class=agent.Agent, velocities=None):
         """
         Add an agent to the world database
