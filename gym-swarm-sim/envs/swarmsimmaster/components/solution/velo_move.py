@@ -28,7 +28,8 @@ def solution(world):
                 control_inputs[agent] = (flock_vel, 0, 0)
                 continue
             vx, vy, vz = 0, 0, 0
-            for neighbor in world.get_agent_list(): # TODO: agent neighbors
+            for j, neighbor in enumerate(world.get_agent_list()): # TODO: agent neighbors
+                scaling = 1
                 if agent == neighbor:
                     continue
 
@@ -43,8 +44,11 @@ def solution(world):
                 if not comm_range:
                     continue
                 
-                vx += 2*(x1-x2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
-                vy += 2*(y1-y2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
+                if follow and j == 0:
+                    scaling = float(max(1, len(world.get_agent_list()) / 10)) # NOTE: magic number boo
+
+                vx += 2*scaling*(x1-x2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
+                vy += 2*scaling*(y1-y2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
                 vz += 0
 
                 if not follow:
