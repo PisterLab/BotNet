@@ -6,9 +6,9 @@ def scenario(world, init_scenario="edge_line_flock"):
 
     world.config_data.scenario_arg = init_scenario
     if init_scenario == "center_radius_flock":
-        world.add_agent((0.0, 0.0))
+        world.add_agent((spacing * 1.1, 0.0))
         for i in range(num_agents):
-            x, y = spacing * (np.random.rand(2) - 1)
+            x, y = 2 * spacing * (np.random.rand(2) - .5)
             world.add_agent((x, y))
     elif init_scenario == "edge_radius_flock":
         for i in range(num_agents):

@@ -48,6 +48,7 @@ def main(argv):
     # TODO: random seeds, monte carlo, etc.
 
     run_id = str(n_time).strip(":") + "_" + scenario_file.rsplit('.', 1)[0] + "_" + solution_file.rsplit('.', 1)[0]
+    run_id = run_id.strip("/") # NOTE: check
     direction = "./outputs/csv/multiple/" + run_id
     if not os.path.exists(direction):
         os.makedirs(direction)
@@ -57,11 +58,11 @@ def main(argv):
     process_cnt = 0
 
     # NOTE: THIS IS WHERE YOU ITERATE THROUGH ARGUMENTS
-    scenario_arguments = ["edge_line_flock"]
+    scenario_arguments = ["edge_radius_flock"]
     comms_arguments = ["full", "friis_upper", "friis_average", "friis_lower", "pister_hack"]
-    spacing = [2.0]
+    spacing = [5.0]
     FLOCK_START, FLOCK_END = 5, 100
-    flock_rads = [5, 10, 20, 40, 80] # list(np.linspace(FLOCK_START, FLOCK_END, FLOCK_END - FLOCK_START + 1))
+    flock_rads = [20] # list(np.linspace(FLOCK_START, FLOCK_END, FLOCK_END - FLOCK_START + 1))
     flock_vels = [5.0] # [1, 5, 10, 20, 50]
     follow_bools = [1] # [0, 1]
     num_agents = [10]
