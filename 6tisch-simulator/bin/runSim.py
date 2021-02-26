@@ -18,7 +18,7 @@ SIM_ROOT_PATH = os.path.dirname(__file__)
 DEFAULT_CONFIG_PATH = os.path.join(
     SIM_ROOT_PATH,
     'config.json'
-)
+) # TODO: create symlink from config.json
 
 if __name__ == '__main__':
     here = sys.path[0]

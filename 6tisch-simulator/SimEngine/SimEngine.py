@@ -42,7 +42,7 @@ import numpy as np
 
 # =========================== defines =========================================
 
-ROBOT_SIM_ENABLED = False
+ROBOT_SIM_ENABLED = True
 
 # =========================== body ============================================
 
@@ -552,7 +552,8 @@ class SimEngine(DiscreteEventEngine):
     # ============== Robot Simulator Communication ====================
 
     def _robo_sim_loop(self, steps=1):
-        self.robot_sim.main_loop(steps)
+        if self.networkStarted:
+            self.robot_sim.main_loop(steps)
 
     def _robo_sim_sync(self):
         networkStartSwitch = True
@@ -573,13 +574,13 @@ class SimEngine(DiscreteEventEngine):
         if self.asn % self.settings.rrsf_slotframe_len != 0:
             return
 
-        agent_neighbor_dict = {}
+        agent_neighbor_table = []
         for agent in self.motes:
             if agent.neighbors:
-                agent_neighbor_dict[self.robot_sim.mote_key_map[agent.id]] = agent.neighbors
-                agent.neighbors = [] # flush neighbors
+                agent_neighbor_table.append((agent.id, agent.neighbors))
+                agent.neighbors = {} # flush neighbors
 
-        self.robot_sim.set_all_mote_neighbors(agent_neighbor_dict)
+        self.robot_sim.set_all_mote_neighbors(agent_neighbor_table)
 
     def _robo_sim_control(self):
         # NOTE: DEPRECATED
@@ -600,11 +601,11 @@ class SimEngine(DiscreteEventEngine):
 
                 if agent == neighbor:
                     continue
-                
+
                 vx += 2*(x1-x2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
                 vy += 2*(y1-y2) * (k_conn*np.exp((dist)/(R2*R2)) / (R2*R2) - k_col*np.exp(-(dist)/(R1*R1)) / (R1*R1))
                 vz += 0
-                
+
             control_inputs[self.robot_sim.mote_key_map[agent.id]] = (-vx, -vy, -vz)
 
         self.robot_sim.assign_velos(control_inputs)

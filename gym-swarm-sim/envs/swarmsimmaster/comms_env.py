@@ -148,12 +148,15 @@ class SwarmSimCommsEnv():
         for mote in new_velos:
             id_map[mote].set_velocities(new_velos[mote])
 
-    def set_all_mote_neighbors(self, agent_neighbor_dict):
-        for i, (agent_id, neighbors) in agent_neighbor_dict:
+    def set_all_mote_neighbors(self, agent_neighbor_table):
+        id_map = self.swarm_sim_world.get_agent_map_id()
+        for (net_id, neighbors) in agent_neighbor_table:
+            agent_id = self.mote_key_map[net_id] # NOTE: this is set in the network simulator
             mote = id_map[agent_id]
+            mote.id = agent_id # FIXME: THIS IS DUMB BUT IT WORKS
             mote.neighbors = neighbors
-            if mote.id != 0 or _leader_agent_move(self.swarm_sim_world, mote):
-                mote.control_update()
+            if net_id != 0 or not self._leader_agent_move(mote):
+                mote.control_update(self.mote_key_map)
 
     def get_all_mote_states(self):
         id_map = self.swarm_sim_world.get_agent_map_id()
@@ -164,14 +167,15 @@ class SwarmSimCommsEnv():
 
         return positions
 
-    def _leader_agent_move(world, agent):
-        if world.get_actual_round() < 200:
+    def _leader_agent_move(self, agent):
+        round = self.swarm_sim_world.get_actual_round()
+        if round < 200:
             agent.set_velocities((1, 0, 0))
-        elif world.get_actual_round() < 300:
+        elif round < 300:
             agent.set_velocities((1, 10, 0))
-        elif world.get_actual_round() < 400:
+        elif round < 400:
             agent.set_velocities((0, 1, 0))
-        elif world.get_actual_round() < 650:
+        elif round < 650:
             agent.set_velocities((-1, -2, 0))
         else:
             return False
