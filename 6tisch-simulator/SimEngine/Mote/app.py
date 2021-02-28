@@ -317,10 +317,11 @@ class AppLocation(AppRoot):
         )
 
     def _broadcast_location(self):
-        self._send_packet(
-            dstIp          = self.BROADCAST_IP,
-            packet_length  = self.settings.app_pkLength
-        )
+        if self.engine.networkStarted:
+            self._send_packet(
+                dstIp          = self.BROADCAST_IP,
+                packet_length  = self.settings.app_pkLength
+            )
         # schedule the next transmission
         self._schedule_transmission()
 

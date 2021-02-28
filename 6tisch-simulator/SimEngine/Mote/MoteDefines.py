@@ -7,6 +7,7 @@ WAITING_FOR_RX                              = u'waiting_for_rx'
 
 # === addressing
 BROADCAST_ADDRESS                           = u'FF-FF'
+BROADCAST_IP                                = u'ff02::1a'
 
 # === packet types
 PKT_TYPE_DATA                               = u'DATA'

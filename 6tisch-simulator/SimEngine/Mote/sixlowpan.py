@@ -84,7 +84,7 @@ class Sixlowpan(object):
         # add source route, if needed
         if goOn:
             if (
-                    (self.mote.dagRoot)
+                    (self.mote.dagRoot and not packet[u'type'] == d.PKT_TYPE_DATA_BROADCAST)
                     and
                     ((netaddr.IPAddress(packet[u'net'][u'srcIp']).words[0] & 0xFE80) != 0xFE80)
                 ):
