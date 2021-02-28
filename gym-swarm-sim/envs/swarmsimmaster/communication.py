@@ -1,12 +1,9 @@
 import numpy as np
 import math
 
-ALL_MODELS = ["full", "disk", "friis_upper", "friis_average", "friis_lower", "pister_hack"]
-
 SPEED_OF_LIGHT = 3e8  # m / s
 TWO_DOT_FOUR_GHZ = 2.4e9  # Hz
 PISTER_HACK_LOWER_SHIFT = 40  # dB
-
 
 def communication_model(x1, y1, x2, y2, comms_model="friis_upper", DISK_RANGE_M="3"):
     dist = np.sqrt((x2-x1)**2 + (y2-y1)**2)

@@ -2,14 +2,14 @@ import numpy as np
 import random
 
 def scenario(world):
-    swarm_size = 100
+    swarm_size = world.config_data.num_agents
     center = world.grid.get_center()
 
 
     for s in range(swarm_size):
         # spawn = (np.random.random(size=(3)) * 2 - 1) + center
         # spawn[2] = 0
-        spawn = list(circle_spawn())
+        spawn = list(circle_spawn(swarm_size))
         spawn.append(0)
         world.add_agent(tuple(spawn))
 
@@ -25,8 +25,10 @@ def scenario(world):
     #     world.add_agent(tuple([x, y, 0]))
     #     print(x, y)
 
-def circle_spawn():
+def circle_spawn(swarm_size):
+    density = 0.22
     t = 2 * np.pi * np.random.random()
     u = np.random.random() + np.random.random()
     r = 2 - u if u > 1 else u
-    return np.array([r * np.cos(t) * 12, r * np.sin(t) * 12])
+    radius =  pow(swarm_size / (density * np.pi), 0.5)
+    return np.array([r * np.cos(t) * radius, r * np.sin(t) * radius])

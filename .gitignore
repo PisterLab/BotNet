@@ -180,3 +180,5 @@ Thumbs.db
 .cache/
 /test-reports
 .pytest_cache
+
+gym-swarm-sim/envs/swarmsimmaster/logs/*
