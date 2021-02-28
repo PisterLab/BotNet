@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-ALL_MODELS = ["full", "disk", "los", "los_disk", "friis_upper", "friis_average", "friis_lower", "pister_hack"]
+ALL_MODELS = ["full", "disk", "friis_upper", "friis_average", "friis_lower", "pister_hack"]
 
 SPEED_OF_LIGHT = 3e8  # m / s
 TWO_DOT_FOUR_GHZ = 2.4e9  # Hz
