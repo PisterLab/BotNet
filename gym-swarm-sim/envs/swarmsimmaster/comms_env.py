@@ -1,4 +1,4 @@
-"""This is the main module of the Opportunistic Robotics Network Simulator"""
+"""This is the main module interfacing between SwarmSim and 6TiSCH"""
 import importlib
 import getopt
 import logging
@@ -6,18 +6,24 @@ import os
 import sys
 import time
 import random
+import pandas as pd
 from core import world, config
 from core.vis3d import ResetException
 
 def read_cmd_args(config_data, argv=[]):
     try:
-        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:", ["solution=", "scenario="])
+        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:",
+                                   ["solution=", "scenario=",
+                                    "init=", "comms=", "spacing=", "num_agents=",
+                                    "flock_rad=", "flock_vel=",
+                                    "run_id=", "follow="])
+
     except getopt.GetoptError:
-        print('Error: swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
+        print('Error: comms_env.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
+            print('comms_env.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
             sys.exit()
         elif opt in ("-s", "--solution"):
             config_data.solution = arg
@@ -33,6 +39,22 @@ def read_cmd_args(config_data, argv=[]):
             config_data.visualization = int(arg)
         elif opt in "-d":
             config_data.local_time = str(arg)
+        elif opt in "--comms":
+            config_data.comms_model = arg
+        elif opt in "--init":
+            config_data.scenario_arg = arg
+        elif opt in "--spacing":
+            config_data.spacing = float(arg)
+        elif opt in "--num_agents":
+            config_data.num_agents = int(arg)
+        elif opt in "--flock_rad":
+            config_data.flock_rad = float(arg)
+        elif opt in "--flock_vel":
+            config_data.flock_vel = float(arg)
+        elif opt in "--run_id":
+            config_data.id = arg
+        elif opt in "--follow":
+            config_data.follow = bool(int(arg))
 
 
 def create_directory_for_data(config_data, unique_descriptor):
@@ -70,7 +92,7 @@ def get_scenario(config_data):
 
 ##threading with the passing of initial conditions
 class SwarmSimCommsEnv():
-    def __init__(self, goons=[(0,0,0)]):
+    def __init__(self, goons=[(0,0,0)], timestep=0.010):
 
         #get config data
         self.config_data = config.ConfigData()
@@ -91,20 +113,25 @@ class SwarmSimCommsEnv():
 
         #set up world
         self.swarm_sim_world = world.World(self.config_data)
-        self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data))
+        self.swarm_sim_world.timestep = timestep
+        self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), goons)
+
+        self._init_log()
 
     def main_loop(self, iterations=1):
         round_start_timestamp = time.perf_counter()  # TODO: work with this
         # keep simulation going if set to infinite or there are still rounds left
         i = 0
-        while i < iterations:
+        while i < iterations: # TODO: for i in range(iterations)
             try:
-                # check to see if its neccessary to run the vis
+                # check to see if its necessary to run the vis
                 if self.config_data.visualization:
                     self.swarm_sim_world.vis.run(round_start_timestamp) # FIXME: seg fault when visualization enabled with 6TiSCH
                 # run the solution for 1 step
                 self.run_solution()
-            except ResetException: # TODO: need to improve exception handlng
+
+                self._log()
+            except ResetException: # TODO: need to improve exception handling
                 self.do_reset()
                 return False
 
@@ -155,33 +182,31 @@ class SwarmSimCommsEnv():
             mote = id_map[agent_id]
             mote.id = agent_id # FIXME: THIS IS DUMB BUT IT WORKS
             mote.neighbors = neighbors
-            if net_id != 0 or not self._leader_agent_move(mote):
-                mote.control_update(self.mote_key_map)
+
+            mote.control_update(self.mote_key_map)
 
     def get_all_mote_states(self):
         id_map = self.swarm_sim_world.get_agent_map_id()
         positions = {}
         for agent_id in id_map:
             mote = id_map[agent_id]
-            positions[agent_id] = mote.coordinates #mb an access function in the agent class rather than this
+            positions[agent_id] = mote.coordinates
 
         return positions
 
-    def _leader_agent_move(self, agent):
-        round = self.swarm_sim_world.get_actual_round()
-        if round < 200:
-            agent.set_velocities((1, 0, 0))
-        elif round < 300:
-            agent.set_velocities((1, 10, 0))
-        elif round < 400:
-            agent.set_velocities((0, 1, 0))
-        elif round < 650:
-            agent.set_velocities((-1, -2, 0))
-        else:
-            return False
-        return True
+    def _init_log(self):
+        cols = []
+        for agent in self.swarm_sim_world.get_agent_list():
+            cols.append(agent.get_id())
+        self.results_df = pd.DataFrame(columns=cols)
 
-if __name__ == "__main__":
+    def _log(self):
+        new_row = {}
+        for agent in self.swarm_sim_world.get_agent_list():
+            new_row[agent.get_id()] = agent.coordinates
+        self.results_df = self.results_df.append(new_row, ignore_index=True)
+
+if __name__ == "__main__": # TODO: mark as example
     test = SwarmSimCommsEnv()
     motes = test.get_all_mote_states().keys()
     velos = {}

@@ -642,7 +642,7 @@ class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
         # loop through all pairs of motes and set RSSI/PDR both directions
         for target_mote_id in self.mote_id_list:
 
-            coordinate = [x / 1000 for x in self._get_mote(target_mote_id).getLocation()]
+            coordinate = self._get_mote(target_mote_id).getLocation(km=True)
 
             if target_mote_id == 0:
                 self.coordinates[target_mote_id] = coordinate
@@ -667,6 +667,7 @@ class ConnectivityMatrixRealistic(ConnectivityMatrixBase):
                 # TODO: this should only update PDR and RSSI if the mote has moved
                 # TODO: if the mote has moved less than lambda / 10, perform weighted average of previous and current
                 #       otherwise, sample new Hack Model RSSI --> PDR
+                # TODO: make this a setting / another communication model (should be its own experiment)
 
                 # memorize the rssi and pdr values at the base channel
                 self.set_pdr_both_directions(

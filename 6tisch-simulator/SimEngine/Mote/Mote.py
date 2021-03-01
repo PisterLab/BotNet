@@ -130,9 +130,10 @@ class Mote(object):
             self.x = x
             self.y = y
 
-    def getLocation(self):
+    def getLocation(self, km=False):
         with self.dataLock:
-            return self.x, self.y
+            scale = (1 / 1000) if km else 1
+            return scale * self.x, scale * self.y
 
     def boot(self):
 

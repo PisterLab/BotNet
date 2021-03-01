@@ -127,7 +127,7 @@ class DiscreteEventEngine(threading.Thread):
             # consume events until self.goOn is False
             while self.goOn:
                 # tell robotic simulator to run for 1 ASN
-                if ROBOT_SIM_ENABLED:
+                if self.settings.robot_sim_enabled:
                     self._robo_sim_loop()
                 with self.dataLock:
 
@@ -139,7 +139,7 @@ class DiscreteEventEngine(threading.Thread):
                     self.asn += 1
 
                     # perform any inter-simulator synchronization
-                    if ROBOT_SIM_ENABLED:
+                    if self.settings.robot_sim_enabled:
                         self._robo_sim_sync()
 
                     if self.asn not in self.events:
@@ -161,7 +161,7 @@ class DiscreteEventEngine(threading.Thread):
                     cb()
                     # if rcv_cb: update rcving_mote neighbor pose table
 
-                if ROBOT_SIM_ENABLED:
+                if self.settings.robot_sim_enabled:
                     self._robo_sim_update()
 
         except Exception as e:
@@ -444,12 +444,16 @@ class SimEngine(DiscreteEventEngine):
         # SwarmSim, TODO: this will be an RPC call implemented by the socket recipent
         # TODO: perform exchange of ASN information for SwarmSim timesteps
         # TODO: scale velocities accordingly, not terribly important right now
-        robotCoords                     = [(float(i) / 10, 0, 0) for i in range(self.settings.exec_numMotes)] # FIXME: this isn't actually changing coordinates
+        robotCoords                     = self._robot_positions_init()
+
         self.networkStarted             = False
-        
-        if ROBOT_SIM_ENABLED:
-            self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords)
+        assert len(robotCoords) == self.settings.exec_numMotes
+
+        if self.settings.robot_sim_enabled:
+            self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords,
+                                                                         timestep=self.settings.tsch_slotDuration)
             self.robot_sim.mote_key_map     = {}
+            self._init_controls_update()
 
             moteStates = self.robot_sim.get_all_mote_states()
             print(moteStates) # hmmm
@@ -549,6 +553,59 @@ class SimEngine(DiscreteEventEngine):
         # raises an exception.
         return [mote for mote in self.motes if mote.id == mote_id][0]
 
+    # ============== Robot Simulator Initialization ===================
+
+    def _robot_positions_init(self):
+        robotCoords = []
+        seed, spacing, num_agents, follow = 0, 2, self.settings.exec_numMotes, True  # TODO: query from command line in settings.py
+        np.random.seed(seed)
+
+        init_scenario = "three_test"
+        if init_scenario == "three_test":
+            robotCoords = [(float(i) / 10, 0, 0) for i in range(num_agents)]
+        elif init_scenario == "center_radius_flock":
+            robotCoords.append((spacing * 1.1,
+                                0.0))  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
+            for i in range(num_agents):
+                x, y = 2 * spacing * (np.random.rand(2) - .5)
+                robotCoords.append((x, y))
+        elif init_scenario == "edge_radius_flock":
+            for i in range(num_agents):
+                # add agents along circumference
+                theta = 2 * np.pi * float(i) / num_agents
+                robotCoords.append((spacing * np.cos(theta), spacing * np.sin(theta)))
+        elif init_scenario == "center_line_flock":  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
+            if follow:
+                robotCoords.append((0.0, 0.0))
+            for i in range(1, num_agents // 2 + 1):
+                epsilon = (np.random.rand() - .5) / 2
+                robotCoords.append((0.0, spacing * float(i) + epsilon))
+
+            for i in range(1, num_agents // 2 + 1):
+                epsilon = (np.random.rand() - .5) / 2
+                robotCoords.append((0.0, - spacing * float(i) + epsilon))
+        elif init_scenario == "edge_line_flock":  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
+            if follow:
+                robotCoords.append((0.0, spacing * float(num_agents // 2)))
+            for i in range(num_agents // 2 + 1):
+                epsilon = (np.random.rand() - .5) / 2
+                robotCoords.append((0.0, spacing * float(i) + epsilon))
+
+            for i in range(1, num_agents // 2 + 1):
+                epsilon = (np.random.rand() - .5) / 2
+                robotCoords.append((0.0, -spacing * float(i) + epsilon))
+
+        return robotCoords
+
+    def _init_controls_update(self):
+        update_mode = self.settings.control_update_mode
+        if update_mode == "Slotframe":
+            self.control_update_period = self.settings.rrsf_slotframe_len
+        elif update_mode == "Slot":
+            self.control_update_period = self.settings.control_update_period_slots
+        elif update_mode == "Hz":
+            self.control_update_period = int(1 / (self.settings.control_update_rate_hz * self.settings.tsch_slotDuration))
+
     # ============== Robot Simulator Communication ====================
 
     def _robo_sim_loop(self, steps=1):
@@ -571,7 +628,7 @@ class SimEngine(DiscreteEventEngine):
         if not self.networkStarted:
             return
 
-        if self.asn % self.settings.rrsf_slotframe_len != 0:
+        if self.asn % self.control_update_period != 0:
             return
 
         agent_neighbor_table = []

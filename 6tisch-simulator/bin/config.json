@@ -58,7 +58,11 @@
 
             "motes_eui64":                                 [],
 
-            "control_connectivity_model":                  "Full"
+            "robot_sim_enabled":                           true,
+            "control_connectivity_model":                  "Full",
+            "control_update_mode":                         "Slotframe",
+            "control_update_period_slots":                 1,
+            "control_update_rate_hz":                      10
         }
     },
     "logging":                                             "all",
