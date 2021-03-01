@@ -124,7 +124,7 @@ class SchedulingFunctionSFNone(SchedulingFunctionBase):
         pass # do nothing
 
     def clear_to_send_EBs_DATA(self):
-        print(f"CLEAR WOOT {self.mote.id}")
+        self.mote.console_log(f"RRSF - CLEAR TO SEND EB DATA")
         # always return True
         return True
 
@@ -138,11 +138,11 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
 
         # additional initialization
         self.locked_slots         = set([]) # slots in on-going ADD transactions
-        print(f"RRSF {self.mote.id}")
+        self.mote.console_log(f"RRSF INIT")
 
     def start(self):
         # allocate all Rx cells within the base channel, then allocate Tx cells based on mote id???
-        print("STARTING RRSF")
+        self.mote.console_log(f"STARTING RRSF")
         self.mote.tsch.add_slotframe(
             slotframe_handle = self.SLOTFRAME_HANDLE_LOCATION_BROADCAST,
             length           = self.mote.settings.rrsf_slotframe_len
@@ -152,7 +152,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
 
         self.allocate_rx_cells(self.broadcast_slotframe)
         self.allocate_tx_cell(self.broadcast_slotframe, self.mote.id)
-        print("COMPLETED RRSF INIT")
+        self.mote.console_log(f"COMPLETED RRSF INIT")
 
     def stop(self):
         # deallocate cells? and remove any future events
@@ -192,7 +192,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
                 cellOptions        = [d.CELLOPTION_RX],
                 slotframe_handle   = slotframe.slotframe_handle
             )
-        print(f"Added {slotframe.length} Rx cells.")
+        self.mote.console_log(f"Added {slotframe.length} Rx cells.")
 
     def allocate_tx_cell(self, slotframe, slotOffset, channelOffset = 0):
         """
@@ -206,7 +206,7 @@ class SchedulingFunctionRRSF(SchedulingFunctionBase):
             cellOptions        = [d.CELLOPTION_TX],
             slotframe_handle   = slotframe.slotframe_handle
         )
-        print(f"Allocated slot {slotOffset} for Tx mode.")
+        self.mote.console_log(f"Allocated slot {slotOffset} for Tx mode.")
 
     def deallocate_rx_cell(self, slotframe, slotOffset, channelOffset):
         """

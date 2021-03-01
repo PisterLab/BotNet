@@ -77,7 +77,7 @@ class Radio(object):
             u'packet':  packet,
         }
 
-        print(f"**{self.mote.id} STARTED TX FOR {packet} on {channel}**")
+        self.mote.console_log(f"STARTED TX FOR {packet} on channel {channel}")
 
     def txDone(self, isACKed):
         """end of tx slot"""
@@ -87,7 +87,7 @@ class Radio(object):
 
         onGoingBroadcast = (self.onGoingTransmission[u'packet'][u'mac'][u'dstMac']==d.BROADCAST_ADDRESS)
 
-        print(f"{self.mote.id} FINISHED TX (ACKED {isACKed}) {self.mote.tsch.getIsSync()}")
+        self.mote.console_log(f"FINISHED TX (ACKED {isACKed}) (SYNCED {self.mote.tsch.getIsSync()})")
 
         # log charge consumed
         if self.mote.tsch.getIsSync():
@@ -118,7 +118,7 @@ class Radio(object):
     def rxDone(self, packet):
         """end of RX radio activity"""
 
-        print(f"****************MOTE {self.mote.id} RX DONE: {packet}")
+        self.mote.console_log(f"RX DONE: {packet}")
 
         # switch radio state
         self.state   = d.RADIO_STATE_OFF

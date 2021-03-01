@@ -116,7 +116,7 @@ class SwarmSimCommsEnv():
         self.swarm_sim_world.timestep = timestep
         self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), goons)
 
-        self._init_log()
+        # self._init_log()
 
     def main_loop(self, iterations=1):
         round_start_timestamp = time.perf_counter()  # TODO: work with this
@@ -130,7 +130,7 @@ class SwarmSimCommsEnv():
                 # run the solution for 1 step
                 self.run_solution()
 
-                self._log()
+                # self._log()
             except ResetException: # TODO: need to improve exception handling
                 self.do_reset()
                 return False

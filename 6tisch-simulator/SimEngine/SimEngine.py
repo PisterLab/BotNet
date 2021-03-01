@@ -446,8 +446,7 @@ class SimEngine(DiscreteEventEngine):
         # TODO: scale velocities accordingly, not terribly important right now
         robotCoords                     = self._robot_positions_init()
 
-        self.networkStarted             = False
-        assert len(robotCoords) == self.settings.exec_numMotes
+        self.networkFormed              = False
 
         if self.settings.robot_sim_enabled:
             self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords,
@@ -595,6 +594,8 @@ class SimEngine(DiscreteEventEngine):
                 epsilon = (np.random.rand() - .5) / 2
                 robotCoords.append((0.0, -spacing * float(i) + epsilon))
 
+        assert len(robotCoords) == self.settings.exec_numMotes
+
         return robotCoords
 
     def _init_controls_update(self):
@@ -609,7 +610,7 @@ class SimEngine(DiscreteEventEngine):
     # ============== Robot Simulator Communication ====================
 
     def _robo_sim_loop(self, steps=1):
-        if self.networkStarted:
+        if self.networkFormed:
             self.robot_sim.main_loop(steps)
 
     def _robo_sim_sync(self):
@@ -618,17 +619,22 @@ class SimEngine(DiscreteEventEngine):
         states = self.robot_sim.get_all_mote_states()
         for mote in self.motes:
             mote.setLocation(*(states[self.robot_sim.mote_key_map[mote.id]][:2]))
-            networkStartSwitch = networkStartSwitch and mote.tsch.isSync
+            networkStartSwitch = networkStartSwitch and mote.isBroadcasting
         
         self.connectivity.matrix.update()
 
-        self.networkStarted = self.networkStarted or networkStartSwitch
+        if not self.networkFormed and networkStartSwitch:
+            print(f"NETWORK FORMED AT {self.getAsn()}")
+            self.networkFormedTime = self.getAsn()
+
+        self.networkFormed = self.networkFormed or networkStartSwitch
 
     def _robo_sim_update(self):
-        if not self.networkStarted:
+        if not self.networkFormed:
             return
 
-        if self.asn % self.control_update_period != 0:
+        relative_asn = self.asn - self.networkFormedTime
+        if relative_asn == 0 or relative_asn % self.control_update_period != 0:
             return
 
         agent_neighbor_table = []

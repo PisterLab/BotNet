@@ -282,19 +282,19 @@ class AppLocation(AppRoot):
 
     def __init__(self, mote, **kwargs):
         super(AppLocation, self).__init__(mote)
-        print(f"INITIALIZED APP LOCATION {self.mote.id}")
+        self.mote.console_log("INITIALIZED APP LOCATION")
         self.sending_first_packet = True
 
     #======================== public ==========================================
 
     def startSendingData(self):
-        print("SENDING DATA")
+        self.mote.console_log(f"SENDING DATA FIRST TIME: {self.sending_first_packet}")
         if self.sending_first_packet:
-            print(f"SCHEDULING TRANSMISSION {self.mote.id}")
+            self.sending_first_packet = False
             self._schedule_transmission()
 
     def recvPacket(self, packet):
-        print(f"PACKET RECEIVED: {self.mote.id} : {packet}")
+        self.mote.console_log(f"PACKET RECEIVED: {self.mote.id} : {packet}")
         self.mote.neighbors[packet[u'app'][u'id']] = packet[u'app'][u'location']
 
     #======================== private ==========================================
@@ -305,7 +305,7 @@ class AppLocation(AppRoot):
         asn_schedule_tx = slotframe_len * (self.engine.getAsn() // slotframe_len) + self.mote.id
         if asn_schedule_tx <= self.engine.getAsn():
             asn_schedule_tx += slotframe_len # TODO: check this math for off by ones, right idea though
-        print(f"{self.engine.getAsn()} | {self.mote.id} SCHEDULING AT ASN: {asn_schedule_tx}")
+        self.mote.console_log(f"SCHEDULING TX AT ASN: {asn_schedule_tx}")
         self.engine.scheduleAtAsn(
             asn             = asn_schedule_tx,
             cb              = self._broadcast_location,
@@ -317,7 +317,8 @@ class AppLocation(AppRoot):
         )
 
     def _broadcast_location(self):
-        if self.engine.networkStarted:
+        self.mote.isBroadcasting = True # TODO: maybe move inside if statement
+        if self.engine.networkFormed:
             self._send_packet(
                 dstIp          = self.BROADCAST_IP,
                 packet_length  = self.settings.app_pkLength
@@ -365,7 +366,7 @@ class AppLocation(AppRoot):
             packet_length  = packet_length
         )
 
-        print(f"{self.mote.id} SENDING PACKET: {packet[u'app'][u'timestamp']}")
+        self.mote.console_log(f"SENDING PACKET: {packet[u'app'][u'timestamp']}")
 
         # log
         self.log(

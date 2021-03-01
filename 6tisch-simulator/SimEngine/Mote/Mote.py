@@ -71,6 +71,11 @@ class Mote(object):
         # potential control
         self.neighbors                 = {} # TODO: this should be passed to swarm sim with most recent update, cleared at each new step
 
+        self.isBroadcasting            = False
+
+    def console_log(self, msg):
+        print(f"[Mote {self.id} - {self.engine.getAsn()}] {msg}")
+
     # ======================= stack ===========================================
 
     # ===== role
@@ -186,7 +191,7 @@ class Mote(object):
         if returnVal is True:
             returnVal = self.sf.clear_to_send_EBs_DATA()
 
-        print(f"{self.id} CLEAR TO SEND: {returnVal}")
+        self.console_log(f"CLEAR TO SEND EB: {returnVal}")
 
         return returnVal
 
