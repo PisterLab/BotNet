@@ -455,13 +455,14 @@ class SimEngine(DiscreteEventEngine):
             self._init_controls_update()
 
             moteStates = self.robot_sim.get_all_mote_states()
-            print(moteStates) # hmmm
-            print(self.motes)
+            print(moteStates) # hmmm??
             for i, robot_mote_id in enumerate(moteStates.keys()):
                 mote = self.motes[i]
                 self.robot_sim.mote_key_map[mote.id] = robot_mote_id
                 mote.setLocation(*(moteStates[robot_mote_id][:2]))
-                print(mote.getLocation())
+                mote.console_log(mote.getLocation())
+
+            self.robot_sim.mote_key_inv_map = dict((v, k) for k, v in self.robot_sim.mote_key_map.items())
         else:
             for i, coord in enumerate(robotCoords):
                 mote = self.motes[i]
@@ -491,7 +492,7 @@ class SimEngine(DiscreteEventEngine):
         # boot all motes
         for i in range(len(self.motes)):
             self.motes[i].boot()
-            print(f"MOTE IPV6 ADDR: {self.motes[i].get_ipv6_global_addr()}")
+            self.motes[i].console_log(f"IPv6 addr: {self.motes[i].get_ipv6_global_addr()}")
 
         print("Completed SimEngine Init.")
 
@@ -633,12 +634,13 @@ class SimEngine(DiscreteEventEngine):
         if not self.networkFormed:
             return
 
-        relative_asn = self.asn - self.networkFormedTime
-        if relative_asn == 0 or relative_asn % self.control_update_period != 0:
+        relative_asn = self.asn - (self.networkFormedTime + self.control_update_period)
+        if relative_asn <= 0 or relative_asn % self.control_update_period != 0:
             return
 
         agent_neighbor_table = []
         for agent in self.motes:
+            agent.console_log(agent.neighbors)
             if agent.neighbors:
                 agent_neighbor_table.append((agent.id, agent.neighbors))
                 agent.neighbors = {} # flush neighbors

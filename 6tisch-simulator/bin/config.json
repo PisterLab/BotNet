@@ -62,7 +62,9 @@
             "control_connectivity_model":                  "Full",
             "control_update_mode":                         "Slotframe",
             "control_update_period_slots":                 1,
-            "control_update_rate_hz":                      10
+            "control_update_rate_hz":                      10,
+
+            "console_logging":                             true
         }
     },
     "logging":                                             "all",

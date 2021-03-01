@@ -51,7 +51,7 @@ class VeloAgent(agent.Agent):
     def add_velocities(self, dv):
         self.velocities = tuple(np.add(self.velocities, dv))
 
-    def control_update(self, net_id_map):
+    def control_update(self, net_id_map, inv_net_id_map):
         set_vel = net_id_map[0] == self.id
         follow = self._leader_agent_move(set_vel=set_vel)
         if set_vel and follow:
@@ -74,7 +74,7 @@ class VeloAgent(agent.Agent):
             dist = np.sqrt((x2-x1)**2 + (y2-y1)**2)
 
             scaling = 1
-            if net_id == net_id_map[0]:
+            if net_id == 0:
                 scaling = float(max(1, len(self.world.get_agent_list()) / 10))  # NOTE: magic number boo
 
             vx += 2 * scaling * (x1 - x2) * (
@@ -94,7 +94,7 @@ class VeloAgent(agent.Agent):
                 vx += (vx1 - vx2)
                 vy += (vy1 - vy2)
             
-        print(f"{self.neighbors} new vels {vx} {vy}")
+        print(f"[Mote {inv_net_id_map[self.id]}] {self.neighbors} new vels {vx} {vy}")
         self.set_velocities((-vx, -vy, -vz))
         self.neighbors = []
 

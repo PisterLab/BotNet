@@ -183,7 +183,7 @@ class SwarmSimCommsEnv():
             mote.id = agent_id # FIXME: THIS IS DUMB BUT IT WORKS
             mote.neighbors = neighbors
 
-            mote.control_update(self.mote_key_map)
+            mote.control_update(self.mote_key_map, self.mote_key_inv_map)
 
     def get_all_mote_states(self):
         id_map = self.swarm_sim_world.get_agent_map_id()

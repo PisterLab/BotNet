@@ -74,7 +74,8 @@ class Mote(object):
         self.isBroadcasting            = False
 
     def console_log(self, msg):
-        print(f"[Mote {self.id} - {self.engine.getAsn()}] {msg}")
+        if self.settings.console_logging:
+            print(f"[Mote {self.id} - {self.engine.getAsn()}] {msg}")
 
     # ======================= stack ===========================================
 
