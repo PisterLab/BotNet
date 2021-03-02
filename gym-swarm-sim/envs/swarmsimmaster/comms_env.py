@@ -7,6 +7,7 @@ import sys
 import time
 import random
 import pandas as pd
+import numpy as np
 from core import world, config
 from core.vis3d import ResetException
 
@@ -92,6 +93,8 @@ def get_scenario(config_data):
 
 ##threading with the passing of initial conditions
 class SwarmSimCommsEnv():
+    PANDAS_LOG = False
+
     def __init__(self, goons=[(0,0,0)], timestep=0.010):
 
         #get config data
@@ -116,7 +119,7 @@ class SwarmSimCommsEnv():
         self.swarm_sim_world.timestep = timestep
         self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), goons)
 
-        # self._init_log()
+        self._init_log()
 
     def main_loop(self, iterations=1):
         round_start_timestamp = time.perf_counter()  # TODO: work with this
@@ -130,7 +133,7 @@ class SwarmSimCommsEnv():
                 # run the solution for 1 step
                 self.run_solution()
 
-                # self._log()
+                self._log()
             except ResetException: # TODO: need to improve exception handling
                 self.do_reset()
                 return False
@@ -195,16 +198,42 @@ class SwarmSimCommsEnv():
         return positions
 
     def _init_log(self):
-        cols = []
-        for agent in self.swarm_sim_world.get_agent_list():
-            cols.append(agent.get_id())
-        self.results_df = pd.DataFrame(columns=cols)
+        if self.PANDAS_LOG:
+            cols = []
+            for agent in self.swarm_sim_world.get_agent_list():
+                cols.append(agent.get_id())
+            self.results_df = pd.DataFrame(columns=cols)
+        else:
+            csv_mid, scenario, seed = "custom", "basic", 122
+            num_agents = len(self.swarm_sim_world.get_agent_list())
+            csv_path = f'./outputs/csv/{csv_mid}/{scenario}/{num_agents}/{seed}/'
+            # TODO: path difference for flocking
+
+            if not os.path.exists(csv_path):
+                os.makedirs(csv_path)
+
+            comms_model, flock_rad, flock_vel = "full", 20, 5 # TODO: these are floats
+            self.csv_base = csv_path + f"{comms_model}-{flock_rad}-{flock_vel}"
 
     def _log(self):
-        new_row = {}
-        for agent in self.swarm_sim_world.get_agent_list():
-            new_row[agent.get_id()] = agent.coordinates
-        self.results_df = self.results_df.append(new_row, ignore_index=True)
+        if self.PANDAS_LOG:
+            new_row = {}
+            for agent in self.swarm_sim_world.get_agent_list():
+                new_row[agent.get_id()] = agent.coordinates
+            self.results_df = self.results_df.append(new_row, ignore_index=True)
+        else:
+            vels = []
+            coords = []
+
+            for agent in self.swarm_sim_world.get_agent_list():
+                vels.append(np.array([np.array(v) for v in agent.velocities]))
+                coords.append(np.array([np.array(c) for c in agent.coordinates]))
+
+            csv_pos = f'{self.csv_base}-pos.dat'
+            csv_vel = f'{self.csv_base}-vel.dat'
+            with open(csv_pos, "ab") as fp, open(csv_vel, "ab") as fv:
+                np.savetxt(fp, np.array(coords))
+                np.savetxt(fv, np.array(vels))
 
 if __name__ == "__main__": # TODO: mark as example
     test = SwarmSimCommsEnv()

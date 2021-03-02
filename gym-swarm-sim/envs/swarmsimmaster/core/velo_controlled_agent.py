@@ -43,6 +43,23 @@ class VeloAgent(agent.Agent):
 
         return False
 
+    def move_coord(self, coordinates):
+        if self.world.grid.are_valid_coordinates(coordinates) \
+                and not self._Agent__isCarried: # this is a little jank IK
+            if self.coordinates in self.world.agent_map_coordinates:
+                del self.world.agent_map_coordinates[self.coordinates]
+            self.coordinates = coordinates
+            self.world.agent_map_coordinates[self.coordinates] = self
+            if self.world.vis is not None:
+                self.world.vis.agent_changed(self)
+            logging.info("Agent %s successfully moved to %s", str(self.get_id()), self.coordinates)
+            self.world.csv_round.update_metrics(steps=1)
+            self.csv_agent_writer.write_agent(steps=1)
+            self.check_for_carried_matter()
+            return True
+
+        return False
+
     # updates the velocities
     def set_velocities(self, new_velocities):
         self.velocities = tuple(np.hstack([np.array(new_velocities), np.zeros(1)])[:3])
