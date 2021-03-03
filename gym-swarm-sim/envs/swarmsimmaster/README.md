@@ -1,62 +1,85 @@
-For Linux:
+# BotNet: A Simulator for Studying the Effects of Accurate Communication Models on High-agent Count Multi-agent Control
 
--unzip the source code:
+## Setup and Background:
+This framework runs entirely on python and has very few requirements.
+```
+<set up your own virtualenv with conda or whatever>
+pip install -r requirements.txt
+cd swarmsimmaster/
+```
 
-    unzip swarm-world.zip
+### SwarmSim: Multi-agent Control and Swarm vs. Swarm Games
+In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/cheraghi/swarm-sim): A 2D & 3D Simulation Core for Swarm Agents. Some notable changes have been made over the original version.
+* Bugs were fixed causing the simulator to crash in routine operations.
+* Adding a framework for continuous robotic control (discrete agent movements were default).
+* More scenarios for studying multi-agent control
+
+#### Scenario Initialization: 
+This is the starting situation for the simulation. A **scenario** describes the initial agent positions as well as their environment. To create a scenario utilize the world API in a Python script located in the scenarios folder. Examples of how to set up scenarios are in the scenarios folder. To run your scenario you must set the scenario argument at the bottom of config.ini to the name of your scenario file. Below is the simplest  example of creating a lonely agent in the center of the world (which can be found [here](https://github.com/PisterLab/BotNet/blob/5af7fc809dea29e6e49b5275df13184c534b6518/gym-swarm-sim/envs/swarmsimmaster/components/scenario/configurable.py)).
+
+```
+def scenario(world):
+  world.add_agent(world.grid.get_center())
+```
+
+#### Control Solutions:
+The solution is where controls and dynamics are implemented. At every step of the main loop the solution is executed. A solution file describes both the controls of the agents and can describe extra dynamics or interactions. Below is a solution which moves every agent in a random direction, which can be found [here](https://github.com/PisterLab/BotNet/blob/72a2253bbeb5b4f1995ab12eae9a9c672c55892d/gym-swarm-sim/envs/swarmsimmaster/components/solution/random_walk.py). 
+
+```
+def solution(world):
+  if world.get_actual_round() % 1 == 0:
+    for agent in world.get_agent_list():
+      agent.move_to(random.choice(world.grid.get_directions_list()))
+```
+Config.ini can be used t set all arguments for the simulation. These include which grid world to use. Whether to use an agent with 0th 1st or 2nd order dynamics, how big the world is, etc. 
+
+##### Agent Level Control
+How to write controls at the agent level:
+* In core, create a new python file with a class that inherits from agent.py
+* Define an instance method in this agent to describe control eg. move(self). . .
+* Pass the agent class in as the new_class parameter when adding the agent in the world
+* Simply call the move function in the solution
 
 
--install the following python packages:
+### 6TiSCH + Swarm Sim: Networked Multi-Agent Control (No RPC & Real-time Viz)
+The 6TiSCH simulator can be seamlessly integrated to validate control performance with different local communications models. This tool can also be used by networking researchers to add more complex schedule functions and network behavior.
 
-    1. sudo apt-get install python3.6 python3-pip 
+Running Google Doc: https://docs.google.com/document/d/1OhyHHBxHN3_bAwsYYcrqfswcTrh-pLQrN6X59aoQMSg/edit?usp=sharing
 
-    2. sudo pip3 install numpy
+----
 
-    3. sudo pip3 install pandas
+## Running the code
 
-    4. sudo pip3 install PyOpenGL
-    
-    5. sudo pip3 install Pillow
-    
-    6. sudo pip3 install PyQt5
-    
-    7. sudo pip3 install opencv-python
-    
-for older Systems (e.g. Ubuntu 14.04) install the PyQt5 version 5.10.1
+### BotNet RPC server:
+To start the rpc server cd into the swarmsimmaster directory and run `python3 rpyc_server.py`
+Once the server is started you can connect to the via the following python code in any directory  
+`import rpyc`  
+`service = rpyc.connect("localhost", 18861).root`  
+This will let you remotely control the simulator via the service variable.
 
-    6. sudo pip3 install PyQt5==5.10.1
+### SwarmSim Interface
+`python swarmsim.py`
 
-- install Gnuplot:
+`python ../../../6tisch-simulator/bin/runSim.py`
 
-    sudo apt-get install gnuplot-x11
+----
 
-- go to the main folder of the SNS-Folder and start it with:
+## Examples
 
-    python3.6 swarm-sim.py
+#### Flocking
 
+#### Formation Control
 
-For development the IDE Pycharm is recommended:
+----
 
-https://www.jetbrains.com/help/pycharm/install-and-set-up-pycharm.html
+## Citation
+To cite this work, please use the following (_we can upload to arxiv so everything is good to go_):
+```
+@article{botnet2021,
+  Title = {todo},
+  Author = {todo},
+  journal={todo},
+  year={2021}
+}
 
-
-For Windows/Linux/MacOs:
-- unzip souce code
-- install python3.6
-- install pycharm
-- run pycharm
-- open swarm-world as a project
-- Open File->Settings-"Project-Interpreter"
-- Chose python3.6 as an interpreter
-- Chose the plus sign and install:
-    1. pip3
-    2. numpy
-    3. pandas
-    4. PyOpenGL
-    5. Pillow
-    6. PyQt5 (in version 5.10.1 for older Systems like Ubuntu 14.04)
-    7. opencv-python
-- press Okey
-- wait until everything is installed
-- chose Run->swarm-sim.py
-    - If it gives an error that it cannot find the interpretetor
-       Open Run->"Edit Configuration" Chose the python3.6 as an interpretetor
+```

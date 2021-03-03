@@ -18,7 +18,9 @@ SIM_ROOT_PATH = os.path.dirname(__file__)
 DEFAULT_CONFIG_PATH = os.path.join(
     SIM_ROOT_PATH,
     'config.json'
-) # TODO: create symlink from config.json
+)
+
+ARGPARSE = False
 
 if __name__ == '__main__':
     here = sys.path[0]
@@ -32,10 +34,12 @@ import itertools
 import threading
 import math
 import multiprocessing
-import argparse
+import argparse, getopt
 import json
 import glob
 import shutil
+
+from types import SimpleNamespace as Mock
 
 from SimEngine import SimConfig,   \
                       SimEngine,   \
@@ -46,18 +50,68 @@ from SimEngine import SimConfig,   \
 # =========================== helpers =========================================
 
 def parseCliParams():
+    if ARGPARSE:
+        parser = argparse.ArgumentParser()
 
-    parser = argparse.ArgumentParser()
+        parser.add_argument(
+            '--config',
+            dest       = 'config',
+            action     = 'store',
+            default    = DEFAULT_CONFIG_PATH,
+            help       = 'Location of the configuration file.',
+        )
+        cliparams      = parser.parse_args()
+        return cliparams.__dict__
+    else:
+        return {"config" : DEFAULT_CONFIG_PATH}
 
-    parser.add_argument(
-        '--config',
-        dest       = 'config',
-        action     = 'store',
-        default    = DEFAULT_CONFIG_PATH,
-        help       = 'Location of the configuration file.',
-    )
-    cliparams      = parser.parse_args()
-    return cliparams.__dict__
+def read_cmd_args(config_data, argv=[]):
+    try:
+        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:",
+                                   ["solution=", "scenario=",
+                                    "init=", "comms=", "spacing=", "num_agents=",
+                                    "flock_rad=", "flock_vel=",
+                                    "run_id=", "follow=", "id="
+                                    ])
+    except getopt.GetoptError:
+        print('Error: swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print('swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
+            sys.exit()
+        if opt in ("-s", "--solution"):
+            config_data.solution = arg
+        if opt in ("-w", "--scenario"):
+            config_data.scenario = arg
+        if opt in ("-r", "--seed"):
+            config_data.seed_value = int(arg)
+        if opt in ("-n", "--maxrounds"):
+            config_data.max_round = int(arg)
+        if opt == "-m":
+            config_data.multiple_sim = int(arg)
+        if opt == "-v":
+            config_data.visualization = int(arg)
+        if opt == "-d":
+            config_data.local_time = str(arg)
+        if opt == "--comms":
+            config_data.comms = arg
+        if opt == "--init":
+            config_data.scenario_arg = arg
+        if opt == "--spacing":
+            config_data.spacing = float(arg)
+        if opt == "--num_agents":
+            config_data.num_agents = int(arg)
+        if opt == "--flock_rad":
+            config_data.flock_rad = float(arg)
+        if opt == "--flock_vel":
+            config_data.flock_vel = float(arg)
+        if opt == "--run_id":
+            config_data.id = arg
+        if opt == "--follow":
+            config_data.follow = bool(int(arg))
+        if opt == "--id":
+            config_data.id = arg
 
 def getTemplogFileName(cpuID, pid):
     hostname = platform.uname()[1]
@@ -197,12 +251,13 @@ def merge_output_files(folder_path):
 
 # =========================== main ============================================
 
-def main():
+def main(argv=[]):
     
     #=== initialize
     
     # cli params
     cliparams = parseCliParams()
+    config_params = read_cmd_args(Mock(), argv)
 
     # sim config
     simconfig = SimConfig.SimConfig(configfile=cliparams['config'])
@@ -329,4 +384,4 @@ def main():
             assert rc==0
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

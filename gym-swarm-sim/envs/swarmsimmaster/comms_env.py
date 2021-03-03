@@ -95,7 +95,7 @@ def get_scenario(config_data):
 class SwarmSimCommsEnv():
     PANDAS_LOG = False
 
-    def __init__(self, goons=[(0,0,0)], timestep=0.010):
+    def __init__(self, net_config, goons=[(0,0,0)], timestep=0.010):
 
         #get config data
         self.config_data = config.ConfigData()
@@ -113,13 +113,19 @@ class SwarmSimCommsEnv():
 
         create_directory_for_data(self.config_data, unique_descriptor)
         random.seed(self.config_data.seed_value)
+        self.config_data.follow_the_leader = net_config.follow
+        self.config_data.flock_rad = net_config.flock_rad
+        self.config_data.flock_vel = net_config.flock_vel
 
         #set up world
         self.swarm_sim_world = world.World(self.config_data)
         self.swarm_sim_world.timestep = timestep
         self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), goons)
 
-        self._init_log()
+        self._init_log(id="custom", scenario=net_config.scenario, num_agents=len(goons),
+                       seed=self.config_data.seed_value, comms=net_config.conn_class,
+                       flock_rad=net_config.flock_rad, flock_vel=net_config.flock_vel,
+                       )
 
     def main_loop(self, iterations=1):
         round_start_timestamp = time.perf_counter()  # TODO: work with this
@@ -197,23 +203,20 @@ class SwarmSimCommsEnv():
 
         return positions
 
-    def _init_log(self):
+    def _init_log(self, id = "custom", scenario = "basic", num_agents = 3, seed = 122, comms = "full", flock_rad = 20, flock_vel = 5):
         if self.PANDAS_LOG:
             cols = []
             for agent in self.swarm_sim_world.get_agent_list():
                 cols.append(agent.get_id())
             self.results_df = pd.DataFrame(columns=cols)
         else:
-            csv_mid, scenario, seed = "custom", "basic", 122
-            num_agents = len(self.swarm_sim_world.get_agent_list())
-            csv_path = f'./outputs/csv/{csv_mid}/{scenario}/{num_agents}/{seed}/'
+            csv_path = f'./outputs/csv/{id}/{scenario}/{num_agents}/{seed}/'
             # TODO: path difference for flocking
 
             if not os.path.exists(csv_path):
                 os.makedirs(csv_path)
 
-            comms_model, flock_rad, flock_vel = "full", 20, 5 # TODO: these are floats
-            self.csv_base = csv_path + f"{comms_model}-{flock_rad}-{flock_vel}"
+            self.csv_base = csv_path + f"{comms}-{float(flock_rad)}-{float(flock_vel)}"
 
     def _log(self):
         if self.PANDAS_LOG:

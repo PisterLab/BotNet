@@ -7,16 +7,14 @@ from core import agent
 import numpy as np
 
 DEFAULTS = {"flock_rad" : 20, "flock_vel" : 5, "collision_rad" : 0.8, "csv_mid" : "custom"}
+VELOCITY_CAP = 30
+CAPPED_VELS = True
 
 class VeloAgent(agent.Agent):
     def __init__(self, world, coordinates, color, agent_counter=0, velocities = None):
         super().__init__(world, coordinates, color)
         self.velocities = (0.0,) * 3 # self.world.grid.get_dimension_count()
         self.neighbors = []
-
-        self.collision_rad = DEFAULTS["collision_rad"]
-        self.flock_vel = DEFAULTS["flock_rad"]
-        self.flock_rad = DEFAULTS["flock_vel"]
 
     # change in time is one round
     # function adds the velo to the position
@@ -62,6 +60,8 @@ class VeloAgent(agent.Agent):
 
     # updates the velocities
     def set_velocities(self, new_velocities):
+        if CAPPED_VELS:
+            new_velocities = tuple([np.sign(vel) * min(abs(vel), VELOCITY_CAP) for vel in new_velocities])
         self.velocities = tuple(np.hstack([np.array(new_velocities), np.zeros(1)])[:3])
 
     # adds to the velocities.
@@ -74,7 +74,7 @@ class VeloAgent(agent.Agent):
         if set_vel and follow:
             return
 
-        R_COLLISION, R_CONNECTION = .8, self.flock_rad
+        R_COLLISION, R_CONNECTION = .8, self.world.config_data.flock_rad
         R1, R2 = R_COLLISION, R_CONNECTION
         k_col, k_conn = R1*R1 + R2, R2
 
@@ -117,15 +117,16 @@ class VeloAgent(agent.Agent):
 
     def _leader_agent_move(self, set_vel=True): # TODO: how to do follow the leader without a path bias???
         round = self.world.get_actual_round()
+        scale = self.world.config_data.flock_vel
         set_velocities = lambda vels: self.set_velocities(vels) if set_vel else None
         if round < 200:
-            set_velocities((1, 0, 0))
+            set_velocities((scale, 0, 0))
         elif round < 300:
-            set_velocities((1, 1, 0))
+            set_velocities((scale, scale, 0))
         elif round < 400:
-            set_velocities((0, 1, 0))
+            set_velocities((0, scale, 0))
         elif round < 650:
-            set_velocities((-1, -1, 0))
+            set_velocities((-scale, -scale, 0))
         else:
             return False
         return True
