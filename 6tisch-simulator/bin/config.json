@@ -6,7 +6,7 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [3]
+            "exec_numMotes":                               [10]
         },
         "regular": {
             "exec_numSlotframesPerRun":                    1000,
@@ -31,7 +31,7 @@
             "tsch_max_payload_len":                        90,
 
             "sf_class":                                    "RRSF",
-            "rrsf_slotframe_len":                          3,
+            "rrsf_slotframe_len":                          false,
 
             "tsch_slotDuration":                           0.010,
             "tsch_slotframeLength":                        3,
@@ -59,10 +59,16 @@
             "motes_eui64":                                 [],
 
             "robot_sim_enabled":                           true,
-            "control_connectivity_model":                  "Full",
+            "collision_modelling":                         false,
             "control_update_mode":                         "Slotframe",
             "control_update_period_slots":                 1,
             "control_update_rate_hz":                      10,
+
+            "scenario":                                    "center_line_flock",
+
+            "flock_rad":                                   10,
+            "flock_vel":                                   5,
+            "follow":                                      true,
 
             "console_logging":                             false
         }

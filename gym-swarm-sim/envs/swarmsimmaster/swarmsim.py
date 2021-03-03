@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import random
+import traceback
 from core import world, config
 from core.vis3d import ResetException
 
@@ -28,7 +29,15 @@ def swarm_sim(argv=[]):
     create_directory_for_data(config_data, unique_descriptor)
     random.seed(config_data.seed_value)
     swarm_sim_world = world.World(config_data)
-    swarm_sim_world.init_scenario(get_scenario(swarm_sim_world.config_data))
+    try:
+        swarm_sim_world.init_scenario(get_scenario(swarm_sim_world.config_data),
+                                      id=config_data.id, scenario=config_data.scenario_arg,
+                                      num_agents=config_data.num_agents, seed=config_data.seed_value,
+                                      comms=config_data.comms, flock_rad=config_data.flock_rad,
+                                      flock_vel=config_data.flock_vel)
+    except:
+        traceback.print_exc()
+        swarm_sim_world.init_scenario(get_scenario(swarm_sim_world.config_data))
 
     reset = True
     while reset:
@@ -75,7 +84,12 @@ def do_reset(swarm_sim_world):
 
 def read_cmd_args(config_data, argv=[]):
     try:
-        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:", ["solution=", "scenario="])
+        opts, args = getopt.getopt(argv, "hs:w:r:n:m:d:v:",
+                                   ["solution=", "scenario=",
+                                    "init=", "comms=", "spacing=", "num_agents=",
+                                    "flock_rad=", "flock_vel=",
+                                    "run_id=", "follow=", "id="
+                                    ])
     except getopt.GetoptError:
         print('Error: swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
         sys.exit(2)
@@ -83,20 +97,38 @@ def read_cmd_args(config_data, argv=[]):
         if opt == '-h':
             print('swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
             sys.exit()
-        elif opt in ("-s", "--solution"):
+        if opt in ("-s", "--solution"):
             config_data.solution = arg
-        elif opt in ("-w", "--scenario"):
+        if opt in ("-w", "--scenario"):
             config_data.scenario = arg
-        elif opt in ("-r", "--seed"):
+        if opt in ("-r", "--seed"):
             config_data.seed_value = int(arg)
-        elif opt in ("-n", "--maxrounds"):
+        if opt in ("-n", "--maxrounds"):
             config_data.max_round = int(arg)
-        elif opt in "-m":
+        if opt == "-m":
             config_data.multiple_sim = int(arg)
-        elif opt in "-v":
+        if opt == "-v":
             config_data.visualization = int(arg)
-        elif opt in "-d":
+        if opt == "-d":
             config_data.local_time = str(arg)
+        if opt == "--comms":
+            config_data.comms = arg
+        if opt == "--init":
+            config_data.scenario_arg = arg
+        if opt == "--spacing":
+            config_data.spacing = float(arg)
+        if opt == "--num_agents":
+            config_data.num_agents = int(arg)
+        if opt == "--flock_rad":
+            config_data.flock_rad = float(arg)
+        if opt == "--flock_vel":
+            config_data.flock_vel = float(arg)
+        if opt == "--run_id":
+            config_data.id = arg
+        if opt == "--follow":
+            config_data.follow = bool(int(arg))
+        if opt == "--id":
+            config_data.id = arg
 
 
 def create_directory_for_data(config_data, unique_descriptor):

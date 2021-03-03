@@ -42,8 +42,6 @@ import numpy as np
 
 # =========================== defines =========================================
 
-ROBOT_SIM_ENABLED = True
-
 # =========================== body ============================================
 
 class DiscreteEventEngine(threading.Thread):
@@ -447,12 +445,17 @@ class SimEngine(DiscreteEventEngine):
         robotCoords                     = self._robot_positions_init()
 
         self.networkFormed              = False
+        if self.settings.rrsf_slotframe_len is False:
+            self.settings.rrsf_slotframe_len = self.settings.exec_numMotes
+
+        self._init_controls_update()
 
         if self.settings.robot_sim_enabled:
-            self.robot_sim                  = comms_env.SwarmSimCommsEnv(robotCoords,
-                                                                         timestep=self.settings.tsch_slotDuration)
+            timestep = self.settings.tsch_slotDuration
+            if not self.settings.collision_modelling:
+                timestep *= self.control_update_period
+            self.robot_sim                  = comms_env.SwarmSimCommsEnv(self.settings, goons=robotCoords, timestep=timestep)
             self.robot_sim.mote_key_map     = {}
-            self._init_controls_update()
 
             moteStates = self.robot_sim.get_all_mote_states()
             print(moteStates) # hmmm??
@@ -560,9 +563,10 @@ class SimEngine(DiscreteEventEngine):
         seed, spacing, num_agents, follow = 0, 2, self.settings.exec_numMotes, True  # TODO: query from command line in settings.py
         np.random.seed(seed)
 
-        init_scenario = "three_test"
-        if init_scenario == "three_test":
-            robotCoords = [(float(i) / 10, 0, 0) for i in range(num_agents)]
+
+        init_scenario = self.settings.scenario
+        if init_scenario == "test":
+            robotCoords = [(-float(i), 5*np.random.rand()-2.5, 0) for i in range(num_agents)]
         elif init_scenario == "center_radius_flock":
             robotCoords.append((spacing * 1.1,
                                 0.0))  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
@@ -610,9 +614,15 @@ class SimEngine(DiscreteEventEngine):
 
     # ============== Robot Simulator Communication ====================
 
-    def _robo_sim_loop(self, steps=1):
-        if self.networkFormed:
-            self.robot_sim.main_loop(steps)
+    def _robo_sim_loop(self): # NOTE: collision modelling should likely be higher update rate
+        if not self.networkFormed:
+            return
+
+        relative_asn = self.asn - (self.networkFormedTime + self.control_update_period)
+        if not self.settings.collision_modelling and relative_asn % self.control_update_period != 0:
+            return
+
+        self.robot_sim.main_loop()
 
     def _robo_sim_sync(self):
         networkStartSwitch = True
