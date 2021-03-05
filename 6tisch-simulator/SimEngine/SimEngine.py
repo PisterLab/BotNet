@@ -414,6 +414,7 @@ class SimEngine(DiscreteEventEngine):
             self.random_seed = self.settings.exec_randomSeed
         # apply the random seed; log the seed after self.log is initialized
         random.seed(a=self.random_seed)
+        np.random.seed(self.random_seed)
 
         if self.settings.motes_eui64:
             eui64_table = self.settings.motes_eui64[:]
@@ -454,7 +455,11 @@ class SimEngine(DiscreteEventEngine):
             timestep = self.settings.tsch_slotDuration
             if not self.settings.collision_modelling:
                 timestep *= self.control_update_period
-            self.robot_sim                  = comms_env.SwarmSimCommsEnv(self.settings, goons=robotCoords, timestep=timestep)
+            self.robot_sim                  = comms_env.SwarmSimCommsEnv(self.settings,
+                                                                         goons=robotCoords,
+                                                                         timestep=timestep,
+                                                                         seed=self.random_seed
+                                                                         )
             self.robot_sim.mote_key_map     = {}
 
             moteStates = self.robot_sim.get_all_mote_states()
@@ -560,9 +565,8 @@ class SimEngine(DiscreteEventEngine):
 
     def _robot_positions_init(self):
         robotCoords = []
-        seed, spacing, num_agents, follow = 0, 2, self.settings.exec_numMotes, True  # TODO: query from command line in settings.py
+        seed, spacing, num_agents = self.random_seed, self.settings.init_spacing, self.settings.exec_numMotes  # TODO: query from command line in settings.py
         np.random.seed(seed)
-
 
         init_scenario = self.settings.scenario
         if init_scenario == "test":
@@ -579,8 +583,6 @@ class SimEngine(DiscreteEventEngine):
                 theta = 2 * np.pi * float(i) / num_agents
                 robotCoords.append((spacing * np.cos(theta), spacing * np.sin(theta)))
         elif init_scenario == "center_line_flock":  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
-            if follow:
-                robotCoords.append((0.0, 0.0))
             for i in range(1, num_agents // 2 + 1):
                 epsilon = (np.random.rand() - .5) / 2
                 robotCoords.append((0.0, spacing * float(i) + epsilon))
@@ -589,9 +591,7 @@ class SimEngine(DiscreteEventEngine):
                 epsilon = (np.random.rand() - .5) / 2
                 robotCoords.append((0.0, - spacing * float(i) + epsilon))
         elif init_scenario == "edge_line_flock":  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
-            if follow:
-                robotCoords.append((0.0, spacing * float(num_agents // 2)))
-            for i in range(num_agents // 2 + 1):
+            for i in range(num_agents // 2, 0, -1):
                 epsilon = (np.random.rand() - .5) / 2
                 robotCoords.append((0.0, spacing * float(i) + epsilon))
 
@@ -651,8 +651,7 @@ class SimEngine(DiscreteEventEngine):
         agent_neighbor_table = []
         for agent in self.motes:
             agent.console_log(agent.neighbors)
-            if agent.neighbors:
-                agent_neighbor_table.append((agent.id, agent.neighbors))
-                agent.neighbors = {} # flush neighbors
+            agent_neighbor_table.append((agent.id, agent.neighbors))
+            agent.neighbors = {} # flush neighbors
 
         self.robot_sim.set_all_mote_neighbors(agent_neighbor_table)

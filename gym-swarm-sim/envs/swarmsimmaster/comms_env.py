@@ -95,7 +95,7 @@ def get_scenario(config_data):
 class SwarmSimCommsEnv():
     PANDAS_LOG = False
 
-    def __init__(self, net_config, goons=[(0,0,0)], timestep=0.010):
+    def __init__(self, net_config, goons=[(0,0,0)], timestep=0.010, seed=None):
 
         #get config data
         self.config_data = config.ConfigData()
@@ -112,7 +112,9 @@ class SwarmSimCommsEnv():
         read_cmd_args(self.config_data)
 
         create_directory_for_data(self.config_data, unique_descriptor)
-        random.seed(self.config_data.seed_value)
+        if seed is None:
+            seed = self.config_data.seed_value
+        # random.seed(seed)
         self.config_data.follow_the_leader = net_config.follow
         self.config_data.flock_rad = net_config.flock_rad
         self.config_data.flock_vel = net_config.flock_vel
@@ -123,7 +125,7 @@ class SwarmSimCommsEnv():
         self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), goons)
 
         self._init_log(id="custom", scenario=net_config.scenario, num_agents=len(goons),
-                       seed=self.config_data.seed_value, comms=net_config.conn_class,
+                       seed=seed, comms=net_config.conn_class,
                        flock_rad=net_config.flock_rad, flock_vel=net_config.flock_vel,
                        )
 

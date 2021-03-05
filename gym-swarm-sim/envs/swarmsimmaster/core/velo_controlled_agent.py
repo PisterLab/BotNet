@@ -116,17 +116,8 @@ class VeloAgent(agent.Agent):
         self.neighbors = []
 
     def _leader_agent_move(self, set_vel=True): # TODO: how to do follow the leader without a path bias???
-        round = self.world.get_actual_round()
+        # round = self.world.get_actual_round()
         scale = self.world.config_data.flock_vel
         set_velocities = lambda vels: self.set_velocities(vels) if set_vel else None
-        if round < 200:
-            set_velocities((scale, 0, 0))
-        elif round < 300:
-            set_velocities((scale, scale, 0))
-        elif round < 400:
-            set_velocities((0, scale, 0))
-        elif round < 650:
-            set_velocities((-scale, -scale, 0))
-        else:
-            return False
+        set_velocities((scale, 0, 0)) # TODO: iterate over different angles rather than just straight
         return True

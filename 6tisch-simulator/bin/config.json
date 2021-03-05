@@ -6,12 +6,21 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [10]
+            "exec_numMotes":                               [12],
+
+            "conn_class":                                  ["FullyMeshed", "Realistic", "FriisMean", "Disk"],
+            "scenario":                                    ["center_line_flock"],
+
+            "flock_rad":                                   [10],
+            "flock_vel":                                   [5],
+            "init_spacing":                                [1.5],
+            "control_update_period_slots":                                            [1, 2, 3, 4, 6, 12],
+
+            "exec_randomSeed":                             [120]
         },
         "regular": {
             "exec_numSlotframesPerRun":                    1000,
             "exec_minutesPerRun":                          null,
-            "exec_randomSeed":                             "random",
 
             "secjoin_enabled":                             true,
 
@@ -30,7 +39,7 @@
             "fragmentation_ff_vrb_table_size":             50,
             "tsch_max_payload_len":                        90,
 
-            "sf_class":                                    "RRSF",
+            "sf_class":                                    "MSF",
             "rrsf_slotframe_len":                          false,
 
             "tsch_slotDuration":                           0.010,
@@ -45,7 +54,6 @@
 
             "radio_stats_log_period_s":                    60,
 
-            "conn_class":                                  "FullyMeshed",
             "conn_simulate_ack_drop":                      false,
 
             "conn_trace":                                  null,
@@ -59,15 +67,10 @@
             "motes_eui64":                                 [],
 
             "robot_sim_enabled":                           true,
-            "collision_modelling":                         false,
-            "control_update_mode":                         "Slotframe",
-            "control_update_period_slots":                 1,
+            "collision_modelling":                         true,
+            "control_update_mode":                         "Slots",
             "control_update_rate_hz":                      10,
 
-            "scenario":                                    "center_line_flock",
-
-            "flock_rad":                                   10,
-            "flock_vel":                                   5,
             "follow":                                      true,
 
             "console_logging":                             false
