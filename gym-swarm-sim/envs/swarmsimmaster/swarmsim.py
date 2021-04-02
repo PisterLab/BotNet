@@ -75,7 +75,7 @@ def do_reset(swarm_sim_world):
 
 def read_cmd_args(config_data, argv=[]):
     try:
-        opts, args = getopt.getopt(argv, "hs:w:r:n:m:v:a:x:z:", ["solution=", "scenario="])
+        opts, args = getopt.getopt(argv, "hs:w:r:n:m:v:a:x:z:q:", ["solution=", "scenario="])
     except getopt.GetoptError:
         print('Error: swarm-swarm_sim_world.py -r <seed> -w <scenario> -s <solution> -n <maxRounds>')
         sys.exit(2)
@@ -101,6 +101,8 @@ def read_cmd_args(config_data, argv=[]):
             config_data.comms_model = arg
         elif opt in "-z":
             config_data.data_dir = str(arg)
+        elif opt in "-q":
+            config_data.disk_range = int(arg)
 
 
 def create_directory_for_data(config_data, unique_descriptor):

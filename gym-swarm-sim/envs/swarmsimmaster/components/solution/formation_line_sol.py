@@ -59,7 +59,10 @@ def connected_neighbors(world, agent, comms_model):
     for n in world.get_agent_list():
         if n != agent:
             x1, y1 = n.coordinates[0], n.coordinates[1]
-            dist, comm_range = communication_model(x1, y1, x2, y2, comms_model=comms_model, DISK_RANGE_M = 3.5)
+            if comms_model == "disk":
+                dist, comm_range = communication_model(x1, y1, x2, y2, comms_model=comms_model, DISK_RANGE_M = world.config_data.disk_range)
+            else:
+                dist, comm_range = communication_model(x1, y1, x2, y2, comms_model=comms_model)
             if comm_range:
                 ns.append(n)
     return ns
@@ -136,85 +139,3 @@ def speed_limit(speed_vec):
 # helper for timestep
 def timestep(world):
     return world.get_actual_round()
-
-# polygons
-# def solution(world):
-#     global radius
-#
-#     nn_min_radius = 0.001
-#     nn_max_radius = 0.002
-#     center = world.grid.get_center()
-#     agents = world.get_agent_list()
-#     num_agents =  len(agents)
-#
-#     # satisfy radius
-#     # for agent in world.get_agent_list():
-#     #     center_vec = np.array(agent.coordinates) - np.array(center)
-#     #     center_dist = np.linalg.norm(center_vec)
-#     #     radius_target = center_vec / (eps + center_dist) * radius + center
-#     #     move_toward(agent, radius_target, thres=1)
-#     vec = [1, 0]
-#     edge_length = 1
-#     jitter(agents[0])
-#     for i in range(1, num_agents):
-#         agent = agents[i]
-#         rot_angle = (180 - (num_agents - 2) / num_agents * 180)
-#         vec = rot_vec(vec, np.radians(rot_angle)) * edge_length
-#
-#
-#         target = get_agent_mod(agents, i - 1).coordinates
-#         x1, y1 = target[0], target[1]
-#         x2, y2 = agent.coordinates[0], agent.coordinates[1]
-#         dist, comm_range = communication_model(x1, y1, x2, y2, COMMS_MODEL="disk", DISK_RANGE_M = edge_length * 2)
-#
-#         if comm_range:
-#             move_threshold_xy(agent, x1 + vec[0], y1 + vec[1], nn_min_radius, nn_max_radius)
-#         else:
-#             pass
-#
-#         vec = vec / np.linalg.norm(vec)
-#         #print("Agent ", i, " at ", x2, y2, " going to ", x1 + vec[0], y1 + vec[1], " with direction ", vec, "based on target", )
-
-
-# def solution(world):
-#     global radius
-#
-#     nn_min_radius = 0.1
-#     nn_max_radius = 0.2
-#     center = world.grid.get_center()
-#     # if timestep(world) <= 50:
-#     #     center = world.grid.get_center()    #(0, 0, 0)
-#     # else:
-#     #     center = (10, 10, 0)
-#     agents = world.get_agent_list()
-#     num_agents =  len(agents)
-#
-#     # # satisfy radius
-#     # radius_moved = []
-#     # for agent in world.get_agent_list():
-#     #     center_vec = np.array(agent.coordinates) - np.array(center)
-#     #     center_dist = np.linalg.norm(center_vec)
-#     #     radius_target = center_vec / (eps + center_dist) * radius + center
-#     #     radius_moved.append(move_toward(agent, radius_target, thres=1))
-#     #
-#     scale = 3
-#     x_shape = [[scale, scale], [scale, -scale], [-scale, scale], [-scale, -scale]]
-#     for i, agent in enumerate(agents[:-1]):
-#         if i < 4:
-#             wanted = agents[-1]
-#         else:
-#             wanted = agents[i - 4]
-#
-#         x1, y1 = wanted.coordinates[0] + x_shape[i % 4][0], wanted.coordinates[1] + x_shape[i % 4][1]
-#         x2, y2 = agent.coordinates[0], agent.coordinates[1]
-#         #, DISK_RANGE_M = 4.9
-#         dist, comm_range = communication_model(x1, y1, x2, y2, COMMS_MODEL="disk", DISK_RANGE_M = 3.5)
-#
-#         if comm_range:
-#             move_threshold_xy(agent, x1, y1, nn_min_radius, nn_max_radius)
-#         else:
-#             print(dist)
-#             pass
-#
-#     if timestep(world) >= 200:
-#         move_toward(agents[-1], np.array([10, 10, 0]), thres=0.01)

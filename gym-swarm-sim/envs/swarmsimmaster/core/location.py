@@ -12,6 +12,7 @@ class Location(matter.Matter):
         super().__init__(world, coordinates, color, matter_type=MatterType.LOCATION,
                          mm_size=world.config_data.location_mm_size)
 
+
     def set_color(self, color):
         super().set_color(color)
         if self.world.vis is not None:
