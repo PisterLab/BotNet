@@ -1,38 +1,27 @@
 import numpy as np
 import random
+defense_clr = [0, 0, 255, 1]
+offense_clr = [255, 0, 0, 1]
+defense_center = [-10, 0, 0]
+offense_center = [10, 0, 0]
 
 def scenario(world):
-    swarm_size = world.config_data.num_agents
-    #world.add_location((0, 0, 0), [0, 0, 255, 1])
+    defense_size = 30
+    offense_size = 60
 
-    swarm_a_center = (-10, 0, 0)
-    swarm_b_center = (10, 0, 0)
+    world.add_location(tuple(defense_center), [0, 0, 255, 1])
 
-    world.add_agent(swarm_a_center)
-    world.add_agent(swarm_b_center)
-    agents = world.get_agent_list()
-    [k.set_color([0, 0, 255, 1]) for k in agents[:len(agents) // 2]]
+    # spawn defense agents
+    for i in range(defense_size):
+        spawn = list(circle_spawn(defense_size)) + [0]
+        spawn = np.array(spawn) + np.array(defense_center)
+        world.add_agent(tuple(spawn), color= defense_clr)
 
-
-    # swarm_a_center = [-10, 0]
-    # swarm_b_center = [10, 0]
-    # #center = world.grid.get_center()
-    #
-    # for s in range(swarm_size // 2):
-    #     spawn = list(circle_spawn(swarm_size) + swarm_a_center)
-    #     spawn.append(0)
-    #     world.add_agent(tuple(spawn))
-    #
-    # for s in range(swarm_size // 2):
-    #     spawn = list(circle_spawn(swarm_size) + swarm_b_center)
-    #     spawn.append(0)
-    #     world.add_agent(tuple(spawn))
-    #
-    # agents = world.get_agent_list()
-    # #[k.set_color([0, 0, 255, 1]) for k in agents[:len(agents) // 2]]
-    #
-    # world.add_location((1, 1, 0), [0, 0, 255, 1])
-    # world.add_item((1, 0, 0), [0, 255, 0, 1])
+    # spawn offense agents
+    for i in range(offense_size):
+        spawn = list(circle_spawn(offense_size)) + [0]
+        spawn = np.array(spawn) + np.array(offense_center)
+        world.add_agent(tuple(spawn), color= offense_clr)
 
 def circle_spawn(swarm_size):
     density = 0.22
