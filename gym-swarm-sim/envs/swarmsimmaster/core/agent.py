@@ -27,6 +27,10 @@ class Agent(matter.Matter):
         csv_generator_module = importlib.import_module('components.generators.csv.%s' % world.config_data.csv_generator)
         self.csv_agent_writer = csv_generator_module.CsvAgentData(self.get_id(), self.number)
 
+        ### hopefully temporary
+        self.kills = 0
+        ###
+
     def carries_item(self):
         if self.carried_item is None:
             return False

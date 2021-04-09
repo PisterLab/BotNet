@@ -3,7 +3,7 @@ import time
 
 eps = 10e-8
 defense_max_speed = 0.1
-offense_max_speed = 0.09
+offense_max_speed = 0.1
 # offense_max_speed = 0.09
 
 terminated = False
@@ -32,9 +32,12 @@ def solution(world):
         # check if defenders win
         if not offense_drones:
             terminated = True
+        # check if attackers win
+        elif not defense_drones:
+            terminated = True
         else:
             # defense policy applied
-            def_p3(world, defense_drones, offense_drones)
+            def_p4(world, defense_drones, offense_drones)
 
             # check deaths in offense after defense moves
             off_death_check(world, defense_drones, offense_drones)
@@ -43,9 +46,10 @@ def solution(world):
             offense_drones = get_drones(world, clr=offense_clr)
 
             # offense policy applied
-            off_p2(world, defense_drones, offense_drones)
+            off_p1(world, defense_drones, offense_drones)
 
             # defender death check
+            def_death_check1(world, defense_drones, offense_drones)
 
 # offense death check
 def off_death_check(world, defense_drones, offense_drones):
@@ -60,9 +64,20 @@ def off_death_check(world, defense_drones, offense_drones):
         if np.linalg.norm(np.array(closest_defense.coordinates) - np.array(a.coordinates)) < 0.1:
             death_routine(a)
 
+            ### hopefully temporary?
+            closest_defense.kills += 1
+            ###
+
+
         # check if attackers win:
         if np.linalg.norm(np.array(a.coordinates) - np.array(defense_center)) < 0.1:
             terminated = True
+
+# defense death check 1: defenders die after eliminating `n` attackers
+def def_death_check1(world, defense_drones, offense_drones):
+    for a in defense_drones:
+        if (a.kills) >= 3:
+            death_routine(a)
 
 # off policy 1: go to center directly
 def off_p1(world, defense_drones, offense_drones):
@@ -137,6 +152,62 @@ def def_p3(world, defense_drones, offense_drones):
             closest_offense = sorted_offense[0]
             move_toward(a, closest_offense.coordinates)
 
+# def policy 3.5: go to the closest guy from YOU that is *reachable*,
+# with at most `n` other defenders targeting
+# if all targeted, go to the closest attacker from center
+def def_p3point5(world, defense_drones, offense_drones):
+    n = 1
+    targetted = {}
+
+    for a in defense_drones:
+        self_sorted_offense = sorted(offense_drones, key=lambda x: np.linalg.norm(
+            np.array(x.coordinates) - np.array(a.coordinates)))
+
+        flag = False
+        for x in self_sorted_offense:
+            if (targetted.setdefault(x.coordinates, 0) <= n) and x.coordinates[0] >= a.coordinates[0]:
+                flag = True
+                targetted[x.coordinates] += 1
+                move_toward(a, x.coordinates)
+                break
+        if not flag:
+            sorted_offense = sorted(offense_drones,
+                                    key=lambda x: np.linalg.norm(np.array(x.coordinates) - np.array(defense_center)))
+            closest_offense = sorted_offense[0]
+            move_toward(a, closest_offense.coordinates)
+
+# def policy 4: half the drones follow def policy 3.5 as usual
+# other half only attack drones within `radius` of the center (following def policy 3.5)
+def def_p4(world, defense_drones, offense_drones):
+    radius = 3
+    patrollers = []
+    targetted = {}
+    n = 1
+
+    for i in range(len(defense_drones)//2):
+        patrollers.append(defense_drones[i])
+    
+    near_offense = list(filter(lambda x: (np.linalg.norm(np.array(x.coordinates) - np.array(defense_center))) < radius, offense_drones))
+    far_offense = list(filter(lambda x: (np.linalg.norm(np.array(x.coordinates) - np.array(defense_center))) >= radius, offense_drones))
+    
+    for a in patrollers:
+        sorted_near_offense = sorted(near_offense, key=lambda x: np.linalg.norm(
+            np.array(x.coordinates) - np.array(a.coordinates)))
+
+        flag = False
+        for x in sorted_near_offense:
+            if (targetted.setdefault(x.coordinates, 0) <= n) and x.coordinates[0] >= a.coordinates[0]:
+                flag = True
+                targetted[x.coordinates] += 1
+                move_toward(a, x.coordinates)
+                break
+        if not flag:
+            move_threshold(a, defense_center, 1, 1)
+
+    if (far_offense):
+        def_p3point5(world, defense_drones[len(patrollers):], far_offense)
+    else:
+        def_p3point5(world, defense_drones[len(patrollers):], near_offense)
 
 def get_drones(world, clr):
     lst = []
