@@ -458,7 +458,8 @@ class SimEngine(DiscreteEventEngine):
             self.robot_sim                  = comms_env.SwarmSimCommsEnv(self.settings,
                                                                          goons=robotCoords,
                                                                          timestep=timestep,
-                                                                         seed=self.random_seed
+                                                                         seed=self.random_seed,
+                                                                         update_period=self.control_update_period
                                                                          )
             self.robot_sim.mote_key_map     = {}
 

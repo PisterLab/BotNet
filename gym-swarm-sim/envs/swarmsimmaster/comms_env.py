@@ -95,7 +95,10 @@ def get_scenario(config_data):
 class SwarmSimCommsEnv():
     PANDAS_LOG = False
 
-    def __init__(self, net_config, goons=[(0,0,0)], timestep=0.010, seed=None):
+    def __init__(self, net_config, goons=[(0,0,0)], timestep=0.010, seed=None, update_period=None):
+
+        if update_period is None:
+            update_period = len(goons)
 
         #get config data
         self.config_data = config.ConfigData()
@@ -127,6 +130,7 @@ class SwarmSimCommsEnv():
         self._init_log(id="custom", scenario=net_config.scenario, num_agents=len(goons),
                        seed=seed, comms=net_config.conn_class,
                        flock_rad=net_config.flock_rad, flock_vel=net_config.flock_vel,
+                       update_period=update_period
                        )
 
     def main_loop(self, iterations=1):
@@ -205,7 +209,7 @@ class SwarmSimCommsEnv():
 
         return positions
 
-    def _init_log(self, id = "custom", scenario = "basic", num_agents = 3, seed = 122, comms = "full", flock_rad = 20, flock_vel = 5):
+    def _init_log(self, id = "custom", scenario = "basic", num_agents = 3, seed = 122, comms = "full", flock_rad = 20, flock_vel = 5, update_period = 12):
         if self.PANDAS_LOG:
             cols = []
             for agent in self.swarm_sim_world.get_agent_list():
@@ -218,7 +222,7 @@ class SwarmSimCommsEnv():
             if not os.path.exists(csv_path):
                 os.makedirs(csv_path)
 
-            self.csv_base = csv_path + f"{comms}-{float(flock_rad)}-{float(flock_vel)}"
+            self.csv_base = csv_path + f"{comms}-{float(flock_rad)}-{float(flock_vel)}-{float(update_period)}"
 
     def _log(self):
         if self.PANDAS_LOG:

@@ -111,7 +111,7 @@ class VeloAgent(agent.Agent):
                 vx += (vx1 - vx2)
                 vy += (vy1 - vy2)
             
-        print(f"[Mote {inv_net_id_map[self.id]}] {self.neighbors} new vels {vx} {vy}")
+        print(f"[Mote {inv_net_id_map[self.id]}] {self.neighbors} new vels {vx} {vy}", end="\r")
         self.set_velocities((-vx, -vy, -vz))
         self.neighbors = []
 

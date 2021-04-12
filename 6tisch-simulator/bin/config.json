@@ -8,13 +8,13 @@
         "combination": {
             "exec_numMotes":                               [12],
 
-            "conn_class":                                  ["FullyMeshed", "Realistic", "FriisMean", "Disk"],
+            "conn_class":                                  ["FullyMeshed", "Realistic", "FriisMean", "FriisLower", "Disk"],
             "scenario":                                    ["center_line_flock"],
 
-            "flock_rad":                                   [10],
-            "flock_vel":                                   [5],
+            "flock_rad":                                   [15],
+            "flock_vel":                                   [10],
             "init_spacing":                                [1.5],
-            "control_update_period_slots":                                            [1, 2, 3, 4, 6, 12],
+            "control_update_period_slots":                 [1, 2, 3, 4, 6, 12],
 
             "exec_randomSeed":                             [120]
         },
@@ -39,7 +39,7 @@
             "fragmentation_ff_vrb_table_size":             50,
             "tsch_max_payload_len":                        90,
 
-            "sf_class":                                    "MSF",
+            "sf_class":                                    "RRSF",
             "rrsf_slotframe_len":                          false,
 
             "tsch_slotDuration":                           0.010,
@@ -68,7 +68,7 @@
 
             "robot_sim_enabled":                           true,
             "collision_modelling":                         true,
-            "control_update_mode":                         "Slots",
+            "control_update_mode":                         "Slot",
             "control_update_rate_hz":                      10,
 
             "follow":                                      true,
