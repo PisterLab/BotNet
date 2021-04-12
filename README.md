@@ -76,9 +76,9 @@ This will let you remotely control the simulator via the service variable.
 To cite this work, please use the following (_we can upload to arxiv so everything is good to go_):
 ```
 @article{botnet2021,
-  Title = {todo},
-  Author = {todo},
-  journal={todo},
+  Title = {BotNet: A Simulator for Studying the Effects of Accurate Communication Models on High-agent Count Multi-agent Control},
+  Author = {Felipe Campos, Nathan Lambert, Mark Selden, Jason Zhou, Daniel Drew, Kristofer S. J. Pister},
+  journal={To Appear},
   year={2021}
 }
 
