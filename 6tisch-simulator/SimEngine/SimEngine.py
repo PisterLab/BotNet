@@ -37,6 +37,7 @@ SWARM_SIM_MASTER_PATH = os.path.join(
 )
 sys.path.insert(1, SWARM_SIM_MASTER_PATH)
 import comms_env
+import rpyc
 import numpy as np
 
 
@@ -451,27 +452,40 @@ class SimEngine(DiscreteEventEngine):
 
         self._init_controls_update()
 
+        rpc = True # TODO: make this come from settings
         if self.settings.robot_sim_enabled:
             timestep = self.settings.tsch_slotDuration
             if not self.settings.collision_modelling:
                 timestep *= self.control_update_period
-            self.robot_sim                  = comms_env.SwarmSimCommsEnv(self.settings,
+            if rpc:
+                self.robot_sim                  =  rpyc.connect("localhost", 18861, config={'allow_public_attrs': True}).root
+                self.robot_sim.initialize_simulation(self.settings, goons=robotCoords, timestep=timestep, seed=self.random_seed, update_period=self.control_update_period)
+                self.robot_sim.set_mote_key_map({})
+            else:
+                self.robot_sim                  = comms_env.SwarmSimCommsEnv(self.settings,
                                                                          goons=robotCoords,
                                                                          timestep=timestep,
                                                                          seed=self.random_seed,
                                                                          update_period=self.control_update_period
                                                                          )
-            self.robot_sim.mote_key_map     = {}
+                self.robot_sim.mote_key_map     = {}
 
             moteStates = self.robot_sim.get_all_mote_states()
-            print(moteStates) # hmmm??
+            if rpc:
+                newMap = {}
             for i, robot_mote_id in enumerate(moteStates.keys()):
                 mote = self.motes[i]
-                self.robot_sim.mote_key_map[mote.id] = robot_mote_id
+                if not rpc:
+                    self.robot_sim.mote_key_map[mote.id] = robot_mote_id
+                else:
+                    newMap[mote.id] = robot_mote_id
                 mote.setLocation(*(moteStates[robot_mote_id][:2]))
                 mote.console_log(mote.getLocation())
 
-            self.robot_sim.mote_key_inv_map = dict((v, k) for k, v in self.robot_sim.mote_key_map.items())
+            if rpc:
+                self.robot_sim.set_mote_key_map(newMap, inv=True)
+            else:
+                self.robot_sim.mote_key_inv_map = dict((v, k) for k, v in self.robot_sim.mote_key_map.items())
         else:
             for i, coord in enumerate(robotCoords):
                 mote = self.motes[i]
@@ -630,7 +644,7 @@ class SimEngine(DiscreteEventEngine):
 
         states = self.robot_sim.get_all_mote_states()
         for mote in self.motes:
-            mote.setLocation(*(states[self.robot_sim.mote_key_map[mote.id]][:2]))
+            mote.setLocation(*(states[self.robot_sim.get_mote_key_map()[mote.id]][:2]))
             networkStartSwitch = networkStartSwitch and mote.isBroadcasting
         
         self.connectivity.matrix.update()
