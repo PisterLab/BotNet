@@ -190,6 +190,17 @@ class SwarmSimCommsEnv():
         for mote in new_velos:
             id_map[mote].set_velocities(new_velos[mote])
 
+    def get_mote_key_map(self):
+        return self.mote_key_map
+
+    def get_mote_key_inv_map(self):
+        return self.mote_key_inv_map
+
+    def set_mote_key_map(self, mote_map, inv=False):
+        self.mote_key_map = mote_map
+        if inv:
+            self.mote_key_inv_map = {v : k for (k, v) in mote_map.items()}
+
     def set_all_mote_neighbors(self, agent_neighbor_table):
         id_map = self.swarm_sim_world.get_agent_map_id()
         for (net_id, neighbors) in agent_neighbor_table:

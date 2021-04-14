@@ -133,8 +133,8 @@ class Mote(object):
 
     def setLocation(self, x, y):
         with self.dataLock:
-            self.x = x
-            self.y = y
+            self.x = float(x)
+            self.y = float(y)
 
     def getLocation(self, km=False):
         with self.dataLock:

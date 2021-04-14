@@ -2,6 +2,7 @@ from comms_env import SwarmSimCommsEnv
 import rpyc
 from rpyc.utils.server import ThreadedServer
 import multiprocessing
+import copy
 class MyService(rpyc.Service):
     def on_connect(self, conn):
         # code that runs when a connection is created
@@ -43,14 +44,12 @@ class MyService(rpyc.Service):
         self.exposed_simulation.assign_velos(new_velos)
 
     def exposed_set_all_mote_neighbors(self, agent_neighbor_dict):
-        self.exposed_simulation.set_all_mote_neighbors(agent_neighbor_dict)
+        self.exposed_simulation.set_all_mote_neighbors(copy.deepcopy(agent_neighbor_dict))
 
     def exposed_get_all_mote_states(self):
-        print("Fetching mote states")
         states = self.exposed_simulation.get_all_mote_states()
         return self.exposed_simulation.get_all_mote_states()
 
 if __name__ == "__main__":
-
-    t = ThreadedServer(MyService, port=18861, protocol_config={'allow_public_attrs': True, 'allow_all_attrs': True})
+    t = ThreadedServer(MyService, port=18861, protocol_config={'allow_public_attrs': True, 'allow_all_attrs': True, 'allow_pickle': True})
     t.start()

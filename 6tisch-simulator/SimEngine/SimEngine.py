@@ -40,10 +40,11 @@ import comms_env
 import rpyc
 import numpy as np
 
-
+import inspect
 # =========================== defines =========================================
 
 # =========================== body ============================================
+
 
 class DiscreteEventEngine(threading.Thread):
 
@@ -58,7 +59,6 @@ class DiscreteEventEngine(threading.Thread):
     #===== end singleton
 
     def __init__(self, cpuID=None, run_id=None, verbose=False):
-
         #===== singleton
         cls = type(self)
         if cls._init:
@@ -83,6 +83,9 @@ class DiscreteEventEngine(threading.Thread):
             self.uniqueTagSchedule              = {}
             self.random_seed                    = None
             self._init_additional_local_variables()
+
+            self.max_diff = 0
+            self.diff = 1e-69
 
             # initialize parent class
             threading.Thread.__init__(self)
@@ -354,6 +357,11 @@ class DiscreteEventEngine(threading.Thread):
 
         # print
         if self.verbose:
+
+            # NOTE: DO NOT DELETE, SIM BREAKS
+            if self.max_diff < self.diff:
+                self.max_diff = self.diff
+
             print(u'   slotframe_iteration: {0}/{1}'.format(slotframe_iteration, self.settings.exec_numSlotframesPerRun-1))
 
         # schedule next statistics collection
@@ -452,13 +460,13 @@ class SimEngine(DiscreteEventEngine):
 
         self._init_controls_update()
 
-        rpc = True # TODO: make this come from settings
+        rpc = False # TODO: make this come from settings
         if self.settings.robot_sim_enabled:
             timestep = self.settings.tsch_slotDuration
             if not self.settings.collision_modelling:
                 timestep *= self.control_update_period
             if rpc:
-                self.robot_sim                  =  rpyc.connect("localhost", 18861, config={'allow_public_attrs': True}).root
+                self.robot_sim                  =  rpyc.connect("localhost", 18861, config={'allow_public_attrs': True, 'allow_all_attrs': True, 'allow_pickle': True}).root
                 self.robot_sim.initialize_simulation(self.settings, goons=robotCoords, timestep=timestep, seed=self.random_seed, update_period=self.control_update_period)
                 self.robot_sim.set_mote_key_map({})
             else:
