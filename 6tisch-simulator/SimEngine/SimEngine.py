@@ -33,7 +33,7 @@ import os
 SIMENGINE_ROOT_PATH = os.path.dirname(__file__)
 SWARM_SIM_MASTER_PATH = os.path.join(
     SIMENGINE_ROOT_PATH,
-    '../../gym-swarm-sim/envs/swarmsimmaster'
+    '../../swarmsimmaster'
 )
 sys.path.insert(1, SWARM_SIM_MASTER_PATH)
 import comms_env
@@ -654,7 +654,7 @@ class SimEngine(DiscreteEventEngine):
         for mote in self.motes:
             mote.setLocation(*(states[self.robot_sim.get_mote_key_map()[mote.id]][:2]))
             networkStartSwitch = networkStartSwitch and mote.isBroadcasting
-        
+
         self.connectivity.matrix.update()
 
         if not self.networkFormed and networkStartSwitch:

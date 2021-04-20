@@ -9,6 +9,7 @@ import numpy as np
 DEFAULTS = {"flock_rad" : 20, "flock_vel" : 5, "collision_rad" : 0.8, "csv_mid" : "custom"}
 VELOCITY_CAP = 30
 CAPPED_VELS = True
+TIMESTEP= 0.1 #Approximation of a slotframe
 
 class VeloAgent(agent.Agent):
     def __init__(self, world, coordinates, color, agent_counter=0, velocities = None):
@@ -16,13 +17,19 @@ class VeloAgent(agent.Agent):
         self.velocities = (0.0,) * 3 # self.world.grid.get_dimension_count()
         self.neighbors = []
 
+        try:
+            self.timestep = self.world.timestep
+        except:
+            self.timestep = TIMESTEP
+
     # change in time is one round
     # function adds the velo to the position
 
     # TODO: Refactor with the parent class to remove the code written twice.
     def move(self):
+        print('moving')
         #check to make sure that this doesnt throw an error and conforms to grid types.
-        direction_coord = tuple(np.add(np.array(self.velocities) * self.world.timestep, self.coordinates))
+        direction_coord = tuple(np.add(np.array(self.velocities) * self.timestep, self.coordinates))
         direction_coord = self.check_within_border(self.velocities, direction_coord)
         if self.world.grid.are_valid_coordinates(direction_coord) \
                 and direction_coord not in self.world.agent_map_coordinates \
@@ -60,6 +67,7 @@ class VeloAgent(agent.Agent):
 
     # updates the velocities
     def set_velocities(self, new_velocities):
+        print('setting velos')
         if CAPPED_VELS:
             new_velocities = tuple([np.sign(vel) * min(abs(vel), VELOCITY_CAP) for vel in new_velocities])
         self.velocities = tuple(np.hstack([np.array(new_velocities), np.zeros(1)])[:3])
@@ -110,7 +118,7 @@ class VeloAgent(agent.Agent):
 
                 vx += (vx1 - vx2)
                 vy += (vy1 - vy2)
-            
+
         print(f"[Mote {inv_net_id_map[self.id]}] {self.neighbors} new vels {vx} {vy}", end="\r")
         self.set_velocities((-vx, -vy, -vz))
         self.neighbors = []
