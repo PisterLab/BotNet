@@ -181,3 +181,4 @@ Thumbs.db
 /test-reports
 .pytest_cache
 .DS_Store
+swarmsimmaster/outputs/
