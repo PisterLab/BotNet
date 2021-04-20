@@ -27,7 +27,6 @@ class VeloAgent(agent.Agent):
 
     # TODO: Refactor with the parent class to remove the code written twice.
     def move(self):
-        print('moving')
         #check to make sure that this doesnt throw an error and conforms to grid types.
         direction_coord = tuple(np.add(np.array(self.velocities) * self.timestep, self.coordinates))
         direction_coord = self.check_within_border(self.velocities, direction_coord)
@@ -67,7 +66,6 @@ class VeloAgent(agent.Agent):
 
     # updates the velocities
     def set_velocities(self, new_velocities):
-        print('setting velos')
         if CAPPED_VELS:
             new_velocities = tuple([np.sign(vel) * min(abs(vel), VELOCITY_CAP) for vel in new_velocities])
         self.velocities = tuple(np.hstack([np.array(new_velocities), np.zeros(1)])[:3])
