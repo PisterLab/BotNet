@@ -1,5 +1,5 @@
 import numpy as np
-import time
+
 
 eps = 10e-8
 defense_max_speed = 0.1
@@ -13,17 +13,18 @@ offense_clr = [255, 0, 0, 1]
 defense_center = [-10, 0, 0]
 offense_center = [10, 0, 0]
 
-def solution(world):
+def solution(world, stats=None):
     global terminated
 
     if not terminated:
 
         agents = world.get_agent_list()
 
-        # add alive marker
+        # add alive and kills markers
         if timestep(world) == 1:
             for a in agents:
                 a.alive = True
+                a.kills = 0
 
         # get alive attackers and defenders
         offense_drones = get_drones(world, clr=offense_clr)
@@ -32,15 +33,19 @@ def solution(world):
         # check if defenders win
         if not offense_drones:
             terminated = True
+            if (stats):
+                stats.increment_wins()
         # check if attackers win
         elif not defense_drones:
             terminated = True
+            if (stats):
+                stats.increment_losses()
         else:
             # defense policy applied
             def_p4(world, defense_drones, offense_drones)
 
             # check deaths in offense after defense moves
-            off_death_check(world, defense_drones, offense_drones)
+            off_death_check1(world, defense_drones, offense_drones, stats=stats)
 
             # refresh offense_drones
             offense_drones = get_drones(world, clr=offense_clr)
@@ -49,10 +54,12 @@ def solution(world):
             off_p1(world, defense_drones, offense_drones)
 
             # defender death check
-            def_death_check1(world, defense_drones, offense_drones)
+            # def_death_check1(world, defense_drones, offense_drones)
+    else:
+        world.set_successful_end()
 
 # offense death check
-def off_death_check(world, defense_drones, offense_drones):
+def off_death_check1(world, defense_drones, offense_drones, stats=None):
     global terminated
 
     # death check for offense
@@ -68,6 +75,29 @@ def off_death_check(world, defense_drones, offense_drones):
             closest_defense.kills += 1
             ###
 
+        # check if attackers win:
+        if np.linalg.norm(np.array(a.coordinates) - np.array(defense_center)) < 0.1:
+            terminated = True
+            if stats:
+                stats.increment_losses()
+
+# offense death check with % chance of death
+def off_death_check2(world, defense_drones, offense_drones):
+    global terminated
+
+    # death check for offense
+    for a in offense_drones:
+        sorted_defense = sorted(defense_drones,
+                                key=lambda x: np.linalg.norm(np.array(x.coordinates) - np.array(a.coordinates)))
+        closest_defense = sorted_defense[0]
+        # check if dead
+        if np.linalg.norm(np.array(closest_defense.coordinates) - np.array(a.coordinates)) < 0.1 and np.random.rand() > 0.8:
+            death_routine(a)
+
+            ### hopefully temporary?
+            closest_defense.kills += 1
+            ###
+
 
         # check if attackers win:
         if np.linalg.norm(np.array(a.coordinates) - np.array(defense_center)) < 0.1:
@@ -76,7 +106,7 @@ def off_death_check(world, defense_drones, offense_drones):
 # defense death check 1: defenders die after eliminating `n` attackers
 def def_death_check1(world, defense_drones, offense_drones):
     for a in defense_drones:
-        if (a.kills) >= 3:
+        if (a.kills) >= 1:
             death_routine(a)
 
 # off policy 1: go to center directly
@@ -156,7 +186,7 @@ def def_p3(world, defense_drones, offense_drones):
 # with at most `n` other defenders targeting
 # if all targeted, go to the closest attacker from center
 def def_p3point5(world, defense_drones, offense_drones):
-    n = 1
+    n = 2
     targetted = {}
 
     for a in defense_drones:
@@ -182,7 +212,7 @@ def def_p4(world, defense_drones, offense_drones):
     radius = 3
     patrollers = []
     targetted = {}
-    n = 1
+    n = 2
 
     for i in range(len(defense_drones)//2):
         patrollers.append(defense_drones[i])
@@ -202,7 +232,10 @@ def def_p4(world, defense_drones, offense_drones):
                 move_toward(a, x.coordinates)
                 break
         if not flag:
-            move_threshold(a, defense_center, 1, 1)
+            if (a.coordinates[0] <= defense_center[0]):
+                move_toward(a, [defense_center[0] + 1, a.coordinates[1], a.coordinates[2]])
+            else:
+                move_threshold(a, defense_center, 0, 1)
 
     if (far_offense):
         def_p3point5(world, defense_drones[len(patrollers):], far_offense)

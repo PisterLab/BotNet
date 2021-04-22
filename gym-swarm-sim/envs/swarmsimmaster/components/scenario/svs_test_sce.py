@@ -6,19 +6,19 @@ defense_center = [-10, 0, 0]
 offense_center = [10, 0, 0]
 
 def scenario(world):
-    defense_size = 30
-    offense_size = 90
+    defense_size = 5
+    offense_size = 10
 
     world.add_location(tuple(defense_center), [0, 0, 255, 1])
 
     # spawn defense agents
-    for i in range(defense_size):
+    for _ in range(defense_size):
         spawn = list(circle_spawn(defense_size)) + [0]
         spawn = np.array(spawn) + np.array(defense_center)
         world.add_agent(tuple(spawn), color= defense_clr)
 
     # spawn offense agents
-    for i in range(offense_size):
+    for _ in range(offense_size):
         spawn = list(circle_spawn(offense_size)) + [0]
         spawn = np.array(spawn) + np.array(offense_center)
         world.add_agent(tuple(spawn), color= offense_clr)

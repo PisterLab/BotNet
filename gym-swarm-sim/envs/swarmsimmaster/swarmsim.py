@@ -10,7 +10,7 @@ from core import world, config
 from core.vis3d import ResetException
 
 
-def swarm_sim(argv=[]):
+def swarm_sim(argv=[], stats=None):
     """In the main function first the config is getting parsed and than
     the swarm_sim_world and the swarm_sim_world item is created. Afterwards the run method of the swarm_sim_world
     is called in which the simulator is going to start to run"""
@@ -20,9 +20,9 @@ def swarm_sim(argv=[]):
                                       config_data.scenario.rsplit('.', 1)[0],
                                       config_data.solution.rsplit('.', 1)[0])
 
-    logging.basicConfig(filename="outputs/logs/system_%s.log" % unique_descriptor, filemode='w',
-                        level=logging.INFO, format='%(message)s')
-    logging.info('Started')
+    # logging.basicConfig(filename="outputs/logs/system_%s.log" % unique_descriptor, filemode='w',
+    #                     level=logging.INFO, format='%(message)s')
+    # logging.info('Started')
 
     read_cmd_args(config_data, argv)
     create_directory_for_data(config_data, unique_descriptor)
@@ -32,13 +32,14 @@ def swarm_sim(argv=[]):
 
     reset = True
     while reset:
-        reset = main_loop(config_data, swarm_sim_world)
+        reset = main_loop(config_data, swarm_sim_world, stats=stats)
 
-    logging.info('Finished')
+    # logging.info('Finished')
+    return swarm_sim_world
     #generate_data(config_data, swarm_sim_world)
 
 
-def main_loop(config_data, swarm_sim_world):
+def main_loop(config_data, swarm_sim_world, stats=None):
     round_start_timestamp = time.perf_counter()
     #keep simulation going if set to infinite or there are still rounds left
     while (config_data.max_round == 0 or swarm_sim_world.get_actual_round() <= config_data.max_round) \
@@ -49,7 +50,7 @@ def main_loop(config_data, swarm_sim_world):
                 swarm_sim_world.vis.run(round_start_timestamp)
                 round_start_timestamp = time.perf_counter()
             #run the solution for 1 step
-            run_solution(swarm_sim_world)
+            run_solution(swarm_sim_world, stats=stats)
         except ResetException:
             do_reset(swarm_sim_world)
 
@@ -124,10 +125,10 @@ def create_directory_for_data(config_data, unique_descriptor):
     if not os.path.exists(config_data.directory_plot):
         os.makedirs(config_data.directory_plot)
 
-def run_solution(swarm_sim_world):
+def run_solution(swarm_sim_world, stats=None):
     if swarm_sim_world.config_data.agent_random_order_always:
         random.shuffle(swarm_sim_world.agents)
-    get_solution(swarm_sim_world.config_data).solution(swarm_sim_world)
+    get_solution(swarm_sim_world.config_data).solution(swarm_sim_world, stats=stats)
     swarm_sim_world.csv_round.next_line(swarm_sim_world.get_actual_round(), swarm_sim_world.get_agent_list())
     swarm_sim_world.inc_round_counter_by(number=1)
 
