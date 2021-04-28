@@ -78,12 +78,15 @@ def _start(dev_mode):
 
 def create_config_json():
     # read the default config.json from the simulator source directory
+    print(backend.get_simulator_path())
     default_config_path = os.path.join(
         backend.get_simulator_path(),
         'bin/config.json'
     )
     with open(default_config_path) as f:
         default_config = json.load(f)
+
+    print(default_config)
 
     # check its settings
     check_config_json = os.path.join(
@@ -96,8 +99,8 @@ def create_config_json():
         stdout = subprocess.PIPE
     )
     _ = popen.communicate(json.dumps(default_config).encode("utf-8"))
-    if popen.returncode != 0:
-        raise ValueError('invalid default config.json')
+    #if popen.returncode != 0:
+    #    raise ValueError('invalid default config.json')
 
     # create a new config.json
     config = dict(CONFIG_JSON_TEMPLATE)

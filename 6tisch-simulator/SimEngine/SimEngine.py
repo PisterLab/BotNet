@@ -58,7 +58,7 @@ class DiscreteEventEngine(threading.Thread):
         return cls._instance
     #===== end singleton
 
-    def __init__(self, cpuID=None, run_id=None, verbose=False):
+    def __init__(self, cpuID=None, run_id=None, verbose=True):
         #===== singleton
         cls = type(self)
         if cls._init:
@@ -460,7 +460,7 @@ class SimEngine(DiscreteEventEngine):
 
         self._init_controls_update()
 
-        rpc = False # TODO: make this come from settings
+        rpc = True # TODO: make this come from settings
         if self.settings.robot_sim_enabled:
             timestep = self.settings.tsch_slotDuration
             if not self.settings.collision_modelling:
