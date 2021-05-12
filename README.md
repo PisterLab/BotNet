@@ -13,6 +13,8 @@ In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/ch
 * Bugs were fixed causing the simulator to crash in routine operations.
 * Adding a framework for continuous robotic control (discrete agent movements were default).
 * More scenarios for studying multi-agent control
+* Created a wrapper class for remote control of the simulator
+* Added functionality to pass arguments into scenarios. 
 
 #### Scenario Initialization: 
 This is the starting situation for the simulation. A **scenario** describes the initial agent positions as well as their environment. To create a scenario utilize the world API in a Python script located in the scenarios folder. Examples of how to set up scenarios are in the scenarios folder. To run your scenario you must set the scenario argument at the bottom of config.ini to the name of your scenario file. Below is the simplest  example of creating a lonely agent in the center of the world (which can be found [here](https://github.com/PisterLab/BotNet/blob/5af7fc809dea29e6e49b5275df13184c534b6518/gym-swarm-sim/envs/swarmsimmaster/components/scenario/configurable.py)).
@@ -62,6 +64,13 @@ This will let you remotely control the simulator via the service variable.
 
 `python ../../../6tisch-simulator/bin/runSim.py`
 
+
+### Visualizing both Simulators
+
+Both simulators can be visualized live in the same experiment. To do this 
+1. Set the Swarm Sim scenario to dual_vis_tisch
+2. Set the Swarm sim solution to tisch_visualization
+3. run dual_visualization.sh
 ----
 
 ## Examples
