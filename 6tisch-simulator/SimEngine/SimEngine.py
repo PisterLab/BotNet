@@ -467,9 +467,22 @@ class SimEngine(DiscreteEventEngine):
                 timestep *= self.control_update_period
             if rpc:
                 self.robot_sim                  =  rpyc.connect("localhost", 18861, config={'allow_public_attrs': True, 'allow_all_attrs': True, 'allow_pickle': True}).root
-                self.robot_sim.initialize_simulation(self.settings, goons=robotCoords, timestep=timestep, seed=self.random_seed, update_period=self.control_update_period)
+                net_configs = {
+                    'follow': self.settings.follow,
+                    'flock_rad': self.settings.flock_rad,
+                    'flock_vel': self.settings.flock_vel
+                }
+                self.robot_sim.initialize_simulation(net_configs, goons=robotCoords, timestep=timestep, seed=self.random_seed, update_period=self.control_update_period)
+                #self.robot_sim.initialize_simulation(goons=robotCoords, timestep=timestep,
+                                                     #seed=self.random_seed, update_period=self.control_update_period)
+                #wait for simulation to process
+                self.robot_sim.set_sync(False)
+                while not self.robot_sim.synced():
+                    continue
+                print('passed init sync')
                 self.robot_sim.set_mote_key_map({})
             else:
+
                 self.robot_sim                  = comms_env.SwarmSimCommsEnv(self.settings,
                                                                          goons=robotCoords,
                                                                          timestep=timestep,
@@ -597,7 +610,7 @@ class SimEngine(DiscreteEventEngine):
         elif init_scenario == "center_radius_flock":
             robotCoords.append((spacing * 1.1,
                                 0.0))  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
-            for i in range(num_agents):
+            for i in range(num_agents - 1):
                 x, y = 2 * spacing * (np.random.rand(2) - .5)
                 robotCoords.append((x, y))
         elif init_scenario == "edge_radius_flock":
@@ -622,6 +635,8 @@ class SimEngine(DiscreteEventEngine):
                 epsilon = (np.random.rand() - .5) / 2
                 robotCoords.append((0.0, -spacing * float(i) + epsilon))
 
+        print(len(robotCoords))
+        print(self.settings.exec_numMotes)
         assert len(robotCoords) == self.settings.exec_numMotes
 
         return robotCoords
@@ -646,6 +661,11 @@ class SimEngine(DiscreteEventEngine):
             return
 
         self.robot_sim.main_loop()
+        self.robot_sim.set_sync(False)
+
+        while not self.robot_sim.synced():
+            continue
+
 
     def _robo_sim_sync(self):
         networkStartSwitch = True
