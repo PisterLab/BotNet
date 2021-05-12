@@ -8,7 +8,8 @@ shared_dictionary.update({
         'loop_counter' : 0,
         'simulation_end' : False,
         'do_reset' : False,
-        'simulation_initialized' : False
+        'simulation_initialized' : False,
+        'synced' : False
         })
 
 
@@ -39,14 +40,13 @@ class MyService(rpyc.Service):
         shared_dictionary.update({'loop_counter' : iterations})
 
     def exposed_should_loop(self):
+        return (shared_dictionary.get('loop_counter') > 0)
+
+    def exposed_decrement_loop(self):
         loops = shared_dictionary.get('loop_counter')
         if loops > 0:
             loops -= 1
             shared_dictionary.update({'loop_counter': loops})
-            return True
-        else:
-            return False
-
 
     def exposed_assign_velos(self, new_velos):
         shared_dictionary.update({
@@ -92,16 +92,19 @@ class MyService(rpyc.Service):
     def exposed_update_mote_states(self, mote_states):
         shared_dictionary.update({'mote_states': copy.deepcopy(mote_states) })
 
-    def exposed_simulation_initialized(self):
-        shared_dictionary.update({'robo_sim_initialized': True})
-
-    def exposed_check_simulation_initialized(self):
-        return shared_dictionary.get('robo_sim_initialized')
-
     def on_disconnect(self, conn):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         pass
+
+    def exposed_set_sync(self, status):
+        '''
+        Lets both sides of the service comminicate when the other side is done.
+        '''
+        shared_dictionary.update({'synced': status})
+
+    def exposed_synced(self):
+        return shared_dictionary.get('synced')
 
 
 if __name__ == "__main__":

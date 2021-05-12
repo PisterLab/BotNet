@@ -476,8 +476,10 @@ class SimEngine(DiscreteEventEngine):
                 #self.robot_sim.initialize_simulation(goons=robotCoords, timestep=timestep,
                                                      #seed=self.random_seed, update_period=self.control_update_period)
                 #wait for simulation to process
-                while not self.robot_sim.check_simulation_initialized():
+                self.robot_sim.set_sync(False)
+                while not self.robot_sim.synced():
                     continue
+                print('passed init sync')
                 self.robot_sim.set_mote_key_map({})
             else:
 
@@ -659,6 +661,11 @@ class SimEngine(DiscreteEventEngine):
             return
 
         self.robot_sim.main_loop()
+        self.robot_sim.set_sync(False)
+
+        while not self.robot_sim.synced():
+            continue
+
 
     def _robo_sim_sync(self):
         networkStartSwitch = True

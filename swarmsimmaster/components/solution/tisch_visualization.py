@@ -3,9 +3,13 @@ import time
 
 def solution(world):
     #wait for command to run the main loop
+
+
     while not world.interface_server.should_loop():
         continue
 
+    #decreases the loop queue by one
+    world.interface_server.decrement_loop()
 
     #set neighbors
     if world.interface_server.should_set_neighbors():
@@ -40,4 +44,13 @@ def solution(world):
         positions[agent_id] = mote.coordinates
 
     world.interface_server.update_mote_states(positions)
+
+
+
+    # if this was the last neccessary loop return control to 6tisch
+    if not world.interface_server.should_loop():
+        # wait for 6tisch to have set the sync as false
+        while world.interface_server.synced():
+            continue
+        world.interface_server.set_sync(True)
 

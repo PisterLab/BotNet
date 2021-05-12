@@ -34,7 +34,11 @@ def scenario(world):
 
     world.interface_server.update_mote_states(positions)
 
-    world.interface_server.simulation_initialized()
+    # wait for 6tisch to have set the sync as false
+    while world.interface_server.synced():
+        continue
+    world.interface_server.set_sync(True)
+    print('passed init sync')
 
 
 
