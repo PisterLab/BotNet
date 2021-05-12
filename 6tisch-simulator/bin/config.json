@@ -9,7 +9,7 @@
             "exec_numMotes":                               [12],
 
             "conn_class":                                  ["FullyMeshed", "Realistic", "FriisMean", "FriisLower", "Disk"],
-            "scenario":                                    ["center_line_flock"],
+            "scenario":                                    ["edge_radius_flock"],
 
             "flock_rad":                                   [15],
             "flock_vel":                                   [10],
