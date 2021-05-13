@@ -465,7 +465,9 @@ class SimEngine(DiscreteEventEngine):
 
         self._init_controls_update()
 
+
         self.rpc = False # TODO: make this come from settings
+
         if self.settings.robot_sim_enabled:
             timestep = self.settings.tsch_slotDuration
             if not self.settings.collision_modelling:
