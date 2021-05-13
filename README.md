@@ -20,6 +20,8 @@ In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/ch
 * Bugs were fixed causing the simulator to crash in routine operations.
 * Adding a framework for continuous robotic control (discrete agent movements were default).
 * More scenarios for studying multi-agent control
+* Created a wrapper class for remote control of the simulator
+* Added functionality to pass arguments into scenarios. 
 
 ----
 ## Running BotNet
@@ -88,6 +90,36 @@ The 6TiSCH simulator can be seamlessly integrated to validate control performanc
 Running Google Doc: https://docs.google.com/document/d/1OhyHHBxHN3_bAwsYYcrqfswcTrh-pLQrN6X59aoQMSg/edit?usp=sharing
 
 ----
+
+=======
+## Running the code
+
+### BotNet RPC server:
+To start the rpc server cd into the swarmsimmaster directory and run `python3 rpyc_server.py`
+Once the server is started you can connect to the via the following python code in any directory  
+`import rpyc`  
+`service = rpyc.connect("localhost", 18861).root`  
+This will let you remotely control the simulator via the service variable.
+
+### SwarmSim Interface
+`python swarmsim.py`
+
+`python ../../../6tisch-simulator/bin/runSim.py`
+
+
+### Visualizing both Simulators
+
+Both simulators can be visualized live in the same experiment. To do this 
+1. Set the Swarm Sim scenario to dual_vis_tisch
+2. Set the Swarm sim solution to tisch_visualization
+3. run dual_visualization.sh
+----
+
+## Examples
+
+#### Flocking
+
+#### Formation Control
 
 ## Citation
 To cite this work, please use the following (_we can upload to arxiv so everything is good to go_):
