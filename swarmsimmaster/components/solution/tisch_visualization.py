@@ -1,8 +1,9 @@
 import random
 import time
-
+import importlib
 def solution(world):
     #wait for command to run the main loop
+    neighbors_set = False
 
 
     while not world.interface_server.should_loop():
@@ -13,6 +14,7 @@ def solution(world):
 
     #set neighbors
     if world.interface_server.should_set_neighbors():
+        neighbors_set = True
         id_map = world.get_agent_map_id()
         agent_neighbor_table = world.interface_server.get_neighbors_table()
         mote_key_map = world.interface_server.get_mote_key_map()
@@ -22,7 +24,8 @@ def solution(world):
             mote.id = agent_id  # FIXME: THIS IS DUMB BUT IT WORKS
             mote.neighbors = neighbors
 
-            mote.control_update(mote_key_map, {v : k for (k, v) in mote_key_map.items()})
+
+
 
     #assign velocities
     if world.interface_server.should_assign_velos():
@@ -31,26 +34,31 @@ def solution(world):
         for mote in new_velos:
             id_map[mote].set_velocities(new_velos[mote])
 
+        # call second solution
+    if neighbors_set:
+        run_2nd_solution(world.config_data, world=world, net_id_map=mote_key_map)
 
-    #move agents
-    for agent in world.get_agent_list():
-        agent.move()
 
-    #update RPC on mote states
-    id_map = world.get_agent_map_id()
-    positions = {}
-    for agent_id in id_map:
-        mote = id_map[agent_id]
-        positions[agent_id] = mote.coordinates
 
-    world.interface_server.update_mote_states(positions)
 
 
 
     # if this was the last neccessary loop return control to 6tisch
     if not world.interface_server.should_loop():
+        # update RPC on mote states
+        id_map = world.get_agent_map_id()
+        positions = {}
+        for agent_id in id_map:
+            mote = id_map[agent_id]
+            positions[agent_id] = mote.coordinates
+
+        world.interface_server.update_mote_states(positions)
+
         # wait for 6tisch to have set the sync as false
         while world.interface_server.synced():
             continue
         world.interface_server.set_sync(True)
 
+
+def run_2nd_solution(config_data, **kwargs):
+    importlib.import_module('components.solution.' + config_data.solution2).solution(**kwargs)
