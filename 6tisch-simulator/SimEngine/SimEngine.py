@@ -131,11 +131,6 @@ class DiscreteEventEngine(threading.Thread):
                 # tell robotic simulator to run for 1 ASN
                 if self.settings.robot_sim_enabled:
                     self._robo_sim_loop()
-                    if self.rpc:
-                        self.robot_sim.set_sync(False)
-
-                        while not self.robot_sim.synced():
-                            continue
                 with self.dataLock:
 
                     # abort simulation when no more events
@@ -466,7 +461,7 @@ class SimEngine(DiscreteEventEngine):
         self._init_controls_update()
 
 
-        self.rpc = False # TODO: make this come from settings
+        self.rpc = True # TODO: make this come from settings
 
         if self.settings.robot_sim_enabled:
             timestep = self.settings.tsch_slotDuration
@@ -485,6 +480,7 @@ class SimEngine(DiscreteEventEngine):
                 #wait for simulation to process
                 self.robot_sim.set_sync(False)
                 while not self.robot_sim.synced():
+                    print('post_init_sync')
                     continue
                 print('passed init sync')
                 self.robot_sim.set_mote_key_map({})
@@ -668,6 +664,12 @@ class SimEngine(DiscreteEventEngine):
             return
 
         self.robot_sim.main_loop()
+
+        if self.rpc:
+            self.robot_sim.set_sync(False)
+
+            while not self.robot_sim.synced():
+                continue
 
 
 
