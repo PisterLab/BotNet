@@ -111,6 +111,8 @@ To handle certain quirks of the respective visualization modules we implenented 
 ```
 ./dual_vis.sh
 ```
+However, to run this, both simulators must be alerted of these settings. SwarmSim can be alerted by setting Visualization to 2 in config.ini. 6tisch can be alerted with the rpc variable. 
+
 Once the windows are open the play button in the 6tisch Gui must be pressed to start the networking simultion. Dynamics simulation won't start until the 6tisch network is fully formed, but in order to start the Swarm-Sim side of the simulation the 'start simulation' button must be pressed in the Swarm-Sim Gui
 
 ### BotNet RPC server:
