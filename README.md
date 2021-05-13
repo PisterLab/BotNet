@@ -23,6 +23,12 @@ In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/ch
 * Created a wrapper class for remote control of the simulator
 * Added functionality to pass arguments into scenarios. 
 
+Swarm-Sim comprosises the dynamics simulation componenet of the dual-simulator. There are two primary places where experiments are defined on the Swarm-Sim side. 
+#### Scenarios
+A scenario is the initial conditions for a simulation. In these files, the world api is used to define the initial positions of all objects in the simulation. Scenarios are loaded from swarmsimmaster/components/scenarios at the beggining of the simulation. The current simulation to be loaded is defined in swarmsimmaster/config.ini
+
+#### Solutions.  
+Solutions are where control updates are implemented. These use utilize the world api to define the simulation behavior at every time step. The solution function is called on every iteration of Swarm-Sim's main loop. Like a scenario a solution is loaded from swarmsimmaster/components/solutions and an experiments solution is defined in config.ini. See swarmsimmaster/components/solutions/flock.py for an example solution
 ----
 ## Running BotNet
 to run the dual visualization, first (in the top level directory): python dual_vis_messenger_server.py  then (in seperate terminals). 6tisch/gui/backend/start and (in the swarmsimmaster folder) python3 swarmsim.py
