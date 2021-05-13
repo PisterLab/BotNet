@@ -24,27 +24,22 @@ In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/ch
 * Added functionality to pass arguments into scenarios. 
 
 Swarm-Sim comprosises the dynamics simulation componenet of the dual-simulator. There are two primary places where experiments are defined on the Swarm-Sim side. 
-#### Scenarios
+#### Scenarios:
 A scenario is the initial conditions for a simulation. In these files, the world api is used to define the initial positions of all objects in the simulation. Scenarios are loaded from swarmsimmaster/components/scenarios at the beggining of the simulation. The current simulation to be loaded is defined in swarmsimmaster/config.ini
 
-#### Solutions.  
+#### Solutions: 
 Solutions are where control updates are implemented. These use utilize the world api to define the simulation behavior at every time step. The solution function is called on every iteration of Swarm-Sim's main loop. Like a scenario a solution is loaded from swarmsimmaster/components/solutions and an experiments solution is defined in config.ini. See swarmsimmaster/components/solutions/flock.py for an example solution
+
 ----
 ## Running BotNet
 to run the dual visualization, first (in the top level directory): python dual_vis_messenger_server.py  then (in seperate terminals). 6tisch/gui/backend/start and (in the swarmsimmaster folder) python3 swarmsim.py
 
-We have included a bash script for running the code. To use it, enter the following in your terminal.
+
+### No Visualization
+For running experiments at a faster pace without the added  have included a bash script for running the code. To use it, enter the following in your terminal.
 ```
 ./run.sh
 ```
-
-fix below 
-### BotNet RPC server:
-To start the rpc server cd into the swarmsimmaster directory and run `python3 rpyc_server.py`
-Once the server is started you can connect to the via the following python code in any directory  
-`import rpyc`  
-`service = rpyc.connect("localhost", 18861).root`  
-This will let you remotely control the simulator via the service variable.
 
 ### SwarmSim Interface
 `python swarmsim.py`
@@ -80,7 +75,7 @@ def solution(world):
     for agent in world.get_agent_list():
       agent.move_to(random.choice(world.grid.get_directions_list()))
 ```
-Config.ini can be used t set all arguments for the simulation. These include which grid world to use. Whether to use an agent with 0th 1st or 2nd order dynamics, how big the world is, etc. 
+Config.ini can be used to set all arguments for the simulation. These include which grid world to use. Whether to use an agent with 0th 1st or 2nd order dynamics, how big the world is, etc. 
 
 ##### Agent Level Control
 How to write controls at the agent level:
@@ -100,8 +95,26 @@ Running Google Doc: https://docs.google.com/document/d/1OhyHHBxHN3_bAwsYYcrqfswc
 =======
 ## Running the code
 
+We have set uo two frameworks to enable communications between the 6tisch-simulater and Swarm-Sim Simulator. 
+### No Vis 
+To enable fast simulation without visualization we have created a wrapper class for Swarm-Sim defined in swarmsimmaster/commsenv.py. This allows the Swarmsim simulator to be remotely controlled doing things such as setting agent velocities, setting mote neighbors, getting mote states and executing a timestep of Swarm-Sim dynamics simulation. Through this interface the 6tisch-simulator synchrozises with the robotics simulator and provides it with the neccessary information to simulate the control algorithms. 
+
+We have included a bash script for running the code. To use it, enter the following in your terminal.
+```
+./run.sh
+```
+
+### With visualization
+We have also built a framework for using both the Swarm-Sim GUI and the 6tisch GUI at the same time. 6tisch provides visualization capacities in the form of a web-app which is hosted on port 8080. Swarmsim provides visualizations by opening a PyOpenGL window. 
+
+To handle certain quirks of the respective visualization modules we implenented a interface server which allows the two simulators to communicate despite executing in seperate processes. Running a simulation with dual visualizations is a little bit more complicated because first the interface server must be started followed by the 6tisch GUI server and finally swarmsim. This can all be run via 
+```
+./dual_vis.sh
+```
+Once the windows are open the play button in the 6tisch Gui must be pressed to start the networking simultion. Dynamics simulation won't start until the 6tisch network is fully formed, but in order to start the Swarm-Sim side of the simulation the 'start simulation' button must be pressed in the Swarm-Sim Gui
+
 ### BotNet RPC server:
-To start the rpc server cd into the swarmsimmaster directory and run `python3 rpyc_server.py`
+To start the rpc server cd into the swarmsimmaster directory and run `python3 rpyc_server.py`. 
 Once the server is started you can connect to the via the following python code in any directory  
 `import rpyc`  
 `service = rpyc.connect("localhost", 18861).root`  
