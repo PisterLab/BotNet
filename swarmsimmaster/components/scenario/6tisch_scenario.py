@@ -4,3 +4,4 @@ def scenario(world, goons=None):
             world.add_agent(agent)
     else:
         world.add_agent(world.grid.get_center())
+

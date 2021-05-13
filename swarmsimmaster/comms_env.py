@@ -126,7 +126,7 @@ class SwarmSimCommsEnv():
         self.swarm_sim_world = world.World(self.config_data)
         self.swarm_sim_world.timestep = timestep
         self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), goons)
-
+        self.swarm_sim_world.network_formed = False
         self._init_log(id="custom", scenario=net_config.scenario, num_agents=len(goons),
                        seed=seed, comms=net_config.conn_class,
                        flock_rad=net_config.flock_rad, flock_vel=net_config.flock_vel,
@@ -140,6 +140,7 @@ class SwarmSimCommsEnv():
         while i < iterations: # TODO: for i in range(iterations)
             try:
                 # check to see if its necessary to run the vis
+                self.swarm_sim_world.net_id_map = self.mote_key_map
                 if self.config_data.visualization:
                     self.swarm_sim_world.vis.run(round_start_timestamp) # FIXME: seg fault when visualization enabled with 6TiSCH
                 # run the solution for 1 step
@@ -202,14 +203,16 @@ class SwarmSimCommsEnv():
             self.mote_key_inv_map = {v : k for (k, v) in mote_map.items()}
 
     def set_all_mote_neighbors(self, agent_neighbor_table):
+        world.network_formed = True
         id_map = self.swarm_sim_world.get_agent_map_id()
         for (net_id, neighbors) in agent_neighbor_table:
             agent_id = self.mote_key_map[net_id] # NOTE: this is set in the network simulator
             mote = id_map[agent_id]
-            mote.id = agent_id # FIXME: THIS IS DUMB BUT IT WORKS
+            mote.id = agent_id #FIXME: THIS IS DUMB BUT IT WORKS
             mote.neighbors = neighbors
 
-            mote.control_update(self.mote_key_map, self.mote_key_inv_map)
+        self.swarm_sim_world.net_id_map = self.mote_key_map
+
 
     def get_all_mote_states(self):
         id_map = self.swarm_sim_world.get_agent_map_id()
