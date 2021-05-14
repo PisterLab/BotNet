@@ -622,13 +622,10 @@ class SimEngine(DiscreteEventEngine):
                 theta = 2 * np.pi * float(i) / num_agents
                 robotCoords.append((spacing * np.cos(theta), spacing * np.sin(theta)))
         elif init_scenario == "center_line_flock":  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
-            for i in range(1, num_agents // 2 + 1):
+            for i in range(0, num_agents):
                 epsilon = (np.random.rand() - .5) / 2
                 robotCoords.append((0.0, spacing * float(i) + epsilon))
 
-            for i in range(1, num_agents // 2 + 1):
-                epsilon = (np.random.rand() - .5) / 2
-                robotCoords.append((0.0, - spacing * float(i) + epsilon))
         elif init_scenario == "edge_line_flock":  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
             for i in range(num_agents // 2, 0, -1):
                 epsilon = (np.random.rand() - .5) / 2

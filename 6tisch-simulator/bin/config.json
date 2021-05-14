@@ -6,14 +6,14 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [12],
+            "exec_numMotes":                               [3],
 
-            "conn_class":                                  ["FullyMeshed", "Realistic", "FriisMean", "FriisLower", "Disk"],
+            "conn_class":                                  ["FriisMean", "Realistic", "FriisLower", "FullyMeshed", "Disk"],
             "scenario":                                    ["center_line_flock"],
 
-            "flock_rad":                                   [15],
+            "flock_rad":                                   [5],
             "flock_vel":                                   [10],
-            "init_spacing":                                [1.5],
+            "init_spacing":                                [0.5],
             "control_update_period_slots":                 [1, 2, 3, 4, 6, 12],
 
             "exec_randomSeed":                             [120]
@@ -43,7 +43,7 @@
             "rrsf_slotframe_len":                          false,
 
             "tsch_slotDuration":                           0.010,
-            "tsch_slotframeLength":                        3,
+            "tsch_slotframeLength":                        12,
             "tsch_probBcast_ebProb":                       0.33,
             "tsch_clock_max_drift_ppm":                    30,
             "tsch_clock_frequency":                        32768,

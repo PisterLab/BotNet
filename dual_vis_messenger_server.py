@@ -18,13 +18,11 @@ if __name__ == "__main__":
         # SET SWARM SIM ATTRIBUTES
 
         def exposed_initialize_simulation(self, *args, **kwargs):
-            print(args, kwargs)
             shared_dictionary.update({
                 'scenario_args' : args,
                 'scenario_kwargs' : kwargs,
                 'simulation_initialized' : True
             })
-            print('set initialization arguments')
 
         def exposed_simulation_ready(self):
             return shared_dictionary.get( 'simulation_initialized')

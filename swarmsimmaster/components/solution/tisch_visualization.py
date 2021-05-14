@@ -35,7 +35,7 @@ def solution(world):
     # call second solution
     if world.network_formed:
         world.net_id_map = mote_key_map
-        run_2nd_solution(world.config_data, world=world)
+        run_solution(world.config_data, world=world)
 
 
 
@@ -59,5 +59,5 @@ def solution(world):
         world.interface_server.set_sync(True)
 
 
-def run_2nd_solution(config_data, **kwargs):
-    importlib.import_module('components.solution.' + config_data.solution2).solution(**kwargs)
+def run_solution(config_data, **kwargs):
+    importlib.import_module('components.solution.' + config_data.solution).solution(**kwargs)

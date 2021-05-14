@@ -152,7 +152,10 @@ def create_directory_for_data(config_data, unique_descriptor):
 def run_solution(swarm_sim_world):
     if swarm_sim_world.config_data.agent_random_order_always:
         random.shuffle(swarm_sim_world.agents)
-    get_solution(swarm_sim_world.config_data).solution(swarm_sim_world)
+    if swarm_sim_world.config_data.visualization == 2:
+        importlib.import_module('components.solution.' + 'tisch_visualization').solution(swarm_sim_world)
+    else:
+        get_solution(swarm_sim_world.config_data).solution(swarm_sim_world)
     swarm_sim_world.csv_round.next_line(swarm_sim_world.get_actual_round())
     swarm_sim_world.inc_round_counter_by(number=1)
 
