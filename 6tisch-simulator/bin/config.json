@@ -6,7 +6,7 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [3],
+            "exec_numMotes":                               [6],
 
             "conn_class":                                  ["FriisMean", "Realistic", "FriisLower", "FullyMeshed", "Disk"],
             "scenario":                                    ["center_line_flock"],
@@ -75,7 +75,7 @@
 
             "console_logging":                             false,
 
-            "dual_vis":                                         false
+            "dual_vis":                                         true
         }
     },
     "logging":                                             "all",
