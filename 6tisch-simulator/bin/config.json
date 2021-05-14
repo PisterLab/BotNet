@@ -73,7 +73,9 @@
 
             "follow":                                      true,
 
-            "console_logging":                             false
+            "console_logging":                             false,
+
+            "dual_vis":                                         false
         }
     },
     "logging":                                             "all",

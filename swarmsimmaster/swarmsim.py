@@ -36,7 +36,6 @@ def swarm_sim(argv=[]):
                                       comms=config_data.comms, flock_rad=config_data.flock_rad,
                                       flock_vel=config_data.flock_vel)
     except:
-        traceback.print_exc()
         swarm_sim_world.init_scenario(get_scenario(swarm_sim_world.config_data))
 
     reset = True

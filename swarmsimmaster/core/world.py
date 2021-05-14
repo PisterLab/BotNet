@@ -22,14 +22,17 @@ def load_scenario(mod, world, goons=None, **kwargs):
     -----------
         goons = a place to pass optional arguments into the scenario functions. Must be used in conjuction with a scenario which accepts args.
     """
-    try:
-        mod.scenario(world, goons, **kwargs)
-    except:
-        traceback.print_exc()
+    if world.config_data.visualization == 2 :
+        print('A')
+        importlib.import_module('components.scenario.dual_vis_tisch').scenario(world)
+    else:
         try:
-            mod.scenario(world)
-        except VisualizationError as ve:
-            world._scenario_load_error = ve
+            mod.scenario(world, goons, **kwargs)
+        except:
+            try:
+                mod.scenario(world)
+            except VisualizationError as ve:
+                world._scenario_load_error = ve
 
 
 class World:

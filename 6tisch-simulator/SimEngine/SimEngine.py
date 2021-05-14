@@ -461,7 +461,7 @@ class SimEngine(DiscreteEventEngine):
         self._init_controls_update()
 
 
-        self.rpc = True # TODO: make this come from settings
+        self.rpc = self.settings.dual_vis # TODO: make this come from settings
 
         if self.settings.robot_sim_enabled:
             timestep = self.settings.tsch_slotDuration
@@ -480,7 +480,6 @@ class SimEngine(DiscreteEventEngine):
                 #wait for simulation to process
                 self.robot_sim.set_sync(False)
                 while not self.robot_sim.synced():
-                    print('post_init_sync')
                     continue
                 print('passed init sync')
                 self.robot_sim.set_mote_key_map({})
@@ -498,6 +497,7 @@ class SimEngine(DiscreteEventEngine):
             if self.rpc:
                 newMap = {}
             for i, robot_mote_id in enumerate(moteStates.keys()):
+                print(moteStates)
                 mote = self.motes[i]
                 if not self.rpc:
                     self.robot_sim.mote_key_map[mote.id] = robot_mote_id
