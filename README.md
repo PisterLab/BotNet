@@ -99,7 +99,6 @@ Due to the remote server architecture, sometimes subprocesses can hang. In case 
  kill pid
 ```
 
-
 ----
 ## File Structure and Design Decisions
 In this section we detail the structure of the simulator and what new users should know when designing new experiments.
@@ -121,7 +120,8 @@ def scenario(world):
 
 For more details on the current scenarios, see the scenario description [readme](./swarmsimmaster/components/scenario/readme.md).
 #### Control Solutions:
-The solution is where controls and dynamics are implemented. At every step of the main loop the solution is executed. A solution file describes both the controls of the agents and can describe extra dynamics or interactions. Below is a solution which moves every agent in a random direction, which can be found [here](https://github.com/PisterLab/BotNet/blob/72a2253bbeb5b4f1995ab12eae9a9c672c55892d/gym-swarm-sim/envs/swarmsimmaster/components/solution/random_walk.py). 
+The solution is where controls and dynamics are implemented. At every step of the main loop the solution is executed. A solution file describes both the controls of the agents and can describe extra dynamics or interactions. 
+Below is a solution which moves every agent in a random direction, which can be found [here](). 
 
 ```
 def solution(world):
