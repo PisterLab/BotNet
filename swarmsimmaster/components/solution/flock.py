@@ -9,7 +9,6 @@ def solution(world):
         return
 
     net_id_map = world.net_id_map
-    print(net_id_map)
     inv_net_id_map = {v : k for k, v in net_id_map.items()}
     for agent in world.get_agent_list():
         set_vel = net_id_map[0] == agent.id
@@ -17,7 +16,7 @@ def solution(world):
         if set_vel and follow:
             continue
 
-        R_COLLISION, R_CONNECTION = .8, world.config_data.flock_rad
+        R_COLLISION, R_CONNECTION = .8, float(world.config_data.flock_rad)
         R1, R2 = R_COLLISION, R_CONNECTION
         k_col, k_conn = R1 * R1 + R2, R2
 
@@ -29,10 +28,14 @@ def solution(world):
                 continue
 
             x1, y1, _ = agent.coordinates
+
             x2, y2 = neighbor
+            x1 = float(x1)
+            x2 = float(x2)
+            y1 = float(y1)
+            y2 = float(y2)
 
-            dist = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-
+            dist = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
             scaling = 1
             if net_id == 0:
                 scaling = float(max(1, len(agent.world.get_agent_list()) / 10))  # NOTE: magic number boo

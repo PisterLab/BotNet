@@ -174,7 +174,7 @@ class SwarmSimCommsEnv():
         if self.swarm_sim_world.config_data.agent_random_order_always:
             random.shuffle(self.swarm_sim_world.agents)
         get_solution(self.swarm_sim_world.config_data).solution(self.swarm_sim_world)
-        self.swarm_sim_world.csv_round.next_line(self.swarm_sim_world.get_actual_round())
+        self.swarm_sim_world.csv_round.next_line(self.swarm_sim_world.get_actual_round(), self.swarm_sim_world.agents)
         self.swarm_sim_world.inc_round_counter_by(number=1)
 
     def do_reset(self):

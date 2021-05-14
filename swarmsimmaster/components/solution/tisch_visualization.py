@@ -15,6 +15,7 @@ def solution(world):
     #set neighbors
     if world.interface_server.should_set_neighbors():
         world.network_formed = True
+        neighbors_set = True
         id_map = world.get_agent_map_id()
         agent_neighbor_table = world.interface_server.get_neighbors_table()
         mote_key_map = world.interface_server.get_mote_key_map()
@@ -33,7 +34,7 @@ def solution(world):
             id_map[mote].set_velocities(new_velos[mote])
 
     # call second solution
-    if world.network_formed:
+    if neighbors_set:
         world.net_id_map = mote_key_map
         run_solution(world.config_data, world=world)
 

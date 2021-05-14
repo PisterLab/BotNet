@@ -78,7 +78,7 @@ class World:
         self.csv_round = self.csv_generator_module.CsvRoundData(scenario=config_data.scenario,
                                                                 solution=config_data.solution,
                                                                 seed=config_data.seed_value,
-                                                                directory=config_data.directory_csv)
+                                                                directory=config_data.directory_csv, agents=self.get_agent_list())
 
         if config_data.visualization:
             self.vis = vis3d.Visualization(self)
