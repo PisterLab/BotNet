@@ -1,7 +1,9 @@
 import rpyc
-
+import importlib
 
 def scenario(world):
+    print('A.2')
+    #setup world information passed from 6tisch
     world.interface_server = rpyc.connect("localhost", 18861, config={'allow_public_attrs': True, 'allow_all_attrs': True, 'allow_pickle': True}).root
     while not world.interface_server.simulation_ready():
         continue
@@ -13,19 +15,21 @@ def scenario(world):
     world.config_data.follow_the_leader = net_config['follow']
     world.config_data.flock_rad = net_config['flock_rad']
     world.config_data.flock_vel = net_config['flock_vel']
-    goons = kwargs['goons']
     world.timestep = kwargs['timestep']
 # These are for logging which we will get to
   # seed = kwargs['seed']
   # update_period = self.kwargs['update_period']
-    if goons:
-        for agent in goons:
-            world.add_agent(agent)
+
+    #run scenario
+    scenario_mod = importlib.import_module('components.scenario.' + world.config_data.scenario)
+    if 'goons' in kwargs:
+        print('B')
+        scenario_mod.scenario(world, goons=kwargs['goons'])
     else:
-        world.add_agent(world.grid.get_center())
+        scenario_mod.scenario(world)
 
-
-
+    print('D')
+    #update server on world information
     id_map = world.get_agent_map_id()
     positions = {}
     for agent_id in id_map:
@@ -34,11 +38,13 @@ def scenario(world):
 
     world.interface_server.update_mote_states(positions)
 
+    world.network_formed = False
     # wait for 6tisch to have set the sync as false
     while world.interface_server.synced():
         continue
     world.interface_server.set_sync(True)
     print('passed init sync')
+
 
 
 

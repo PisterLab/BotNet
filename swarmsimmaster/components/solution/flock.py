@@ -7,6 +7,7 @@ TIMESTEP= 0.1 #Approximation of a slotframe
 def solution(world):
     if not world.network_formed:
         return
+
     net_id_map = world.net_id_map
     print(net_id_map)
     inv_net_id_map = {v : k for k, v in net_id_map.items()}

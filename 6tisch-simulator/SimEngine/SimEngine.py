@@ -131,11 +131,6 @@ class DiscreteEventEngine(threading.Thread):
                 # tell robotic simulator to run for 1 ASN
                 if self.settings.robot_sim_enabled:
                     self._robo_sim_loop()
-                    if self.rpc:
-                        self.robot_sim.set_sync(False)
-
-                        while not self.robot_sim.synced():
-                            continue
                 with self.dataLock:
 
                     # abort simulation when no more events
@@ -466,7 +461,7 @@ class SimEngine(DiscreteEventEngine):
         self._init_controls_update()
 
 
-        self.rpc = False # TODO: make this come from settings
+        self.rpc = self.settings.dual_vis # TODO: make this come from settings
 
         if self.settings.robot_sim_enabled:
             timestep = self.settings.tsch_slotDuration
@@ -502,6 +497,7 @@ class SimEngine(DiscreteEventEngine):
             if self.rpc:
                 newMap = {}
             for i, robot_mote_id in enumerate(moteStates.keys()):
+                print(moteStates)
                 mote = self.motes[i]
                 if not self.rpc:
                     self.robot_sim.mote_key_map[mote.id] = robot_mote_id
@@ -626,13 +622,10 @@ class SimEngine(DiscreteEventEngine):
                 theta = 2 * np.pi * float(i) / num_agents
                 robotCoords.append((spacing * np.cos(theta), spacing * np.sin(theta)))
         elif init_scenario == "center_line_flock":  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
-            for i in range(1, num_agents // 2 + 1):
+            for i in range(0, num_agents):
                 epsilon = (np.random.rand() - .5) / 2
                 robotCoords.append((0.0, spacing * float(i) + epsilon))
 
-            for i in range(1, num_agents // 2 + 1):
-                epsilon = (np.random.rand() - .5) / 2
-                robotCoords.append((0.0, - spacing * float(i) + epsilon))
         elif init_scenario == "edge_line_flock":  # FIXME: should be a single for loop so that it's truly num_agents, otherwise this breaks in 6TiSCH
             for i in range(num_agents // 2, 0, -1):
                 epsilon = (np.random.rand() - .5) / 2
@@ -668,6 +661,12 @@ class SimEngine(DiscreteEventEngine):
             return
 
         self.robot_sim.main_loop()
+
+        if self.rpc:
+            self.robot_sim.set_sync(False)
+
+            while not self.robot_sim.synced():
+                continue
 
 
 
