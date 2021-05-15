@@ -16,7 +16,7 @@ def swarm_sim(argv=[]):
     the swarm_sim_world and the swarm_sim_world item is created. Afterwards the run method of the swarm_sim_world
     is called in which the simulator is going to start to run"""
     config_data = config.ConfigData()
-
+    read_cmd_args(config_data, argv)
     unique_descriptor = "%s_%s_%s" % (config_data.local_time,
                                       config_data.scenario.rsplit('.', 1)[0],
                                       config_data.solution.rsplit('.', 1)[0])
@@ -25,7 +25,6 @@ def swarm_sim(argv=[]):
                         level=logging.INFO, format='%(message)s')
     logging.info('Started')
 
-    read_cmd_args(config_data, argv)
     create_directory_for_data(config_data, unique_descriptor)
     random.seed(config_data.seed_value)
     swarm_sim_world = world.World(config_data)
@@ -134,13 +133,12 @@ def create_directory_for_data(config_data, unique_descriptor):
     if config_data.multiple_sim == 1:
         config_data.directory_name = "%s/%s" % (unique_descriptor, str(config_data.seed_value))
 
-        config_data.directory_name = "./outputs/csv/mulitple/" + config_data.directory_name
-        config_data.directory_plot = "./outputs/plot/mulitple/" + config_data.directory_name
+        config_data.directory_name = "./outputs/csv/multiple/" + config_data.directory_name
+        config_data.directory_plot = "./outputs/plot/multiple/" + config_data.directory_name
 
 
     else:
         config_data.directory_name = "%s_%s" % (unique_descriptor, str(config_data.seed_value))
-
         config_data.directory_csv = "./outputs/csv/" + config_data.directory_name
         config_data.directory_plot = "./outputs/plot/" + config_data.directory_name
     if not os.path.exists(config_data.directory_csv):
