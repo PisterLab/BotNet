@@ -80,7 +80,7 @@ class SimSettings(object):
                     )
                     # invdalite self.exec_minutesPerRun for the sake
                     # of extract_config_json.py and the exception
-                    # handler who generates config.json for
+                    # handler who generates 6tisch.json for
                     # reproduction
                     self.exec_minutesPerRun = None
                 elif self.exec_numSlotframesPerRun:

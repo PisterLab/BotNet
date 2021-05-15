@@ -67,7 +67,7 @@ class SimConfig(dict):
 
             # read config file
             if configfile == u'-':
-                # read config.json from stdin
+                # read 6tisch.json from stdin
                 self._raw_data = sys.stdin.read()
             else:
                 with open(self.configfile, u'r') as file:

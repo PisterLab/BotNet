@@ -14,7 +14,7 @@ def get_index():
     )
 
 
-@btl.get('/config.json')
+@btl.get('/6tisch.json')
 def get_config_json():
     filename = os.path.basename(backend.SIM_CONFIG_PATH)
     root = os.path.dirname(backend.SIM_CONFIG_PATH)

@@ -117,7 +117,7 @@ def test_initial_scheduling_state(sim_engine):
             ) == 1
         )
 
-#=== verify default configs from bin/config.json are loaded correctly
+#=== verify default configs from bin/6tisch.json are loaded correctly
 
 def test_sim_config(sim_engine, repeat4times):
 

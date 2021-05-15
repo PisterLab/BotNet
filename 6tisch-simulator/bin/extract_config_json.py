@@ -16,9 +16,9 @@ from SimEngine.SimConfig import SimConfig
 def main():
     # command line arguments
     parser = argparse.ArgumentParser(
-        description = 'config.json extractor',
+        description = '6tisch.json extractor',
         epilog      = """
-            This script generates config.json contents out of a log file. The
+            This script generates 6tisch.json contents out of a log file. The
             log file should have "config" and "simulator.random_seed" lines for
             a target simulation run.
        """
@@ -32,7 +32,7 @@ def main():
     parser.add_argument(
         '-r', '--run_id',
         dest = 'target_run_id',
-        help = 'target run_id to extract config.json',
+        help = 'target run_id to extract 6tisch.json',
         type = int
     )
     args = parser.parse_args()

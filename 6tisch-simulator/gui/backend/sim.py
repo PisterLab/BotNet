@@ -51,7 +51,7 @@ _elapsed_minutes = 0
 @eel.expose
 def get_default_config():
     if os.path.exists(backend.SIM_CONFIG_PATH) is False:
-        # someone has deleted our config.json file... recreate one
+        # someone has deleted our 6tisch.json file... recreate one
         backend.utils.create_config_json()
 
     with open(backend.SIM_CONFIG_PATH, 'r') as f:
@@ -124,9 +124,9 @@ def put_default_config(config_str):
     _, stderrdata = popen.communicate(json.dumps(new_config))
 
     if popen.returncode == 0:
-        # if the check succeeds, update the default config.json
+        # if the check succeeds, update the default 6tisch.json
         new_config['settings'] = config['settings']
-        # write the new config to the default config.json file
+        # write the new config to the default 6tisch.json file
         with open(backend.SIM_CONFIG_PATH, 'w') as f:
             json.dump(new_config, f)
         ret = {
@@ -410,7 +410,7 @@ def get_results(start_index, max_num_results):
             time.localtime(os.path.getmtime(result_path))
         )
         try:
-            with open(os.path.join(result_path, 'config.json')) as f:
+            with open(os.path.join(result_path, '6tisch.json')) as f:
                 config = json.load(f)
                 settings = config['settings']['regular']
                 assert len(config['settings']['combination'])
@@ -514,7 +514,7 @@ def _overwrite_sim_log_log(log_notification_filter):
 
 
 def _save_config_json(sim_settings, saving_settings):
-    # put config.json under the data directory
+    # put 6tisch.json under the data directory
     saving_settings['combination']['exec_numMotes'] = [
         saving_settings['regular']['exec_numMotes']
     ]
@@ -525,7 +525,7 @@ def _save_config_json(sim_settings, saving_settings):
     saving_config_path = os.path.join(
         sim_settings.logRootDirectoryPath,
         sim_settings.logDirectory,
-        'config.json'
+        '6tisch.json'
     )
     with open(saving_config_path, 'w') as f:
         json.dump(saving_config, f, indent=4)

@@ -100,7 +100,7 @@ class Rpl(object):
             self.trickle_timer.reset()
         else:
             if self.settings.rpl_of:
-                # update OF with one specified in config.json
+                # update OF with one specified in 6tisch.json
                 of_class  = u'Rpl{0}'.format(self.settings.rpl_of)
                 self.of = getattr(sys.modules[__name__], of_class)(self)
             if self.dis_mode != u'disabled':

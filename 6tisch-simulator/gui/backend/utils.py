@@ -77,11 +77,11 @@ def _start(dev_mode):
 
 
 def create_config_json():
-    # read the default config.json from the simulator source directory
+    # read the default 6tisch.json from the simulator source directory
     print(backend.get_simulator_path())
     default_config_path = os.path.join(
         backend.get_simulator_path(),
-        'bin/config.json'
+        '../conf/6tisch.json'
     )
     with open(default_config_path) as f:
         default_config = json.load(f)
@@ -100,9 +100,9 @@ def create_config_json():
     )
     _ = popen.communicate(json.dumps(default_config).encode("utf-8"))
     #if popen.returncode != 0:
-    #    raise ValueError('invalid default config.json')
+    #    raise ValueError('invalid default 6tisch.json')
 
-    # create a new config.json
+    # create a new 6tisch.json
     config = dict(CONFIG_JSON_TEMPLATE)
     config['settings'] = default_config['settings']
 
