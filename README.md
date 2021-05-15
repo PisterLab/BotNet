@@ -1,5 +1,7 @@
 # BotNet: A Simulator for Studying the Effects of Accurate Communication Models on High-agent Count Multi-agent Control
 
+![](./botnet/assets/teaser.png)
+
 Contents:
 1. [Setup and Background](./readme.md#setup-and-background)
 2. [Running BotNet and Experiments](./readme.md#running-botnet-and-experiments)
@@ -54,6 +56,11 @@ We have included a bash script for running the code. To use it, enter the follow
 ```
 ./run.sh
 ```
+Example of the 6TiSCH Visualizer.
+![](./botnet/assets/sim-network.png)
+
+Example of the Environment Visualization.
+![](./botnet/assets/sim-dynam.png)
 
 ### With visualization
 We have also built a framework for using both the Swarm-Sim GUI and the 6tisch GUI at the same time. 6tisch provides visualization capacities in the form of a web-app which is hosted on port 8080. Swarmsim provides visualizations by opening a PyOpenGL window. 
