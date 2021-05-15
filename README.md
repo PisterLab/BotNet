@@ -92,6 +92,10 @@ Both simulators can be visualized live in the same experiment. To do this
 
 #### Formation Control
 
+### Logging
+Basic data for experiments is logged in a directory `simData/` that is not tracked on git.
+Additional logging can be done by adding logic at the send of a solution.
+
 ### Common Problems
 Due to the remote server architecture, sometimes subprocesses can hang. In case of failed initialization, look for running rpyc and multithreading objects with `ps`.
 ```
@@ -103,46 +107,55 @@ Due to the remote server architecture, sometimes subprocesses can hang. In case 
 ## File Structure and Design Decisions
 In this section we detail the structure of the simulator and what new users should know when designing new experiments.
 
+### Intermediate Server Architecture
+TODO describe how rpyc works.
 
-#### Scenarios
-A scenario is the initial conditions for a simulation. In these files, the world api is used to define the initial positions of all objects in the simulation. Scenarios are loaded from swarmsimmaster/components/scenarios at the beggining of the simulation. The current simulation to be loaded is defined in swarmsimmaster/config.ini
+### Core Components
 
-#### Solutions
-Solutions are where control updates are implemented. These use utilize the world api to define the simulation behavior at every time step. The solution function is called on every iteration of Swarm-Sim's main loop. Like a scenario a solution is loaded from swarmsimmaster/components/solutions and an experiments solution is defined in config.ini. See swarmsimmaster/components/solutions/flock.py for an example solution
+To configure new robotic tasks and worlds, two key abstractions are used: **scenarios** and **solutions**.
+By creating other classes akin to `VeloAgent`, other robotic dynamics can be encoded (see `swarmsimmaster/core/velo_controlled_agent.py`).
 
-#### Scenario Initialization:
-This is the starting situation for the simulation. A **scenario** describes the initial agent positions as well as their environment. To create a scenario utilize the world API in a Python script located in the scenarios folder. Examples of how to set up scenarios are in the scenarios folder. To run your scenario you must set the scenario argument at the bottom of config.ini to the name of your scenario file. Below is the simplest  example of creating a lonely agent in the center of the world (which can be found [here](https://github.com/PisterLab/BotNet/blob/5af7fc809dea29e6e49b5275df13184c534b6518/gym-swarm-sim/envs/swarmsimmaster/components/scenario/configurable.py)).
+#### (Environment) Scenarios
+A scenario is the initial conditions for a simulation. 
+In these files, the world api is used to define the initial positions of all objects in the simulation and the environment. 
+Scenarios are loaded from `swarmsimmaster/components/scenarios` at the beggining of the simulation. 
+The current simulation to be loaded is defined in `conf/swarmsim.yaml`.
+To create a scenario utilize the world API in a Python script located in the scenarios folder. Examples of how to set up scenarios are in the scenarios folder. To run your scenario you must set the scenario argument at the bottom of config.ini to the name of your scenario file. Below is the simplest  example of creating a lonely agent in the center of the world (which can be found [here](https://github.com/PisterLab/BotNet/blob/5af7fc809dea29e6e49b5275df13184c534b6518/gym-swarm-sim/envs/swarmsimmaster/components/scenario/configurable.py)).
 
 ```
 def scenario(world):
   world.add_agent(world.grid.get_center())
 ```
-
 For more details on the current scenarios, see the scenario description [readme](./swarmsimmaster/components/scenario/readme.md).
-#### Control Solutions:
-The solution is where controls and dynamics are implemented. At every step of the main loop the solution is executed. A solution file describes both the controls of the agents and can describe extra dynamics or interactions. 
-Below is a solution which moves every agent in a random direction, which can be found [here](). 
 
+#### (Control) Solutions
+The solution is where controls and dynamics are implemented. 
+These use utilize the world api to define the simulation behavior at every time step. 
+The solution function is called on every iteration of SwarmSim's main loop. 
+A scenario a solution is loaded from `swarmsimmaster/components/solutions`. 
+At every step of the main loop the solution is executed. A solution file describes both the controls of the agents and can describe extra dynamics or interactions. 
+Below is a solution which moves every agent in a random direction, which can be found [here](./swarmsimmaster/components/solution/random_walk.py). 
+An example for a random walk controller is shown below.
 ```
 def solution(world):
   if world.get_actual_round() % 1 == 0:
     for agent in world.get_agent_list():
       agent.move_to(random.choice(world.grid.get_directions_list()))
 ```
-Config.ini can be used to set all arguments for the simulation. These include which grid world to use. Whether to use an agent with 0th 1st or 2nd order dynamics, how big the world is, etc. 
+`conf/swarmsim.yaml` can be used to set all arguments for the simulation. These include which grid world to use. 
+Whether to use an agent with 0th 1st or 2nd order dynamics, how big the world is, etc. 
+For more details on the current scenarios, see the scenario description [readme](./swarmsimmaster/components/solution/readme.md).
 
-##### Agent Level Control
+#### Agent Level Control
 How to write controls at the agent level:
-* In core, create a new python file with a class that inherits from agent.py
-* Define an instance method in this agent to describe control eg. move(self). . .
+* In core, create a new python file with a class that inherits from `agent.py`.
+* Define an instance method in this agent to describe control eg. move(self).
 * Pass the agent class in as the new_class parameter when adding the agent in the world
-* Simply call the move function in the solution
+* Simply call the move function in the solution.
 
-
-### 6TiSCH + Swarm Sim: Networked Multi-Agent Control (No RPC & Real-time Viz)
-The 6TiSCH simulator can be seamlessly integrated to validate control performance with different local communications models. This tool can also be used by networking researchers to add more complex schedule functions and network behavior.
-
-Running Google Doc: https://docs.google.com/document/d/1OhyHHBxHN3_bAwsYYcrqfswcTrh-pLQrN6X59aoQMSg/edit?usp=sharing
+#### 6TiSCH Simulator
+The 6TiSCH simulator can be seamlessly integrated to validate control performance with different local communications models. 
+This tool can also be used by networking researchers to add more complex schedule functions and network behavior.
 
 ----
 
