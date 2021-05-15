@@ -1,0 +1,6 @@
+# TODO add experimental things that are frequently changed here
+# TODO integrate into functionality
+viz: "full"
+agent: "default"
+scenario: ???
+solution: ???

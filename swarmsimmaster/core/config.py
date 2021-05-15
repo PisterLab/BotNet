@@ -3,7 +3,7 @@ from datetime import datetime
 from ast import literal_eval as make_tuple
 import importlib
 from enum import Enum
-
+from omegaconf import OmegaConf
 
 class ConfigData:
     class ConfigType(Enum):
@@ -28,7 +28,7 @@ class ConfigData:
             "follow_the_leader": ConfigType.BOOLEAN
         },
         "Visualization": {
-            "visualization": ConfigType.BOOLEAN,
+            "visualization": ConfigType.INTEGER,
             "agent_color": ConfigType.TUPLE,
             "agent_scaling": ConfigType.TUPLE,
             "item_color": ConfigType.TUPLE,
@@ -78,29 +78,31 @@ class ConfigData:
     }
 
     def __init__(self):
-        config = configparser.ConfigParser(allow_no_value=True)
-        config.read("config.ini")
+        cfg = OmegaConf.load("../conf/swarmsim.yaml")
 
-        # load all variables
-        for section in config.sections():
-            for option in config.options(section):
+        for section, sub_cfg in cfg.items():
+            for option, val in sub_cfg.items():
+                if option == "zero":
+                    option = "0"
+                if option == "look_at":
+                    print("here")
+                print(f"{section}, {option}, {val}, {type(val)}")
                 try:
                     config_type = self.mapping[section][option]
                     if config_type == self.ConfigType.BOOLEAN:
-                        setattr(self, option, config.getboolean(section, option))
+                        setattr(self, option, bool(val))
                     elif config_type == self.ConfigType.INTEGER:
-                        setattr(self, option, config.getint(section, option))
+                        setattr(self, option, int(val))
                     elif config_type == self.ConfigType.FLOAT:
-                        setattr(self, option, config.getfloat(section, option))
+                        setattr(self, option, float(val))
                     elif config_type == self.ConfigType.TUPLE:
-                        setattr(self, option, make_tuple(config.get(section, option)))
+                        setattr(self, option, tuple(val))
                     elif config_type == self.ConfigType.STRING:
-                        setattr(self, option, config.get(section, option))
+                        setattr(self, option, str(val))
                 except KeyError:
                     # if not defined in mapping treat it as a string
-                    setattr(self, option, config.get(section, option))
+                    setattr(self, option, str(val))
 
-        # process variables if needed
 
         if self.gui is None:
             print("Warning: no gui option given. setting to default gui")
@@ -111,7 +113,8 @@ class ConfigData:
             raise RuntimeError("Error: no grid class defined in config.ini...")
 
         try:
-            self.grid_size = config.getint("Visualization", "grid_size")
+            self.grid_size = cfg.Visualization.grid_size
+            # self.grid_size = config.getint("Visualization", "grid_size")
         except configparser.NoOptionError:
             print("Warning: grid size is not configured. setting to default of 5")
             self.grid_size = 5

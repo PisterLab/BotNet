@@ -1361,7 +1361,7 @@ class Tsch(object):
             # seconds as the paper titled "Adaptive Synchronization in
             # IEEE802.15.4e Networks" describes.
             #
-            # the keep-alive interval should be configured in config.json with
+            # the keep-alive interval should be configured in 6tisch.json with
             # "tsch_keep_alive_interval".
             self.engine.scheduleIn(
                 delay          = self.settings.tsch_keep_alive_interval,

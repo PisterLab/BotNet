@@ -8,7 +8,7 @@ BACKEND_BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 BACKEND_CONFIG_PATH = os.path.join(BACKEND_BASE_PATH, '../backend.config.json')
 BACKEND_VAR_DIR_PATH = os.path.join(BACKEND_BASE_PATH, 'var')
 SIM_DATA_PATH = os.path.join(BACKEND_BASE_PATH, '../simData')
-SIM_CONFIG_PATH = os.path.join(BACKEND_VAR_DIR_PATH, 'config.json')
+SIM_CONFIG_PATH = os.path.join(BACKEND_VAR_DIR_PATH, '6tisch.json')
 START_URL = '/index.html'
 
 # DON'T CHANGE THIS PORT NUMBER, which is referred when you run "$ npm

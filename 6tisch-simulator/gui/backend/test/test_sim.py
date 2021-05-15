@@ -60,10 +60,10 @@ def sim_engine():
 
 @pytest.fixture
 def default_config():
-    # read the default config.json from the simulator source directory
+    # read the default 6tisch.json from the simulator source directory
     default_config_path = os.path.join(
         backend.get_simulator_path(),
-        'bin/config.json'
+        'bin/6tisch.json'
     )
     with open(default_config_path) as f:
         default_config = json.load(f)
@@ -110,7 +110,7 @@ def test_put_default_config(
     else:
         raise NotImplementedError()
 
-    # the default config.json should be updated
+    # the default 6tisch.json should be updated
     config = backend.sim.get_default_config()
     assert default_config['settings'] != config['settings']
     ret = backend.sim.put_default_config(json.dumps(default_config))

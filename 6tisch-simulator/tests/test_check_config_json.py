@@ -26,7 +26,7 @@ def test_check_config_json(fixture_test_type):
     config_json = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
         '..',
-        'bin/config.json'
+        'bin/6tisch.json'
     )
     with open(config_json, 'r') as f:
         config = json.load(f)
@@ -50,15 +50,15 @@ def test_check_config_json(fixture_test_type):
             config_json = os.path.join(
                 os.path.dirname(__file__),
                 'non_existent_dir',
-                'config.json'
+                '6tisch.json'
             )
-            expected_error_message = 'config.json is not found'
+            expected_error_message = '6tisch.json is not found'
             popen = subprocess.Popen(
                 [check_config_json, '-c', config_json],
                 stderr = subprocess.PIPE
             )
             stdoutdata, stderrdata = popen.communicate()
-            assert 'config.json is not found' in stderrdata.decode('utf-8')
+            assert '6tisch.json is not found' in stderrdata.decode('utf-8')
         elif fixture_test_type == 'not json':
             wrong_config = u'garbage text' + json.dumps(config)
             popen = subprocess.Popen(

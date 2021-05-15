@@ -17,7 +17,7 @@ import sys
 SIM_ROOT_PATH = os.path.dirname(__file__)
 DEFAULT_CONFIG_PATH = os.path.join(
     SIM_ROOT_PATH,
-    'config.json'
+    '../../conf/6tisch.json'
 )
 
 ARGPARSE = False
@@ -364,7 +364,7 @@ def main(argv=[]):
     merge_output_files(folder_path)
 
     # copy config file into output directory
-    with open(os.path.join(folder_path, 'config.json'), 'w') as f:
+    with open(os.path.join(folder_path, '../../conf/6tisch.json'), 'w') as f:
         f.write(simconfig.get_config_data())
 
     #=== post-simulation actions

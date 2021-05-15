@@ -11,7 +11,7 @@ import SimEngine.Mote.MoteDefines as d
 POLLING_INTERVAL = 0.100
 
 ROOT_DIR         = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
-CONFIG_FILE_PATH = os.path.join(ROOT_DIR, 'bin/config.json')
+CONFIG_FILE_PATH = os.path.join(ROOT_DIR, 'bin/6tisch.json')
 
 def run_until_asn(sim_engine, target_asn):
     """
