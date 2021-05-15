@@ -182,3 +182,4 @@ Thumbs.db
 .pytest_cache
 .DS_Store
 swarmsimmaster/outputs/
+6tisch-simulator/gui/simData/

@@ -87,7 +87,7 @@ def getTargetSubDirs(logRootDir):
             targetSubDirs.append(subdirPath)
 
     # sanity check: make sure all the sub-directories have the same file
-    # entries and the same config.json
+    # entries and the same 6tisch.json
     i_list = list(range(0, len(targetSubDirs) - 1))
     j_list = list(range(1, len(targetSubDirs)))
     for (i, j) in zip(i_list, j_list):
@@ -106,10 +106,10 @@ def getTargetSubDirs(logRootDir):
                 )
             )
 
-        # check the two sub-directories has the identical config.json
-        if 'config.json' not in cmp.same_files:
+        # check the two sub-directories has the identical 6tisch.json
+        if '6tisch.json' not in cmp.same_files:
             raise ValueError(
-                '{0} and {1} should have the identical config.json'.format(
+                '{0} and {1} should have the identical 6tisch.json'.format(
                     targetSubDirs[i],
                     targetSubDirs[j]
                 )
@@ -126,7 +126,7 @@ def getTotalTargetFileNum(targetSubDirs):
         data_files = [file for file in os.listdir(f) if re.match('^.+\.dat$', file) != None]
         returnVal += len(data_files)
 
-    # add one for config.json
+    # add one for 6tisch.json
     returnVal +=1
 
     return returnVal
@@ -146,12 +146,12 @@ def mergeLogFiles(logDir, targetSubDirs, dryRun):
     cpu_id_offset = None
     run_id_offset = None
 
-    # copy config.json under logDir
+    # copy 6tisch.json under logDir
     config_json_path = os.path.join(
         targetSubDirs[0],
-        'config.json'
+        '../../conf/6tisch.json'
     )
-    print('[{0:3d}%] copying config.json to {1}'.format(
+    print('[{0:3d}%] copying 6tisch.json to {1}'.format(
         int(float(total_processed_file_num) / total_target_file_num * 100),
         logDir
     ))

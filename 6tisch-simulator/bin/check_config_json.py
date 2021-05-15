@@ -16,15 +16,15 @@ CONFIG_KEYS_FOR_RUNSIM = ['execution', 'post']
 CONFIG_KEYS_FOR_SIMLOG = ['logging', 'log_directory_name']
 
 parser = argparse.ArgumentParser(
-    description     = 'config.json checker',
+    description     = '6tisch.json checker',
     formatter_class = argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument(
     '-c', '--config',
-    help    = 'the path to your config.json file to check',
+    help    = 'the path to your 6tisch.json file to check',
     type    = str,
     dest    = 'config_json',
-    default = os.path.join(os.path.dirname(__file__), 'config.json')
+    default = os.path.join(os.path.dirname(__file__), '../../conf/6tisch.json')
 )
 parser.add_argument(
     '-k', '--keys',
@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
     except IOError as e:
         print_error_and_exit(
-            'config.json is not found at: {0}'.format(config_json_path)
+            '6tisch.json is not found at: {0}'.format(config_json_path)
         )
     except ValueError as e:
         print_error_and_exit('No JSON object could be decoded')

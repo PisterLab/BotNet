@@ -1,0 +1,101 @@
+Simulator:
+  agent_type: 1
+  id: 80085
+  seed_value: 122
+  ## Maximum round number in swarm-world, 0: infinite
+  max_round: 0
+  ## 1/True: Call of agents in random order
+  ## 0/False: Call of agents in added order in scenario
+  agent_random_order: False
+  ## 1/True: Call of agents in random order after each round
+  ## 0/False: Call of agents in random order only once at the start of the simulator
+  agent_random_order_always: False
+  window_size_x: 1920
+  window_size_y: 1080
+  close_at_end: True
+  plot_generator: plot_generator
+  csv_generator: agent_tracking_generator
+  follow_the_leader: True
+Visualization:
+  # Visualization 2 = Visualization with 6tisch Sync,  1 = Swarm Sim only Visualization, 0: Off
+  visualization: 2
+  gui: default
+  grid_class: quadratic.QuadraticGrid
+  agent_model_file: 2d_agent.obj
+  item_model_file: 2d_quad_item.obj
+  location_model_file: 2d_location.obj
+  grid_size: 25
+  agent_color: [0.8, 0.3, 0.3, 1.0]
+  agent_scaling: [1.0, 1.0, 1.0]
+  item_color: [0.3, 0.3, 0.8, 1.0]
+  item_scaling: [1.0, 1.0, 1.0]
+  location_color: [0.3, 0.8, 0.3, 1.0]
+  location_scaling: [1.2, 1.2, 1.2]
+  grid_color: [0.0, 0.0, 0.0, 1.0]
+  cursor_color: [0.5, 0.5, 0.5, 0.5]
+  center_color: [1.0, 0.0, 0.0, 0.5]
+  background_color: [1.0, 1.0, 1.0]
+  line_color: [0.0, 0.0, 0.0, 0.5]
+  line_scaling: [1.0, 1.0, 1.0]
+  show_lines: True
+  coordinates_color: [0.0, 0.0, 0.0, 1.0]
+  coordinates_scaling: [0.05, 0.05, 0.05]
+  show_coordinates: False
+  show_center: True
+  focus_color: [1.0, 1.0, 1.0, 0.5]
+  show_focus: False
+  look_at: [0.0, 0.0, 0.0]
+  phi: -90
+  theta: 0
+  radius: 10
+  fov: 40
+  cursor_offset: -10
+  render_distance: 1000
+  show_border: True
+  border_color: [1.0, 0.0, 0.0, 1.0]
+  animation: True
+  auto_animation: True
+  manual_animation_speed: 50
+World:
+  ## False: Unlimited world size
+  ## True: limited world size
+  border: False
+  ## Swarm-World Type Flat=0 Mirrored: 1
+  type: 0
+  size_x: 5.0
+  size_y: 5.0
+  size_z: 5.0
+  max_agents: 500
+Matter:
+  ## with memory [mm] limitation 1=Yes 0: No
+  memory_limitation: False
+  location_mm_size: 2
+  agent_mm_size: 2
+  item_mm_size: 2
+File:
+  #scenario: post_viz
+  #solution: post_viz
+  #scenario: random_find
+  #solution: rl_model
+  scenario: 6tisch_scenario
+  solution: flock
+  #scenario: lonely_agent
+  #scenario: n_agent_in_line
+  #solution: random_walk
+  #solution: triangular_round_walk
+  #solution: random_walk_with_take_and_drop
+  #scenario: lonely_agent
+  #solution: create_delete
+  #scenario: two_agents_items_locations
+  #solution: take_drop_aims
+  #scenario: two_agents_items_markers
+  #solution: read_write
+  name: default
+  server:
+    host: localhost
+    port:
+      listen: true
+      zero: 143
+    zero: 192.0.2.62
+  file: payroll.dat
+

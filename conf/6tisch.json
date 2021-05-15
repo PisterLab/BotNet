@@ -19,7 +19,7 @@
             "exec_randomSeed":                             [11]
         },
         "regular": {
-            "exec_numSlotframesPerRun":                    1000,
+            "exec_numSlotframesPerRun":                    250,
             "exec_minutesPerRun":                          null,
 
             "secjoin_enabled":                             true,
@@ -75,7 +75,7 @@
 
             "console_logging":                             false,
 
-            "dual_vis":                                         false
+            "dual_vis":                                    true
         }
     },
     "logging":                                             "all",

@@ -126,6 +126,8 @@ class DiscreteEventEngine(threading.Thread):
             # additional routine
             self._routine_thread_started()
 
+            self.initialized_network = False
+
             # consume events until self.goOn is False
             while self.goOn:
                 # tell robotic simulator to run for 1 ASN
@@ -139,6 +141,9 @@ class DiscreteEventEngine(threading.Thread):
 
                     # update the current ASN
                     self.asn += 1
+                    # if self.networkFormed and not self.initialized_network:
+                    #     self.asn = 0
+                    #     self.initialized_network = True
 
                     # perform any inter-simulator synchronization
                     if self.settings.robot_sim_enabled:
@@ -191,7 +196,7 @@ class DiscreteEventEngine(threading.Thread):
             )]
             output += [u'']
             output += [u'==============================']
-            output += [u'config.json to reproduce:']
+            output += [u'6tisch.json to reproduce:']
             output += [u'']
             output += [u'']
             output  = u'\n'.join(output)
