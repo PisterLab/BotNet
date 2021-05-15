@@ -28,7 +28,7 @@ class ConfigData:
             "follow_the_leader": ConfigType.BOOLEAN
         },
         "Visualization": {
-            "visualization": ConfigType.BOOLEAN,
+            "visualization": ConfigType.INTEGER,
             "agent_color": ConfigType.TUPLE,
             "agent_scaling": ConfigType.TUPLE,
             "item_color": ConfigType.TUPLE,

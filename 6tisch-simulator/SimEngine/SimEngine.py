@@ -361,8 +361,8 @@ class DiscreteEventEngine(threading.Thread):
             # NOTE: DO NOT DELETE, SIM BREAKS
             if self.max_diff < self.diff:
                 self.max_diff = self.diff
-
-            print(u'   slotframe_iteration: {0}/{1}'.format(slotframe_iteration, self.settings.exec_numSlotframesPerRun-1))
+            if slotframe_iteration % 100 == 0:
+                print(u'   slotframe_iteration: {0}/{1}'.format(slotframe_iteration, self.settings.exec_numSlotframesPerRun-1))
 
         # schedule next statistics collection
         self.scheduleAtAsn(

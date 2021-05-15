@@ -96,7 +96,6 @@ class SwarmSimCommsEnv():
     PANDAS_LOG = False
 
     def __init__(self, net_config, goons=[(0,0,0)], timestep=0.010, seed=None, update_period=None):
-
         if update_period is None:
             update_period = len(goons)
 
@@ -138,6 +137,7 @@ class SwarmSimCommsEnv():
         # keep simulation going if set to infinite or there are still rounds left
         i = 0
         while i < iterations: # TODO: for i in range(iterations)
+            i += 1
             try:
                 # check to see if its necessary to run the vis
                 self.swarm_sim_world.net_id_map = self.mote_key_map
@@ -151,7 +151,7 @@ class SwarmSimCommsEnv():
                 self.do_reset()
                 return False
 
-            i += 1
+
 
         return True
 
@@ -203,7 +203,7 @@ class SwarmSimCommsEnv():
             self.mote_key_inv_map = {v : k for (k, v) in mote_map.items()}
 
     def set_all_mote_neighbors(self, agent_neighbor_table):
-        world.network_formed = True
+        self.swarm_sim_world.network_formed = True
         id_map = self.swarm_sim_world.get_agent_map_id()
         for (net_id, neighbors) in agent_neighbor_table:
             agent_id = self.mote_key_map[net_id] # NOTE: this is set in the network simulator
@@ -263,7 +263,6 @@ if __name__ == "__main__": # TODO: mark as example
     motes = test.get_all_mote_states().keys()
     velos = {}
 
-    print(test.get_all_mote_states())
     while True:
         test.main_loop(1)
         for agent in motes:

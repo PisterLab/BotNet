@@ -6,17 +6,17 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [4],
+            "exec_numMotes":                               [10],
 
-            "conn_class":                                  ["FullyMeshed", "Realistic", "FriisMean", "FriisLower", "Disk"],
-            "scenario":                                    ["edge_radius_flock"],
+            "conn_class":                                  [ "FriisLower"],
+            "scenario":                                    ["center_line_flock"],
 
-            "flock_rad":                                   [20],
+            "flock_rad":                                   [5, 10, 20, 40, 80],
             "flock_vel":                                   [5],
             "init_spacing":                                [5.0],
-            "control_update_period_slots":                 [2],
+            "control_update_period_slots":                 [1],
 
-            "exec_randomSeed":                             [1]
+            "exec_randomSeed":                             [11]
         },
         "regular": {
             "exec_numSlotframesPerRun":                    1000,
