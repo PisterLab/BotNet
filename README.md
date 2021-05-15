@@ -48,7 +48,7 @@ _TODO_
 ## Running BotNet and Experiments
 to run the dual visualization, first (in the top level directory): python dual_vis_messenger_server.py  then (in seperate terminals). 6tisch/gui/backend/start and (in the swarmsimmaster folder) python3 swarmsim.py
 
-We have set uo two frameworks to enable communications between the 6tisch-simulater and Swarm-Sim Simulator. 
+We have set up two frameworks to enable communications between the 6tisch-simulater and Swarm-Sim Simulator. 
 ### No Vis 
 To enable fast simulation without visualization we have created a wrapper class for Swarm-Sim defined in swarmsimmaster/commsenv.py. This allows the Swarmsim simulator to be remotely controlled doing things such as setting agent velocities, setting mote neighbors, getting mote states and executing a timestep of Swarm-Sim dynamics simulation. Through this interface the 6tisch-simulator synchrozises with the robotics simulator and provides it with the neccessary information to simulate the control algorithms. 
 
