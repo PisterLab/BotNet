@@ -165,7 +165,6 @@ core/__pycache__/*
 *.log
 *.log.*
 *.dat
-*.png
 *.eps
 *.zip
 Thumbs.db
