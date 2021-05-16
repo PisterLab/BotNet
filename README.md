@@ -93,6 +93,9 @@ Both simulators can be visualized live in the same experiment. To do this
 2. Set the Swarm sim solution to tisch_visualization
 3. run dual_visualization.sh
 
+### Running on Windows
+TODO
+
 ### Experiment Examples
 
 #### Flocking
