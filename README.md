@@ -104,11 +104,12 @@ Basic data for experiments is logged in a directory `simData/` that is not track
 Additional logging can be done by adding logic at the send of a solution.
 
 ### Common Problems
-Due to the remote server architecture, sometimes subprocesses can hang. In case of failed initialization, look for running rpyc and multithreading objects with `ps`.
+1. Due to the remote server architecture, sometimes subprocesses can hang. In case of failed initialization, look for running rpyc and multithreading objects with `ps`.
 ```
  ps | grep python
  kill pid
 ```
+2. On the latext MacOS versions, OpenGL has a bug that affects the dynamics visualization. A fix is needed at the local Python version. See [this solution](https://stackoverflow.com/questions/63475461/unable-to-import-opengl-gl-in-python-on-macos).
 
 ----
 ## File Structure and Design Decisions
