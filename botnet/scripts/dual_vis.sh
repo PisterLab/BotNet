@@ -1,4 +1,5 @@
 #!/bin/sh
+cd ../../
 python ./botnet/scripts/BotNetVisualizer.py &
 6tisch-simulator/gui/backend/start &
 sleep 3

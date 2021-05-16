@@ -1,5 +1,5 @@
 import numpy as np
-from swarmsimmaster.components.scenario.formation_ctrl import connected_neighbors, move_toward, log_data
+from swarmsimmaster.components.scenario.formation_ctrl import move_toward, log_data
 import time
 
 r = 10
@@ -12,11 +12,10 @@ def solution(world):
         terminated = False
 
     if not terminated:
-        comms_model = world.config_data.comms
         agents = world.get_agent_list()
 
         for i, agent in enumerate(agents):
-            neighbors = connected_neighbors(world, agent, comms_model)
+            neighbors = agent.neighbors.values()
             if len(neighbors) >= 3:
                 neighbors = sorted(neighbors, key=lambda x: np.linalg.norm(np.array(agent.coordinates) - np.array(x.coordinates)))
                 closest, second_closest, furthest = neighbors[0], neighbors[1], neighbors[-1]
@@ -77,7 +76,7 @@ def angle(v):
 
 def benchmark(world, diff, spokes):
     convergence_time = world.get_actual_round()
-    data = np.array([convergence_time, np.var(diff), np.var(np.linalg.norm(spokes, axis=1))])
+    data = np.array([world.config_data.comms, world.config_data.num_agents, convergence_time, np.var(diff), np.var(np.linalg.norm(spokes, axis=1))])
     log_data(data)
 
 
