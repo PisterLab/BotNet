@@ -1,5 +1,5 @@
 import numpy as np
-from swarmsimmaster.components.scenario.formation_ctrl import connected_neighbors, move_toward, log_data
+from swarmsimmaster.components.scenario.formation_ctrl import move_toward, log_data
 
 
 terminated = False
@@ -10,12 +10,11 @@ def solution(world):
     if world.get_actual_round() == 1:
         terminated = False
 
-    comms_model = world.config_data.comms
     agents = world.get_agent_list()
 
     moved = []
     for i, agent in enumerate(agents):
-        neighbors = connected_neighbors(world, agent, comms_model)
+        neighbors = agent.neighbors.values()
         x, y, k = lstsq(agent, neighbors)
         m, c = k[0]
         x1, y1 = x[0], y[0]
@@ -43,6 +42,6 @@ def lstsq(agent, neighbors):
 def benchmark(world):
     convergence_time = world.get_actual_round()
     residuals = lstsq(world.get_agent_list()[0], world.get_agent_list()[1:])[2][1][0]
-    data = np.array([convergence_time, residuals])
+    data = np.array([world.config_data.comms, world.config_data.num_agents, convergence_time, residuals])
     log_data(data)
 
