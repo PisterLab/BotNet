@@ -149,6 +149,7 @@ def create_directory_for_data(config_data, unique_descriptor):
 def run_solution(swarm_sim_world):
     if swarm_sim_world.config_data.agent_random_order_always:
         random.shuffle(swarm_sim_world.agents)
+
     if swarm_sim_world.config_data.visualization == 2:
         importlib.import_module('components.solution.' + 'tisch_visualization').solution(swarm_sim_world)
     else:

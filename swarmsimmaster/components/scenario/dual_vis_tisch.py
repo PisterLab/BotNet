@@ -15,20 +15,16 @@ def scenario(world):
     world.config_data.follow_the_leader = net_config['follow']
     world.config_data.flock_rad = net_config['flock_rad']
     world.config_data.flock_vel = net_config['flock_vel']
+    world.config_data.seed_value = kwargs['seed']
     world.timestep = kwargs['timestep']
-# These are for logging which we will get to
-  # seed = kwargs['seed']
-  # update_period = self.kwargs['update_period']
 
     #run scenario
     scenario_mod = importlib.import_module('components.scenario.' + world.config_data.scenario)
-    if 'goons' in kwargs:
-        print('B')
-        scenario_mod.scenario(world, goons=kwargs['goons'])
+    if 'num_agents' in kwargs:
+        scenario_mod.scenario(world, num_agents=kwargs['num_agents'])
     else:
         scenario_mod.scenario(world)
 
-    print('D')
     #update server on world information
     id_map = world.get_agent_map_id()
     positions = {}

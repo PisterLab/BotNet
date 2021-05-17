@@ -95,8 +95,7 @@ def get_scenario(config_data):
 class SwarmSimCommsEnv():
     PANDAS_LOG = False
 
-    def __init__(self, net_config, goons=[(0,0,0)], timestep=0.010, seed=None, update_period=None):
-
+    def __init__(self, net_config, num_agents=1, timestep=0.010, seed=None, update_period=None):
         if update_period is None:
             update_period = len(goons)
 
@@ -115,20 +114,23 @@ class SwarmSimCommsEnv():
         read_cmd_args(self.config_data)
 
         create_directory_for_data(self.config_data, unique_descriptor)
-        if seed is None:
-            seed = self.config_data.seed_value
+        if seed is not None:
+            self.config_data.seed_value = seed
         # random.seed(seed)
+        # TODO : Move this to be different lol
         self.config_data.follow_the_leader = net_config.follow
         self.config_data.flock_rad = net_config.flock_rad
         self.config_data.flock_vel = net_config.flock_vel
+        self.config_data.conn_class = net_config.conn_class
+        self.config_data.num_agents = num_agents
 
         #set up world
         self.swarm_sim_world = world.World(self.config_data)
         self.swarm_sim_world.timestep = timestep
-        self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), goons)
+        self.swarm_sim_world.init_scenario(get_scenario(self.swarm_sim_world.config_data), num_agents=num_agents)
         self.swarm_sim_world.network_formed = False
-        self._init_log(id="custom", scenario=net_config.scenario, num_agents=len(goons),
-                       seed=seed, comms=net_config.conn_class,
+        self._init_log(id="custom", scenario=self.config_data.scenario, num_agents=num_agents,
+                       seed=self.config_data.seed_value, comms=net_config.conn_class,
                        flock_rad=net_config.flock_rad, flock_vel=net_config.flock_vel,
                        update_period=update_period
                        )
@@ -138,6 +140,7 @@ class SwarmSimCommsEnv():
         # keep simulation going if set to infinite or there are still rounds left
         i = 0
         while i < iterations: # TODO: for i in range(iterations)
+            i += 1
             try:
                 # check to see if its necessary to run the vis
                 self.swarm_sim_world.net_id_map = self.mote_key_map
@@ -151,7 +154,7 @@ class SwarmSimCommsEnv():
                 self.do_reset()
                 return False
 
-            i += 1
+
 
         return True
 
@@ -203,7 +206,7 @@ class SwarmSimCommsEnv():
             self.mote_key_inv_map = {v : k for (k, v) in mote_map.items()}
 
     def set_all_mote_neighbors(self, agent_neighbor_table):
-        world.network_formed = True
+        self.swarm_sim_world.network_formed = True
         id_map = self.swarm_sim_world.get_agent_map_id()
         for (net_id, neighbors) in agent_neighbor_table:
             agent_id = self.mote_key_map[net_id] # NOTE: this is set in the network simulator
@@ -263,7 +266,6 @@ if __name__ == "__main__": # TODO: mark as example
     motes = test.get_all_mote_states().keys()
     velos = {}
 
-    print(test.get_all_mote_states())
     while True:
         test.main_loop(1)
         for agent in motes:

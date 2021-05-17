@@ -7,7 +7,6 @@ TIMESTEP= 0.1 #Approximation of a slotframe
 def solution(world):
     if not world.network_formed:
         return
-
     net_id_map = world.net_id_map
     inv_net_id_map = {v : k for k, v in net_id_map.items()}
     for agent in world.get_agent_list():
@@ -57,13 +56,13 @@ def solution(world):
                 vx += (vx1 - vx2)
                 vy += (vy1 - vy2)
 
-        print(f"[Mote {inv_net_id_map[agent.id]}] {agent.neighbors} new vels {vx} {vy}", end="\r")
+        #print(f"[Mote {inv_net_id_map[agent.id]}] {agent.neighbors} new vels {vx} {vy}", end="\r")
         agent.set_velocities((-vx, -vy, -vz))
         agent.neighbors = []
 
+
     for agent in world.get_agent_list():
         agent.move()
-
 
 def leader_agent_move(agent, world, set_vel=True):  # TODO: how to do follow the leader without a path bias???
     # round = self.world.get_actual_round()

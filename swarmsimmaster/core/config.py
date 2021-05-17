@@ -86,7 +86,7 @@ class ConfigData:
                     option = "0"
                 if option == "look_at":
                     print("here")
-                print(f"{section}, {option}, {val}, {type(val)}")
+
                 try:
                     config_type = self.mapping[section][option]
                     if config_type == self.ConfigType.BOOLEAN:

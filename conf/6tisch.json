@@ -6,20 +6,20 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [4],
+            "exec_numMotes":                               [80, 40, 20, 10, 5],
 
-            "conn_class":                                  ["FullyMeshed", "Realistic", "FriisMean", "FriisLower", "Disk"],
-            "scenario":                                    ["edge_radius_flock"],
+            "conn_class":                                  ["FullyMeshed", "FriisMean",  "Realistic", "FriisLower", "Disk"],
+            "scenario":                                    ["center_line_flock"],
+            "disk_radius":                                 [10],
+            "flock_rad":                                   [10],
+            "flock_vel":                                   [7],
+            "init_spacing":                                [2.0],
+            "control_update_period_slots":                 [1],
 
-            "flock_rad":                                   [20],
-            "flock_vel":                                   [5],
-            "init_spacing":                                [5.0],
-            "control_update_period_slots":                 [2],
-
-            "exec_randomSeed":                             [1]
+            "exec_randomSeed":                             [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
         },
         "regular": {
-            "exec_numSlotframesPerRun":                    250,
+            "exec_numSlotframesPerRun":                    1000,
             "exec_minutesPerRun":                          null,
 
             "secjoin_enabled":                             true,
@@ -43,7 +43,7 @@
             "rrsf_slotframe_len":                          false,
 
             "tsch_slotDuration":                           0.010,
-            "tsch_slotframeLength":                        10,
+            "tsch_slotframeLength":                        12,
             "tsch_probBcast_ebProb":                       0.33,
             "tsch_clock_max_drift_ppm":                    30,
             "tsch_clock_frequency":                        32768,
@@ -67,15 +67,15 @@
             "motes_eui64":                                 [],
 
             "robot_sim_enabled":                           true,
-            "collision_modelling":                         true,
-            "control_update_mode":                         "Slot",
+            "collision_modelling":                         false,
+            "control_update_mode":                         "Slotframe",
             "control_update_rate_hz":                      10,
 
             "follow":                                      true,
 
             "console_logging":                             false,
 
-            "dual_vis":                                    true
+            "dual_vis":                                    false
         }
     },
     "logging":                                             "all",

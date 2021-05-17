@@ -959,8 +959,8 @@ class ConnectivityMatrixDisk(ConnectivityMatrixBase):
             base_channel = d.TSCH_HOPPING_SEQUENCE[0]
             for deployed_mote_id in self.coordinates:
                 distance = self.pister_hack._get_distance_in_meters(coordinate, self.coordinates[deployed_mote_id])
-                rssi = -79 if distance < 10 else -97
-                pdr = 1.0 if distance < 10 else 0.0
+                rssi = -79 if distance < self.settings.disk_radius else -97
+                pdr = 1.0 if distance < self.settings.disk_radius else 0.0
 
                 # print(f"{target_mote_id} {deployed_mote_id} PDR: {pdr} {coordinate} {self.coordinates}")
 
@@ -1057,8 +1057,8 @@ class ConnectivityMatrixDisk(ConnectivityMatrixBase):
             base_channel = d.TSCH_HOPPING_SEQUENCE[0]
             for deployed_mote_id in self.coordinates:
                 distance = self.pister_hack._get_distance_in_meters(coordinate, self.coordinates[deployed_mote_id])
-                rssi = -79 if distance < 10 else -97
-                pdr = 1.0 if distance < 10 else 0.0
+                rssi = -79 if distance < self.settings.disk_radius else -97
+                pdr = 1.0 if distance < self.settings.disk_radius else 0.0
 
                 # print(f"{target_mote_id} {deployed_mote_id} PDR: {pdr} {coordinate} {self.coordinates}")
 
@@ -1583,7 +1583,7 @@ class PisterHackModel(object):
             src[u'coordinate'],
             dst[u'coordinate']
         )
-
+        distance = min(distance, .01)
         # sqrt and inverse of the free space path loss (fspl)
         free_space_path_loss = (
             old_div(self.SPEED_OF_LIGHT,
