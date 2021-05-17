@@ -6,9 +6,9 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [80, 40, 20, 10, 5],
+            "exec_numMotes":                               [10],
 
-            "conn_class":                                  ["FullyMeshed", "FriisMean",  "Realistic", "FriisLower", "Disk"],
+            "conn_class":                                  ["FullyMeshed"],
             "scenario":                                    ["center_line_flock"],
             "disk_radius":                                 [10],
             "flock_rad":                                   [10],
@@ -16,11 +16,13 @@
             "init_spacing":                                [2.0],
             "control_update_period_slots":                 [1],
 
-            "exec_randomSeed":                             [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+            "exec_randomSeed":                             [0]
         },
         "regular": {
-            "exec_numSlotframesPerRun":                    1000,
+            "exec_numSlotframesBeforeNetwork":                    1000,
+            "exec_numSlotframesAfterNetwork":                             250,
             "exec_minutesPerRun":                          null,
+
 
             "secjoin_enabled":                             true,
 
@@ -74,6 +76,8 @@
             "follow":                                      true,
 
             "console_logging":                             false,
+
+            "exec_numSlotframesPerRun":                     1000,
 
             "dual_vis":                                    false
         }
