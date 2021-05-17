@@ -56,7 +56,7 @@ Both Swarm-Sim and 6Tisch support GUIs with real time visualizations of the expe
 To handle quirks of the respective visualization modules we made use of an RPyC server to help the two simulators communicate. This server's API allows each proccess to send and recieve all information neccessary for the syncing of the two simulators. The RPC's purpose is to allow both simulators to communicate despite executing in separate processes.
 
 #### No Vis--- Mark Pick up here in the morning. 
-If you don't require visualization for your experiments it is not reccomended to use the RPyC server this will slow you down. Without the need .
+If you don't require visualization for your experiments it is not reccomended to use the RPyC server this will slow you down. Without the need to execute each simulation module in it's own process variables can be passed directly between them. To enable a faster simulation without visualizations we have build a wrapper class for the Swarm-Sim simulator. This class exposes the logic to run the main thread of swarm-sim for n iterations, set agent neighbors, query agent states etc. When running experiments without simulation.
 
 
 ```
@@ -84,11 +84,6 @@ Example of the 6TiSCH Visualizer.
 Example of the Environment Visualization.
 ![](./botnet/assets/sim-dynam.png)
 
-
-### SwarmSim Interface
-`python swarmsim.py`
-​
-`python ../../../6tisch-simulator/bin/runSim.py`
 
 ### Running on Windows
 TODO
