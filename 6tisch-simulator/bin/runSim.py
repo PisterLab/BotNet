@@ -363,9 +363,11 @@ def main(argv=[]):
     folder_path = os.path.join('simData', simconfig.get_log_directory_name())
     merge_output_files(folder_path)
 
+    #Todo: fix plotting
+    return 
     # copy config file into output directory
-    with open(os.path.join(folder_path, '../../conf/6tisch.json'), 'w') as f:
-        f.write(simconfig.get_config_data())
+    with open(os.path.join(folder_path, 'conf/used_6tisch.json'), 'w') as f:
+       f.write(simconfig.get_config_data())
 
     #=== post-simulation actions
 

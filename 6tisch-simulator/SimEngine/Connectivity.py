@@ -1194,7 +1194,7 @@ class ConnectivityMatrixK7(ConnectivityMatrixBase):
                 old_div((stop_date - self.start_date).total_seconds(),
                 self.settings.tsch_slotDuration)
             )
-            if self.settings.exec_numSlotframesPerRun > numSlotframes:
+            if self.settings.exec_numSlotframesBeforeNetwork +self.settings.exec_numSlotframesAfterNetwork > numSlotframes:
                 raise ValueError(u'exec_numSlotframesPerRun is too long')
 
             initialization_is_done = False

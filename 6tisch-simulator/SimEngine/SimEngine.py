@@ -367,7 +367,10 @@ class DiscreteEventEngine(threading.Thread):
             if self.max_diff < self.diff:
                 self.max_diff = self.diff
             if slotframe_iteration % 100 == 0:
-                print(u'   slotframe_iteration: {0}/{1}'.format(slotframe_iteration, self.settings.exec_numSlotframesPerRun-1))
+                if self.networkFormed:
+                    print(u'   slotframe_iteration: {0}/{1}'.format(slotframe_iteration, self.settings.exec_numSlotframesBeforeNetwork-1))
+                else: 
+                     print(u'   slotframe_iteration: {0}/{1}'.format(slotframe_iteration, self.settings.exec_numSlotframesAfterNetwork-1))
 
         # schedule next statistics collection
         self.scheduleAtAsn(
@@ -560,12 +563,13 @@ class SimEngine(DiscreteEventEngine):
 
         # schedule end of simulation
         self.scheduleAtAsn(
-            asn              = self.settings.tsch_slotframeLength*self.settings.exec_numSlotframesPerRun,
+            asn              = self.settings.tsch_slotframeLength*self.settings.exec_numSlotframesBeforeNetwork,
             cb               = self._actionEndSim,
             uniqueTag        = (u'SimEngine',u'_actionEndSim'),
             intraSlotOrder   = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
         )
         print(f'slotframe len : {self.settings.tsch_slotframeLength}')
+
 
         # schedule action at every end of slotframe_iteration
         self.scheduleAtAsn(
@@ -651,6 +655,16 @@ class SimEngine(DiscreteEventEngine):
         if not self.networkFormed and networkStartSwitch:
             print(f"NETWORK FORMED AT {self.getAsn()}")
             self.networkFormedTime = self.getAsn()
+            
+            #reschedule simulation end
+            print('rescheduling the simulation end for')
+            if self.settings.exec_numSlotframesAfterNetwork:
+                self.scheduleAtAsn(
+                    asn              = (self.getAsn() + self.settings.tsch_slotframeLength*self.settings.exec_numSlotframesAfterNetwork),
+                    cb               = self._actionEndSim,
+                    uniqueTag        = (u'SimEngine',u'_actionEndSim'),
+                    intraSlotOrder   = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
+                )
 
         self.networkFormed = self.networkFormed or networkStartSwitch
 
