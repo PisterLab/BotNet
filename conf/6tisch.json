@@ -6,16 +6,17 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [5, 20, 30, 40],
+            "exec_numMotes":                               [10],
 
             "conn_class":                                  ["FullyMeshed", "FriisMean",  "Realistic", "FriisLower", "Disk"],
+            "scenario":                                    ["center_line_flock"],
             "disk_radius":                                 [10],
-            "flock_rad":                                   [5],
+            "flock_rad":                                   [5, 10, 20, 40, 80],
             "flock_vel":                                   [7],
             "init_spacing":                                [2.0],
             "control_update_period_slots":                 [1],
 
-            "exec_randomSeed":                             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            "exec_randomSeed":                             [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
         },
         "regular": {
             "exec_numSlotframesPerRun":                    1000,
@@ -42,7 +43,7 @@
             "rrsf_slotframe_len":                          false,
 
             "tsch_slotDuration":                           0.010,
-            "tsch_slotframeLength":                        10,
+            "tsch_slotframeLength":                        12,
             "tsch_probBcast_ebProb":                       0.33,
             "tsch_clock_max_drift_ppm":                    30,
             "tsch_clock_frequency":                        32768,
@@ -66,8 +67,8 @@
             "motes_eui64":                                 [],
 
             "robot_sim_enabled":                           true,
-            "collision_modelling":                         true,
-            "control_update_mode":                         "Slot",
+            "collision_modelling":                         false,
+            "control_update_mode":                         "Slotframe",
             "control_update_rate_hz":                      10,
 
             "follow":                                      true,

@@ -410,6 +410,10 @@ class SimEngine(DiscreteEventEngine):
     def _init_additional_local_variables(self):
         self.settings                   = SimSettings.SimSettings()
 
+        if self.settings.rrsf_slotframe_len is False:
+            self.settings.rrsf_slotframe_len = self.settings.exec_numMotes
+            self.settings.tsch_slotframeLength = self.settings.exec_numMotes
+
         # set random seed
         if   self.settings.exec_randomSeed == u'random':
             self.random_seed = random.randint(0, sys.maxsize)
@@ -459,8 +463,7 @@ class SimEngine(DiscreteEventEngine):
         # TODO: scale velocities accordingly, not terribly important right now
 
         self.networkFormed              = False
-        if self.settings.rrsf_slotframe_len is False:
-            self.settings.rrsf_slotframe_len = self.settings.exec_numMotes
+
 
         self._init_controls_update()
 
@@ -562,6 +565,7 @@ class SimEngine(DiscreteEventEngine):
             uniqueTag        = (u'SimEngine',u'_actionEndSim'),
             intraSlotOrder   = Mote.MoteDefines.INTRASLOTORDER_ADMINTASKS,
         )
+        print(f'slotframe len : {self.settings.tsch_slotframeLength}')
 
         # schedule action at every end of slotframe_iteration
         self.scheduleAtAsn(

@@ -129,7 +129,7 @@ class World:
     def init_scenario(self, scenario_module, **kwargs):
         if self.config_data.visualization:
             # if visualization is on, run the scenario in a separate thread and show that the program runs..
-            x = threading.Thread(target=load_scenario, args=(scenario_module, self, goons), kwargs=kwargs)
+            x = threading.Thread(target=load_scenario, args=(scenario_module, self), kwargs=kwargs)
             self.vis.wait_for_thread(x, "loading scenario... please wait.", "Loading Scenario")
         else:
             # if no vis, just run the scenario on the main thread
