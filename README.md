@@ -50,7 +50,7 @@ to run the dual visualization, first (in the top level directory): python dual_v
 
 We have set up two frameworks to enable communications between the 6tisch-simulater and Swarm-Sim Simulator. 
 ### No Vis 
-To enable fast simulation without visualization we have created a wrapper class for Swarm-Sim defined in swarmsimmaster/commsenv.py. This allows the Swarmsim simulator to be remotely controlled doing things such as setting agent velocities, setting mote neighbors, getting mote states and executing a timestep of Swarm-Sim dynamics simulation. Through this interface the 6tisch-simulator synchrozises with the robotics simulator and provides it with the neccessary information to simulate the control algorithms. 
+To enable fast simulation without visualization we have created a wrapper class for Swarm-Sim defined in swarmsimmaster/commsenv.py. This allows the Swarmsim simulator to be remotely controlled doing things such as setting agent velocities, setting mote neighbors, getting mote states and executing a timestep of Swarm-Sim dynamics simulation. Through this interface the 6tisch-simulator synchrozises with the robotics simulator and provides it with the neccessary information to simulate the control algorithms. Both simulators must be alerted of this preferred simulation architecture. When running without visualization you must set `dual_vis: false` in config/6tisch.json and set `Visualization: 0` in config/swarmsim.yaml.
 
 We have included a bash script for running the code. To use it, enter the following in your terminal.
 ```
@@ -69,7 +69,7 @@ To handle certain quirks of the respective visualization modules we implenented 
 ```
 ./dual_vis.sh
 ```
-However, to run this, both simulators must be alerted of these settings. SwarmSim can be alerted by setting Visualization to 2 in config.ini. 6tisch can be alerted with the rpc variable. 
+However, to run this, both simulators must be alerted of these settings. SwarmSim can be alerted by setting `Visualization: 2` in swarmsim.yaml. 6tisch can be alerted by setting `dual_vis: true` in config/6tisch.json. 
 
 Once the windows are open the play button in the 6tisch Gui must be pressed to start the networking simultion. Dynamics simulation won't start until the 6tisch network is fully formed, but in order to start the Swarm-Sim side of the simulation the 'start simulation' button must be pressed in the Swarm-Sim Gui
 
