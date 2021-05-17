@@ -15,7 +15,7 @@ import traceback
 from core import agent, item, location, vis3d, velo_controlled_agent
 from core.visualization.utils import show_msg, TopQFileDialog, VisualizationError, Level
 
-def load_scenario(mod, world, goons=None, **kwargs):
+def load_scenario(mod, world, **kwargs):
     """
     Function to load the scenario into the world.
     Parameters:
@@ -27,7 +27,7 @@ def load_scenario(mod, world, goons=None, **kwargs):
         importlib.import_module('components.scenario.dual_vis_tisch').scenario(world)
     else:
         try:
-            mod.scenario(world, goons, **kwargs)
+            mod.scenario(world, **kwargs)
         except:
             try:
                 mod.scenario(world)
@@ -126,14 +126,15 @@ class World:
         if self.vis is not None:
             self.vis.reset()
 
-    def init_scenario(self, scenario_module, goons=None, **kwargs):
+    def init_scenario(self, scenario_module, **kwargs):
         if self.config_data.visualization:
             # if visualization is on, run the scenario in a separate thread and show that the program runs..
             x = threading.Thread(target=load_scenario, args=(scenario_module, self, goons), kwargs=kwargs)
             self.vis.wait_for_thread(x, "loading scenario... please wait.", "Loading Scenario")
         else:
             # if no vis, just run the scenario on the main thread
-            load_scenario(scenario_module, self, goons)
+            print('A')
+            load_scenario(scenario_module, self, **kwargs)
 
         if self._scenario_load_error is not None:
             show_msg("Error while loading Scenario:\n%s" % self._scenario_load_error.msg, Level.CRITICAL,

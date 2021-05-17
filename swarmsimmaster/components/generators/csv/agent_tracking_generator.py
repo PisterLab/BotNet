@@ -144,28 +144,7 @@ class CsvRoundData:
 
 
         self.writer_round.writerow(csv_iterator)
-        self.actual_round = sim_round
-        self.steps = 0
-        self.agent_read = 0
-        self.item_read = 0
-        self.location_read = 0
-        self.memory_read = 0
-        self.agent_write = 0
-        self.item_write = 0
-        self.location_write = 0
-        self.memory_write = 0
-        self.agents_created = 0
-        self.items_created = 0
-        self.location_created = 0
-        self.agents_deleted = 0
-        self.items_deleted = 0
-        self.location_deleted = 0
-        self.items_dropped = 0
-        self.items_taken = 0
-        self.success_round = 0
-        self.success_counter = 0
-        self.agents_taken = 0
-        self.agents_dropped = 0
+        
 
     def aggregate_metrics(self):
         pass

@@ -3,7 +3,7 @@ Simulator:
   id: 80085
   seed_value: 122
   ## Maximum round number in swarm-world, 0: infinite
-  max_round: 0
+  max_round: 500
   ## 1/True: Call of agents in random order
   ## 0/False: Call of agents in added order in scenario
   agent_random_order: False
@@ -18,7 +18,7 @@ Simulator:
   follow_the_leader: True
 Visualization:
   # Visualization 2 = Visualization with 6tisch Sync,  1 = Swarm Sim only Visualization, 0: Off
-  visualization: 2
+  visualization: 0
   gui: default
   grid_class: quadratic.QuadraticGrid
   agent_model_file: 2d_agent.obj
@@ -77,7 +77,7 @@ File:
   #solution: post_viz
   #scenario: random_find
   #solution: rl_model
-  scenario: 6tisch_scenario
+  scenario: center_line_flock
   solution: flock
   #scenario: lonely_agent
   #scenario: n_agent_in_line
