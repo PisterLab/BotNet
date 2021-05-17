@@ -1,7 +1,9 @@
 # BotNet: A Simulator for Studying the Effects of Accurate Communication Models on High-agent Count Multi-agent Control
+
 ​
 ![](./botnet/assets/teaser.png)
 ​
+
 Contents:
 1. [Setup and Background](./readme.md#setup-and-background)
 2. [Running BotNet and Experiments](./readme.md#running-botnet-and-experiments)
@@ -13,6 +15,7 @@ In this section, we describe how one can get BotNet running and understand its m
 ​
 ### Motivation
 The goal of this simulator is to study how high agent-count multi-agent systems can be controlled. 
+
 As agent counts increase, decentralized control becomes increasingly attractive due to its computational efficiency relative to centralized approaches.
 A commonly unaddressed issue in the study of decentralized control, however, is the need for neighbors to identify eachother and communicate effectively, especially subject to the complex dynamics of an ad hoc RF mesh network.
 This work pairs a high agent-count robot simulator with a full featured network simulator of a standards compliant RF mesh architecture, 6TiSCH.
@@ -21,9 +24,7 @@ Together, they form BotNet: an experimentation platform for understanding phenom
 ### Installation
 This framework runs entirely on python and has very few requirements. The only setup required is installing the included conda environment.
 ```
-<set up your own virtualenv with conda or whatever>
-pip install -r requirements.txt
-cd swarmsimmaster/
+conda env create -f environment.yml
 ```
 Future work will integrate the simulator as a python package for integration with other projects.
 ​
@@ -38,7 +39,9 @@ In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/ch
 * More scenarios for studying multi-agent control
 * Created a wrapper class for remote control of the simulator
 * Added functionality to pass arguments into scenarios. 
+
 ​
+
 Swarm-Sim comprises the dynamics simulation component of the dual-simulator. 
 There are two primary places where experiments are defined on the Swarm-Sim side. 
 ​
@@ -59,12 +62,17 @@ To handle quirks of the respective visualization modules we made use of an RPyC 
 If you don't require visualization for your experiments it is not reccomended to use the RPyC server this will slow you down. Without the need to execute each simulation module in it's own process variables can be passed directly between them. To enable a faster simulation without visualizations we have build a wrapper class for the Swarm-Sim simulator. This class exposes the logic to run the main thread of swarm-sim for n iterations, set agent neighbors, query agent states etc. When running experiments without simulation.
 
 
+
+To handle certain quirks of the respective visualization modules we implemented an interface server which allows the two simulators to communicate despite executing in separate processes. Running a simulation with dual visualizations is a little bit more complicated because first the interface server must be started followed by the 6tisch GUI server and finally swarmsim. This can all be run via 
+
 ```
 ./dual_vis.sh
 ```
 However, to run this, both simulators must be alerted of these settings. Swarm-Sim can be alerted by setting *Visualization* to 2 in config.ini. 6tisch can be alerted with the rpc variable. 
+
 ​
 Once the windows are open, the play button in the 6tisch GUI must be pressed to start the networking simulation. The dynamics simulation won't start until the 6tisch network is fully formed, but in order to start the Swarm-Sim side of the simulation the 'start simulation' button must be pressed in the Swarm-Sim GUI.
+
 
 
 
@@ -85,19 +93,26 @@ Example of the Environment Visualization.
 ![](./botnet/assets/sim-dynam.png)
 
 
+Both simulators can be visualized live in the same experiment. To do this 
+1. Set the Swarm-Sim scenario to dual_vis_tisch
+2. Set the Swarm-Sim solution to tisch_visualization
+3. run dual_visualization.sh
+
 ### Running on Windows
 TODO
-​
+
 ### Experiment Examples
 ​
 #### Flocking
 ​
 #### Formation Control
+
 ​
 ### Logging
 Basic data for experiments is logged in a directory `simData/` that is not tracked on git.
 Additional logging can be performed by adding logic at the send of a solution.
 ​
+
 ### Common Problems
 1. Due to the remote server architecture, sometimes subprocesses can hang. In case of failed initialization, look for running rpyc and multithreading objects with `ps`.
 ```
@@ -118,19 +133,23 @@ TODO describe how rpyc works.
 To configure new robotic tasks and worlds, two key abstractions are used: **scenarios** and **solutions**.
 By creating other classes akin to `VeloAgent`, other robotic dynamics can be encoded (see `swarmsimmaster/core/velo_controlled_agent.py`).
 ​
+
 #### (Environment) Scenarios
 A scenario is the initial conditions for a simulation. 
 In these files, the world api is used to define the initial positions of all objects in the simulation and the environment. 
 Scenarios are loaded from `swarmsimmaster/components/scenarios` at the beginning of the simulation. 
 The current simulation to be loaded is defined in `conf/swarmsim.yaml`.
 To create a scenario, utilize the world API in a Python script located in the scenarios folder. Examples of how to set up scenarios are in the scenarios folder. To run your scenario you must set the scenario argument at the bottom of config.ini to the name of your scenario file. Below is the simplest example of creating a lonely agent in the center of the world (which can be found [here](https://github.com/PisterLab/BotNet/blob/5af7fc809dea29e6e49b5275df13184c534b6518/gym-swarm-sim/envs/swarmsimmaster/components/scenario/configurable.py)).
+
 ​
+
 ```
 def scenario(world):
   world.add_agent(world.grid.get_center())
 ```
 For more details on the current scenarios, see the scenario description [readme](./swarmsimmaster/components/scenario/readme.md).
 ​
+
 #### (Control) Solutions
 The solution is where controls and dynamics are implemented. 
 These use the world api to define the simulation behavior at every time step. 
@@ -148,18 +167,19 @@ def solution(world):
 `conf/swarmsim.yaml` can be used to set all arguments for the simulation. These include which grid world to use, whether to use an agent with 0th, 1st, or 2nd order dynamics, how big the world is, etc. 
 For more details on the current solutions, see the solution description [readme](./swarmsimmaster/components/solution/readme.md).
 ​
+
 #### Agent Level Control
 How to write controls at the agent level:
 * In core, create a new python file with a class that inherits from `agent.py`.
 * Define an instance method in this agent to describe control e.g. move(self).
 * Pass the agent class in as the new_class parameter when adding the agent in the world
 * Simply call the move function in the solution.
+
 ​
 #### 6TiSCH Simulator
 The 6TiSCH simulator can be seamlessly integrated to validate control performance with different local communications models. 
 This tool can also be used by networking researchers to add more complex schedule functions and network behavior.
 ​
-----
 ​
 ## Citation
 To cite this work, please use the following (_we can upload to arxiv so everything is good to go_):
