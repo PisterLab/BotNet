@@ -117,9 +117,12 @@ class SwarmSimCommsEnv():
         if seed is not None:
             self.config_data.seed_value = seed
         # random.seed(seed)
+        # TODO : Move this to be different lol
         self.config_data.follow_the_leader = net_config.follow
         self.config_data.flock_rad = net_config.flock_rad
         self.config_data.flock_vel = net_config.flock_vel
+        self.config_data.conn_class = net_config.conn_class
+        self.config_data.num_agents = num_agents
 
         #set up world
         self.swarm_sim_world = world.World(self.config_data)

@@ -1583,7 +1583,7 @@ class PisterHackModel(object):
             src[u'coordinate'],
             dst[u'coordinate']
         )
-
+        distance = min(distance, .01)
         # sqrt and inverse of the free space path loss (fspl)
         free_space_path_loss = (
             old_div(self.SPEED_OF_LIGHT,

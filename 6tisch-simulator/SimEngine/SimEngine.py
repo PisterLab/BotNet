@@ -607,7 +607,6 @@ class SimEngine(DiscreteEventEngine):
         return [mote for mote in self.motes if mote.id == mote_id][0]
 
     # ============== Robot Simulator Initialization ===================
-
     
 
     def _init_controls_update(self):
