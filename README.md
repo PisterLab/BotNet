@@ -21,9 +21,7 @@ Together, they form BotNet: an experimentation platform for understanding phenom
 ### Installation
 This framework runs entirely on python and has very few requirements. The only setup required is installing the included conda environment.
 ```
-<set up your own virtualenv with conda or whatever>
-pip install -r requirements.txt
-cd swarmsimmaster/
+conda env create -f environment.yml
 ```
 Future work will integrate the simulator as a python package for integration with other projects.
 
