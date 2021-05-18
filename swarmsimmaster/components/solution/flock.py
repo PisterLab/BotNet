@@ -21,6 +21,8 @@ def solution(world):
 
         # set agent control inputs
         vx, vy, vz = 0, 0, 0
+
+        print(agent.neighbors)
         for (net_id, neighbor) in agent.neighbors.items():  # NOTE: currently updated at the end of each slotframe
             agent_id = net_id_map[net_id]
             if agent_id == agent.id:

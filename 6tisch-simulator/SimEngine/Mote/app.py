@@ -301,8 +301,42 @@ class AppLocation(AppRoot):
 
     def _schedule_transmission(self):
         # schedule to transmit slot before RRSF scheduled Tx
+        
+
+
+        if self.mote.settings.sf_class == "MSF":
+            #iterate over slots
+            dedicated_tx_cells = [cell for cell in self.mote.tsch.get_cells(self.mote.get_mac_addr()) if d.CELLOPTION_TX in cell.options]
+            #print(f'slots: {self.mote.tsch.get_cells(None)} ')
+            print(self.mote.sf.get_tx_cells(self.mote.get_mac_addr))
+            #print(f'{self.mote.sf.get_autonomous_tx_cell(self.mote.get_mac_addr())}')
+            #assert self.mote.settings.app_pkPeriod >= 0
+           # if self.mote.settings.app_pkPeriod == 0:
+            #    return
+
+            #if self.sending_first_packet:
+                # compute initial time within the range of [next asn, next asn+pkPeriod]
+             #   delay = self.mote.settings.tsch_slotDuration + (self.settings.app_pkPeriod * random.random())
+            #    self.sending_first_packet = False
+            #else:
+                # compute random delay
+              #  assert self.mote.settings.app_pkPeriodVar < 1
+             #   delay = self.mote.settings.app_pkPeriod * (1 + random.uniform(-self.settings.app_pkPeriodVar, self.settings.app_pkPeriodVar))
+
+            # schedule
+            #self.engine.scheduleIn(
+              #  delay           = delay,
+              #  cb              = self._broadcast_location,
+              #  uniqueTag       = (
+              #      u'AppPeriodic',
+              #      u'scheduled_by_{0}'.format(self.mote.id)
+              #  ),
+             #   intraSlotOrder  = d.INTRASLOTORDER_ADMINTASKS,
+            #)
+            #return
         slotframe_len = self.mote.settings.rrsf_slotframe_len
         asn_schedule_tx = slotframe_len * (self.engine.getAsn() // slotframe_len) + self.mote.id
+
         if asn_schedule_tx <= self.engine.getAsn():
             asn_schedule_tx += slotframe_len # TODO: check this math for off by ones, right idea though
         self.mote.console_log(f"SCHEDULING TX AT ASN: {asn_schedule_tx}")

@@ -6,7 +6,7 @@
     },
     "settings": {
         "combination": {
-            "exec_numMotes":                               [10],
+            "exec_numMotes":                               [7],
 
             "conn_class":                                  ["FullyMeshed"],
             "scenario":                                    ["center_line_flock"],
@@ -16,10 +16,10 @@
             "init_spacing":                                [2.0],
             "control_update_period_slots":                 [1],
 
-            "exec_randomSeed":                             [0]
+            "exec_randomSeed":                             [10]
         },
         "regular": {
-            "exec_numSlotframesBeforeNetwork":                    1000,
+            "exec_numSlotframesBeforeNetwork":                    5000,
             "exec_numSlotframesAfterNetwork":                             250,
             "exec_minutesPerRun":                          null,
 
@@ -30,6 +30,8 @@
             "app_pkLength":                                90,
             "app_burstTimestamp":                          null,
             "app_burstNumPackets":                         0,
+            "app_pkPeriod":                                60,
+            "app_pkPeriodVar":                             0.05,
 
             "rpl_of":                                      "OF0",
             "rpl_daoPeriod":                               60,
@@ -41,7 +43,7 @@
             "fragmentation_ff_vrb_table_size":             50,
             "tsch_max_payload_len":                        90,
 
-            "sf_class":                                    "RRSF",
+            "sf_class":                                    "MSF",
             "rrsf_slotframe_len":                          false,
 
             "tsch_slotDuration":                           0.010,
