@@ -59,30 +59,61 @@ Both Swarm-Sim and 6Tisch support GUIs with real time visualizations of the expe
 ​
 To handle quirks of the respective visualization modules we made use of an RPyC server to help the two simulators communicate. This server's API allows each proccess to send and recieve all information neccessary for the syncing of the two simulators. The RPC's purpose is to allow both simulators to communicate despite executing in separate processes.
 
-#### No Vis--- Mark Pick up here in the morning. 
-If you don't require visualization for your experiments it is not reccomended to use the RPyC server this will slow you down. Without the need to execute each simulation module in it's own process variables can be passed directly between them. To enable a faster simulation without visualizations we have build a wrapper class for the Swarm-Sim simulator. This class exposes the logic to run the main thread of swarm-sim for n iterations, set agent neighbors, query agent states etc. When running experiments without simulation.
-
-
-
-To handle certain quirks of the respective visualization modules we implemented an interface server which allows the two simulators to communicate despite executing in separate processes. Running a simulation with dual visualizations is a little bit more complicated because first the interface server must be started followed by the 6tisch GUI server and finally swarmsim. This can all be run via 
-
-```
-./dual_vis.sh
-```
-However, to run this, both simulators must be alerted of these settings. Swarm-Sim can be alerted by setting *Visualization* to 2 in config.ini. 6tisch can be alerted with the rpc variable. 
-
-​
-Once the windows are open, the play button in the 6tisch GUI must be pressed to start the networking simulation. The dynamics simulation won't start until the 6tisch network is fully formed, but in order to start the Swarm-Sim side of the simulation the 'start simulation' button must be pressed in the Swarm-Sim GUI.
-
+#### No Vis
+If you don't require visualization for your experiments it is not reccomended to use the RPyC server this will slow you down. Without the need to execute each simulation module in it's own process variables can be passed directly between them. To enable a faster simulation without visualizations we have build a wrapper class for Swarm-Sim defined in swarmsimmaster/commsenv.py. This class exposes the logic to run the main thread of swarm-sim for n iterations, set agent neighbors, query agent states etc. 
 
 
 
 ## Running BotNet and Experiments
 ​
-We have set up two frameworks to enable communications between the 6tisch-simulator and Swarm-Sim Simulator. 
+#### Configurations
+Experiment configurations are currently spread across two configuration files. conf/swarmsim.yaml corresponds to settings and configurations for the dynamics simulation module. conf/6tisch.json stores the settings and configurations for the networking simulator.  Networking configurations stored in 6tisch.json are also passed to the dynamics side of simulation upon initialization, however configurations from swarmsim.yaml are not passed to networking module. The motivation for this is to allow the dynamics side to take advantage of 6tisch's native support for iterating over combinations of parameters. 
+##### 6tisch.json
+6tisch.json details all of the settings for the 6tisch simulator. It is additionally easy to add new configurations. All you have to do is add a field to the json and at runtime that field will be loaded as an attribute of the simengine's settings object. The settings portion of 6tisch.json has two portions: combinations and regular. 
+When simulating without visualizations the simulator will iterate over all combinations of parameters stored in the `combination` section of the settings json. For example if the combinations JSON is 
+```
+"combination": {
+            "exec_numMotes":                               [10, 11, 12],
+
+            "conn_class":                                  ["FullyMeshed", "FriisLower"]
+}
+```
+then a total of 6 experiments will be run. 
+
+Some important settings in 6tisch.json are listed below. 
+
+`"exec_numMotes"` Is the number of motes used in the simulation. This is also passed to the robotics side of the simulator to populate the initial world conditions. 
+
+`"conn_class"` tells 6tisch what network propogation model to use. These models are defined in 6tisch-simulator/SimEngine/Connectivity.py
+
+`"sf_class"` is the scheduling function. Currently only two scheduling functions are supported. MSF(Minimum Scheduling Function) and RRSF(Round Robin Scheduling Function.
+`"dual_vis"` tells 6tisch whether the simulator is being run with visualization enabled. If the used wants to vsualize the simulation the SimEnging needs to connect to and interact with the RPC server rather than directly with the swarmsim wrapper class. 
+
+
+#### swarmsim.yaml
+
+Swarmsim.yaml contains configurations red in by the swarmsim module of the simulator. Some if it's important settings are listed below:
+`scenario`: Points to a file in the components/scenarios folder which should have a python function. This function will be called once upon initializing the swarmsim world. It effective sets up the 'scenario' our agents find themselves in. 
+
+`solution`: Points to a file in components/solution which also should have a python function. This function is called on every timestep of simulation and is where control updates belong. 
+
+`Visualization`: This tells swarmsim whether to run the GUI. It should be set to `0` for no visualization, `1` for visualizing just swarmsim and `2` for experiments where you are visualizing both swarmsim and 6tisch. 
+
+`agent type`: This indicates which agent class the agents of the simulation are generated from. Choices currently include `1` for the VeloControlled agent class and `0` for the classic swarmsim agent. 
+
+
+### Running the experiment
+We have provided two bash scripts to run experiments. One runs the experiments without visualization, while the other opens the simulator GUIs. Both swarmsim and 6tisch must be updated on whether or not you are expecting visualizations with the experiment and will break if run with the wrong command/settings combination. 
+
+**To run an experiment with visualization set `dual_vis` to `true` in conf/6tisch.py and set `Visualization` to `2` in swarmsim.yaml**  
+
+**To run an experminet without visualization set `dual_vis` to `false` in conf/6tisch.py and set `Visualization` to `0` in swarmsim.yaml**
+
+Once these are set, you can run `./botnet/scripts/run.sh` to run experiments without the GUIs and `./botnet/scripts/dual_vis.sh` to run experiments with the GUIs. 
+
+
 #### No Vis 
-To enable fast simulation without visualization we have created a wrapper class for Swarm-Sim defined in swarmsimmaster/commsenv.py. This allows the Swarm-Sim simulator to be remotely controlled doing things such as setting agent velocities, setting mote neighbors, getting mote states and executing a timestep of Swarm-Sim dynamics simulation. Through this interface the 6tisch-simulator synchrozises with the robotics simulator and provides it with the neccessary information to simulate the control algorithms. 
-​
+
 We have included a bash script for running the code. To use it, enter the following in your terminal.
 ```
 ./run.sh
