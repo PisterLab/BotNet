@@ -109,26 +109,20 @@ We have provided two bash scripts to run experiments. One runs the experiments w
 
 **To run an experminet without visualization set `dual_vis` to `false` in conf/6tisch.py and set `Visualization` to `0` in swarmsim.yaml**
 
-Once these are set, you can run `./botnet/scripts/run.sh` to run experiments without the GUIs and `./botnet/scripts/dual_vis.sh` to run experiments with the GUIs. 
+We have included seperate bash scripts for running the code with and without visualization. To use it make sure the configurations detailed above are set correctly and enter the following in your terminal.  
+
+`./botnet/scripts/run.sh` Will run the code without visualizations. 
+
+`./botnet/scripts/dual_vis.sh` Will open the GUIs.
 
 
-#### No Vis 
 
-We have included a bash script for running the code. To use it, enter the following in your terminal.
-```
-./run.sh
-```
+
 Example of the 6TiSCH Visualizer.
 ![](./botnet/assets/sim-network.png)
 ​
 Example of the Environment Visualization.
 ![](./botnet/assets/sim-dynam.png)
-
-
-Both simulators can be visualized live in the same experiment. To do this 
-1. Set the Swarm-Sim scenario to dual_vis_tisch
-2. Set the Swarm-Sim solution to tisch_visualization
-3. run dual_visualization.sh
 
 ### Running on Windows
 TODO
@@ -158,7 +152,6 @@ Additional logging can be performed by adding logic at the send of a solution.
 In this section we detail the structure of the simulator and what new users should know when designing new experiments.
 ​
 ### Intermediate Server Architecture
-TODO describe how rpyc works.
 ​
 ### Core Components
 ​
