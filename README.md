@@ -30,7 +30,10 @@ Future work will integrate the simulator as a python package for integration wit
 ​
 ### Core Building Blocks
 ​
-We have built upon and paired two existing simulators. The first is the multi agent dyanmics simulator Swarm-Sim. Second is the the 6tisch simulator which simulates reliable, deterministic, and time sensitive networking.  Together we believe these simulators provide an extensible framework to research multi agent control with realistic networking and to research networking in the context of changing multi agent systems. 
+We have built upon and paired two existing simulators. 
+The first is the multi agent dyanmics simulator Swarm-Sim. 
+Second is the the 6tisch simulator which simulates reliable, deterministic, and time sensitive networking.  
+Together we believe these simulators provide an extensible framework to research multi agent control with realistic networking and to research networking in the context of changing multi agent systems. 
 
 #### Swarm-Sim: Multi-agent Control and Swarm vs. Swarm Games
 In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/cheraghi/swarm-sim): A 2D & 3D Simulation Core for Swarm Agents. Some notable changes have been made over the original version.
@@ -39,15 +42,15 @@ In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/ch
 * More scenarios for studying multi-agent control
 * Created a wrapper class for remote control of the simulator
 * Added functionality to pass arguments into scenarios. 
-
-​
-
 Swarm-Sim comprises the dynamics simulation component of the dual-simulator. 
-There are two primary places where experiments are defined on the Swarm-Sim side. 
+There are two primary places where experiments are defined on the Swarm-Sim side (environmental _scenarios_ and control _solutions_, see below). 
 ​
 #### 6TiSCH Simulator: Standards Compliant IEEE802.15.4 Networking
-_TODO_
-found [here](https://bitbucket.org/6tisch/simulator/src/master/SimEngine/)
+In this work we focus on 6TiSCH, a standards-compliant RF mesh networking protocol which is designed to be low-power, demand minimal computation overhead, and able to integrate with existing internet services. 
+Together, these features make it well-suited for use in high agent- count, low-cost autonomous systems. 
+6TiSCH combines Time Synchronized Channel Hopping (TSCH) with Internet Protocol version 6 (IPv6). 
+Time Synchronized Channel Hopping (TSCH) changes when and which channels are used in wireless communications to provide more reliable communications.
+The original simulator is found [here](https://bitbucket.org/6tisch/simulator/src/master/SimEngine/), and a review of 6TiSCH is found [here](url).
 ​
 ​
 ----
@@ -67,9 +70,17 @@ If you don't require visualization for your experiments it is not reccomended to
 ## Running BotNet and Experiments
 ​
 #### Configurations
-Experiment configurations are currently spread across two configuration files. conf/swarmsim.yaml corresponds to settings and configurations for the dynamics simulation module. conf/6tisch.json stores the settings and configurations for the networking simulator.  Networking configurations stored in 6tisch.json are also passed to the dynamics side of simulation upon initialization, however configurations from swarmsim.yaml are not passed to networking module. The motivation for this is to allow the dynamics side to take advantage of 6tisch's native support for iterating over combinations of parameters. 
+Experiment configurations are currently spread across two configuration files. 
+`conf/swarmsim.yaml` corresponds to settings and configurations for the dynamics simulation module. 
+`conf/6tisch.json` stores the settings and configurations for the networking simulator.  
+Networking configurations stored in `6tisch.json` are also passed to the dynamics side of simulation upon initialization, however configurations from `swarmsim.yaml are` not passed to networking module (note: _this is not currently needed, but can be done if we need the dynamics to influence the network_). 
+The motivation for this is to allow the dynamics side to take advantage of 6tisch's native support for iterating over combinations of parameters. 
+
 ##### 6tisch.json
-6tisch.json details all of the settings for the 6tisch simulator. It is additionally easy to add new configurations. All you have to do is add a field to the json and at runtime that field will be loaded as an attribute of the simengine's settings object. The settings portion of 6tisch.json has two portions: combinations and regular. 
+`6tisch.json` details all of the settings for the 6tisch simulator. 
+It is additionally easy to add new configurations. 
+ll you have to do is add a field to the json and at runtime that field will be loaded as an attribute of the simengine's settings object.
+The settings portion of 6tisch.json has two portions: combinations and regular. 
 When simulating without visualizations the simulator will iterate over all combinations of parameters stored in the `combination` section of the settings json. For example if the combinations JSON is 
 ```
 "combination": {
@@ -82,12 +93,18 @@ then a total of 6 experiments will be run.
 
 Some important settings in 6tisch.json are listed below. 
 
-`"exec_numMotes"` Is the number of motes used in the simulation. This is also passed to the robotics side of the simulator to populate the initial world conditions. 
+`"exec_numMotes"` Is the number of motes used in the simulation. 
+This is also passed to the robotics side of the simulator to populate the initial world conditions. 
 
-`"conn_class"` tells 6tisch what network propogation model to use. These models are defined in 6tisch-simulator/SimEngine/Connectivity.py
+`"conn_class"` tells 6tisch what network propogation model to use. 
+These models are defined in 6tisch-simulator/SimEngine/Connectivity.py
 
-`"sf_class"` is the scheduling function. Currently only two scheduling functions are supported. MSF(Minimum Scheduling Function) and RRSF(Round Robin Scheduling Function.
-`"dual_vis"` tells 6tisch whether the simulator is being run with visualization enabled. If the used wants to vsualize the simulation the SimEnging needs to connect to and interact with the RPC server rather than directly with the swarmsim wrapper class. 
+`"sf_class"` is the scheduling function. 
+Currently only two scheduling functions are supported. 
+MSF (Minimum Scheduling Function, for more see [here](https://onlinelibrary.wiley.com/doi/pdf/10.1002/itl2.170)) and RRSF (Round Robin Scheduling Function, see more [here](https://en.wikipedia.org/wiki/Round-robin_scheduling)).
+
+`"dual_vis"` tells 6tisch whether the simulator is being run with visualization enabled. 
+If the used wants to vsualize the simulation the SimEngine needs to connect to and interact with the RPC server rather than directly with the swarmsim wrapper class. 
 
 
 #### swarmsim.yaml
@@ -113,9 +130,7 @@ We have included seperate bash scripts for running the code with and without vis
 
 `./botnet/scripts/run.sh` Will run the code without visualizations. 
 
-`./botnet/scripts/dual_vis.sh` Will open the GUIs.
-
-
+`./botnet/scripts/dual_vis.sh` Will open the GUIs (Note:_ this will be substantially slower, so it is best to iterate with `run.sh` and then interpret select runs with visualization_). Visualization on logged data in under construction.
 
 
 Example of the 6TiSCH Visualizer.
@@ -125,10 +140,12 @@ Example of the Environment Visualization.
 ![](./botnet/assets/sim-dynam.png)
 
 ### Running on Windows
-TODO
+Running on Windows may encounter other issues, particularly with syncrhonized visualization. 
+We are finalizing supporting this platform.
 
 ### Experiment Examples
-​
+Here, we specifically detail how to run the experiments in our paper.
+
 #### Flocking
 ​
 #### Formation Control
@@ -145,7 +162,7 @@ Additional logging can be performed by adding logic at the send of a solution.
  ps | grep python
  kill pid
 ```
-2. On the latext MacOS versions, OpenGL has a bug that affects the dynamics visualization. A fix is needed at the local Python version. See [this solution](https://stackoverflow.com/questions/63475461/unable-to-import-opengl-gl-in-python-on-macos).
+2. On the latest MacOS versions, OpenGL has a bug that affects the dynamics visualization. A fix is needed at the local Python version. See [this solution](https://stackoverflow.com/questions/63475461/unable-to-import-opengl-gl-in-python-on-macos).
 ​
 ----
 ## File Structure and Design Decisions
@@ -207,11 +224,11 @@ This tool can also be used by networking researchers to add more complex schedul
 ​
 ​
 ## Citation
-To cite this work, please use the following (_we can upload to arxiv so everything is good to go_):
+To cite this work, please use the following until we have official proceedings.:
 ```
 @article{botnet2021,
   Title = {BotNet: A Simulator for Studying the Effects of Accurate Communication Models on High-agent Count Multi-agent Control},
-  Author = {Felipe Campos, Nathan Lambert, Mark Selden, Jason Zhou, Daniel Drew, Kristofer S. J. Pister},
+  Author = {Mark Selden, Jason Zhou, Felipe Campos, Nathan Lambert,  Daniel Drew, Kristofer S. J. Pister},
   journal={To Appear},
   year={2021}
 }
