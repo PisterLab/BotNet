@@ -1,5 +1,21 @@
 import numpy as np
 import math
+
+
+def assign_agent_neighbors(agents, prop_model = "friis_upper"):
+    for a in agents:
+        neighbors = {}
+        x1, y1 = a.coordinates[0], a.coordinates[1]
+        for b in agents:
+            if a != b:
+                x2, y2 = b.coordinates[0], b.coordinates[1]
+                _, talking = communication_model(x1, y1, x2, y2, comms_model=prop_model)
+                if talking:
+                    neighbors[b.get_id()] = (x2, y2)
+        a.neighbors = neighbors
+
+
+
 SPEED_OF_LIGHT = 3e8  # m / s
 TWO_DOT_FOUR_GHZ = 2.4e9  # Hz
 PISTER_HACK_LOWER_SHIFT = 40  # dB

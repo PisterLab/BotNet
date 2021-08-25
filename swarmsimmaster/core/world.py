@@ -22,8 +22,8 @@ def load_scenario(mod, world, **kwargs):
     -----------
         goons = a place to pass optional arguments into the scenario functions. Must be used in conjuction with a scenario which accepts args.
     """
+
     if world.config_data.visualization == 2 :
-        print('A')
         importlib.import_module('components.scenario.dual_vis_tisch').scenario(world)
     else:
         try:
@@ -33,6 +33,8 @@ def load_scenario(mod, world, **kwargs):
                 mod.scenario(world)
             except VisualizationError as ve:
                 world._scenario_load_error = ve
+
+
 
 
 class World:
@@ -73,6 +75,10 @@ class World:
 
         self.config_data = config_data
         self.grid = config_data.grid
+        #variables to simulate the 6tisch simulation
+        if self.config_data.run_only_propagation:
+            self.net_id_map = {}
+            self.network_formed = True
 
         self.csv_generator_module = importlib.import_module('components.generators.csv.%s' % config_data.csv_generator)
         self.csv_round = self.csv_generator_module.CsvRoundData(scenario=config_data.scenario,
@@ -86,6 +92,7 @@ class World:
             self.vis = None
 
         self._scenario_load_error = None
+
 
     def reset(self):
         """
@@ -133,7 +140,6 @@ class World:
             self.vis.wait_for_thread(x, "loading scenario... please wait.", "Loading Scenario")
         else:
             # if no vis, just run the scenario on the main thread
-            print('A')
             load_scenario(scenario_module, self, **kwargs)
 
         if self._scenario_load_error is not None:
@@ -169,7 +175,7 @@ class World:
             os.mkdir("components/scenario")
 
         if quick:
-            # if the scenario folder exists, try to create and save the new scenario file, if it fails print the error.
+            # if the scenario folder exists, try to create and save the new scenario file, if it fails neigh the error.
             if os.path.exists("components/scenario") and os.path.isdir("components/scenario"):
                 now = datetime.datetime.now()
                 filename = str("components/scenario/%d-%d-%d_%d-%d-%d_scenario.py"
@@ -426,6 +432,11 @@ class World:
                         self.new_agent = new_class(self, coordinates, color, self.agent_id_counter, velocities)
                     else:
                         self.new_agent = new_class(self, coordinates, color, self.agent_id_counter)
+                    #update the network id map if running solo
+                    if self.config_data.run_only_propagation:
+                        self.new_agent.id = self.new_agent.get_id()
+
+                        self.net_id_map[self.new_agent.id] = self.new_agent.id
                     if self.vis is not None:
                         self.vis.agent_changed(self.new_agent)
                     self.agents_created.append(self.new_agent)

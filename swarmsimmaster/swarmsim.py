@@ -9,6 +9,7 @@ import random
 import traceback
 from core import world, config
 from core.vis3d import ResetException
+import communication
 
 
 def swarm_sim(argv=[]):
@@ -51,6 +52,10 @@ def main_loop(config_data, swarm_sim_world):
     while (config_data.max_round == 0 or swarm_sim_world.get_actual_round() <= config_data.max_round) \
             and swarm_sim_world.get_end() is False:
         try:
+            #check neighbors neccessary
+            if config_data.run_only_propagation:
+
+                communication.assign_agent_neighbors(swarm_sim_world.agents, config_data.comms_model)
             #check to see if its neccessary to run the vis
             if config_data.visualization:
                 swarm_sim_world.vis.run(round_start_timestamp)

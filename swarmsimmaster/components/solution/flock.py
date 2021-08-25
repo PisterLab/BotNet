@@ -10,7 +10,11 @@ def solution(world):
     net_id_map = world.net_id_map
     inv_net_id_map = {v : k for k, v in net_id_map.items()}
     for agent in world.get_agent_list():
-        set_vel = net_id_map[0] == agent.id
+        #the 0th mote in 6tisch simulator is the leader, edge case for running only swarmsim side of the dual simulation
+        try:
+            set_vel = net_id_map[0] == agent.id
+        except:
+            set_vel = agent == world.get_agent_list()[0]
         follow = leader_agent_move(agent, world, True)
         if set_vel and follow:
             continue
@@ -58,7 +62,7 @@ def solution(world):
 
         #print(f"[Mote {inv_net_id_map[agent.id]}] {agent.neighbors} new vels {vx} {vy}", end="\r")
         agent.set_velocities((-vx, -vy, -vz))
-        agent.neighbors = []
+
 
 
     for agent in world.get_agent_list():
@@ -66,7 +70,7 @@ def solution(world):
 
 def leader_agent_move(agent, world, set_vel=True):  # TODO: how to do follow the leader without a path bias???
     # round = self.world.get_actual_round()
-    scale = world.config_data.flock_vel
+    scale = float(world.config_data.flock_vel)
     set_velocities = lambda vels: agent.set_velocities(vels) if set_vel else None
     set_velocities((scale, 0, 0))  # TODO: iterate over different angles rather than just straight
     return True

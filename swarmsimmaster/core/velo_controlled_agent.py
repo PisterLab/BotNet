@@ -15,7 +15,7 @@ class VeloAgent(agent.Agent):
     def __init__(self, world, coordinates, color, agent_counter=0, velocities = None):
         super().__init__(world, coordinates, color)
         self.velocities = (0.0,) * 3 # self.world.grid.get_dimension_count()
-        self.neighbors = []
+        self.neighbors = {}
 
         try:
             self.timestep = self.world.timestep
