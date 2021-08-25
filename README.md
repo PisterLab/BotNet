@@ -215,3 +215,15 @@ How to write controls at the agent level:
 The 6TiSCH simulator can be seamlessly integrated to validate control performance with different local communications models. 
 This tool can also be used by networking researchers to add more complex schedule functions and network behavior.
 ​
+
+----
+To cite this work, please use the following citation:
+```
+@inproceedings{selden2021BotNet,
+  title={BotNet:  A  Simulator  for  Studying  the  Effects  of  AccurateCommunication  Models  on  Multi-agent  and  Swarm  Contro},
+  author={Selden, Mark and Zhou, Jason and Campos, Felipe and Lambert, Nathan and Drew, Daniel and Pister, Kristofer S. J.},
+  booktitle={IEEE International Symposium on Multi-Robot and Multi-Agent Systems)},
+  year={2021},
+  organization={IEEE}
+}
+```
