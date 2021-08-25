@@ -5,9 +5,9 @@
 ​
 
 Contents:
-1. [Setup and Background](./readme.md#setup-and-background)
-2. [Running BotNet and Experiments](./readme.md#running-botnet-and-experiments)
-3. [File Structure and Design Decisions](./readme.md#file-structure-and-design-decisions)
+1. Setup and Background: [Github Link](https://github.com/PisterLab/BotNet/blob/main/README.md#setup-and-background) - [Local Link](./readme.md#setup-and-background)
+2. Running BotNet and Experiments: [Github Link](https://github.com/PisterLab/BotNet/blob/main/README.md#running-botnet-and-experiments) -  [Local Link](./readme.md#running-botnet-and-experiments)
+3. File Structure and Design Decisions: [Github Link](https://github.com/PisterLab/BotNet/blob/main/README.md#file-structure-and-design-decisions) -  [Local Link](./readme.md#file-structure-and-design-decisions)
 ​
 ----
 ## Setup and Background
