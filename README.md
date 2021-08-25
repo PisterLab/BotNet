@@ -128,12 +128,13 @@ We have provided two bash scripts to run experiments. One runs the experiments w
 
 **To run an experminet without visualization set `dual_vis` to `false` in conf/6tisch.py and set `Visualization` to `0` in swarmsim.yaml**
 
-We have included seperate bash scripts for running the code with and without visualization. To use it make sure the configurations detailed above are set correctly and enter the following in your terminal.  
+We have included seperate bash scripts for running the code with and without visualization (and with and without full 6TiSCH networking). To use it make sure the configurations detailed above are set correctly and enter the following in your terminal.  
 
-`./botnet/scripts/run.sh` Will run the code without visualizations. 
+`./botnet/scripts/6tisch_no_vis.sh` Will run the code without visualizations. 
 
-`./botnet/scripts/dual_vis.sh` Will open the GUIs (Note:_ this will be substantially slower, so it is best to iterate with `run.sh` and then interpret select runs with visualization_). Visualization on logged data in under construction.
+`./botnet/scripts/6tisch_dual_vis.sh` Will open the GUIs (Note:_ this will be substantially slower, so it is best to iterate with `run.sh` and then interpret select runs with visualization_). Visualization on logged data in under construction.
 
+`./botnet/scripts/swarmsim_propagation.sh` Will run the SwarmSim scenarios with propagation models and optional dynamics visualization (controlled via `config/swarmsim.yaml`).
 
 Example of the 6TiSCH Visualizer.
 ![](./botnet/assets/sim-network.png)
