@@ -36,6 +36,7 @@ Second is the the 6tisch simulator which simulates reliable, deterministic, and 
 Together we believe these simulators provide an extensible framework to research multi agent control with realistic networking and to research networking in the context of changing multi agent systems. 
 
 #### Swarm-Sim: Multi-agent Control and Swarm vs. Swarm Games
+
 In this work we build off of [Swarm-Sim](https://gitlab.cs.uni-duesseldorf.de/cheraghi/swarm-sim): A 2D & 3D Simulation Core for Swarm Agents. Some notable changes have been made over the original version.
 * Bugs were fixed causing the simulator to crash in routine operations.
 * Adding a framework for continuous robotic control (discrete agent movements were default).
@@ -46,6 +47,7 @@ Swarm-Sim comprises the dynamics simulation component of the dual-simulator.
 There are two primary places where experiments are defined on the Swarm-Sim side (environmental _scenarios_ and control _solutions_, see below). 
 ​
 #### 6TiSCH Simulator: Standards Compliant IEEE802.15.4 Networking
+
 For communications, we utilize 6TiSCH, a standards-compliant RF mesh networking protocol which is designed to be low-power, demand minimal computation overhead, and able to integrate with existing internet services. 
 Together, these features make it well-suited for use in high agent- count, low-cost autonomous systems. 
 6TiSCH combines Time Synchronized Channel Hopping (TSCH) with Internet Protocol version 6 (IPv6). 
