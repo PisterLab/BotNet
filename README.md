@@ -55,6 +55,7 @@ Time Synchronized Channel Hopping (TSCH) changes when and which channels are use
 The original simulator is found [here](https://bitbucket.org/6tisch/simulator/src/master/SimEngine/), and a review of 6TiSCH is found [here](url).
 ​
 ​
+
 ----
 ### Simulator Communication Architecture 
 In joint simulation, botnet preserves each simulaters independence. The Swarm-Sim module of the simulator handles all multi agent control and simulation logic while the 6tisch module handles all networking logic. We have designed protocols for the two modules to communicate and synchronize states throughout simulation without compromising either simulator's indpendent simulation power. In this communication, first the networking simulator is initialized, and passes some initialization arguments to the robotics simulator such as random seed and number of motes. Once the robotics simulator has this information it initialize the robotics simulation and syncs the agent's states(positions) with the networking simulator. From there the networking simulator works to build the wireless network between motes. Once all motes have joined the network securely, the two simlators start handing control back and forth continuosly syncing states. For efficiency purposes we built 2 seperate architectures for this process. 
