@@ -46,7 +46,7 @@ Swarm-Sim comprises the dynamics simulation component of the dual-simulator.
 There are two primary places where experiments are defined on the Swarm-Sim side (environmental _scenarios_ and control _solutions_, see below). 
 ​
 #### 6TiSCH Simulator: Standards Compliant IEEE802.15.4 Networking
-In this work we focus on 6TiSCH, a standards-compliant RF mesh networking protocol which is designed to be low-power, demand minimal computation overhead, and able to integrate with existing internet services. 
+For communications, we utilize 6TiSCH, a standards-compliant RF mesh networking protocol which is designed to be low-power, demand minimal computation overhead, and able to integrate with existing internet services. 
 Together, these features make it well-suited for use in high agent- count, low-cost autonomous systems. 
 6TiSCH combines Time Synchronized Channel Hopping (TSCH) with Internet Protocol version 6 (IPv6). 
 Time Synchronized Channel Hopping (TSCH) changes when and which channels are used in wireless communications to provide more reliable communications.
@@ -66,9 +66,7 @@ To handle quirks of the respective visualization modules we made use of an RPyC 
 If you don't require visualization for your experiments it is not reccomended to use the RPyC server this will slow you down. Without the need to execute each simulation module in it's own process variables can be passed directly between them. To enable a faster simulation without visualizations we have build a wrapper class for Swarm-Sim defined in swarmsimmaster/commsenv.py. This class exposes the logic to run the main thread of swarm-sim for n iterations, set agent neighbors, query agent states etc. 
 
 
-
 ## Running BotNet and Experiments
-​
 #### Configurations
 Experiment configurations are currently spread across two configuration files. 
 `conf/swarmsim.yaml` corresponds to settings and configurations for the dynamics simulation module. 
@@ -118,6 +116,7 @@ Swarmsim.yaml contains configurations red in by the swarmsim module of the simul
 
 `agent type`: This indicates which agent class the agents of the simulation are generated from. Choices currently include `1` for the VeloControlled agent class and `0` for the classic swarmsim agent. 
 
+`run_network_propagation`: This is a boolean used when using high-agent counts (6TiSCH network formation fails) to control if a propagation model is used. When omitting the 6TiSCH simulator in this way, the entry `comms_model` sets the propagation model used.
 
 ### Running the experiment
 We have provided two bash scripts to run experiments. One runs the experiments without visualization, while the other opens the simulator GUIs. Both swarmsim and 6tisch must be updated on whether or not you are expecting visualizations with the experiment and will break if run with the wrong command/settings combination. 
@@ -143,13 +142,6 @@ Example of the Environment Visualization.
 Running on Windows may encounter other issues, particularly with syncrhonized visualization. 
 We are finalizing supporting this platform.
 
-### Experiment Examples
-Here, we specifically detail how to run the experiments in our paper.
-
-#### Flocking
-​
-#### Formation Control
-
 ​
 ### Logging
 Basic data for experiments is logged in a directory `simData/` that is not tracked on git.
@@ -167,8 +159,6 @@ Additional logging can be performed by adding logic at the send of a solution.
 ----
 ## File Structure and Design Decisions
 In this section we detail the structure of the simulator and what new users should know when designing new experiments.
-​
-### Intermediate Server Architecture
 ​
 ### Core Components
 ​
@@ -222,14 +212,3 @@ How to write controls at the agent level:
 The 6TiSCH simulator can be seamlessly integrated to validate control performance with different local communications models. 
 This tool can also be used by networking researchers to add more complex schedule functions and network behavior.
 ​
-​
-## Citation
-To cite this work, please use the following until we have official proceedings.:
-```
-@article{botnet2021,
-  Title = {BotNet: A Simulator for Studying the Effects of Accurate Communication Models on High-agent Count Multi-agent Control},
-  Author = {Mark Selden, Jason Zhou, Felipe Campos, Nathan Lambert,  Daniel Drew, Kristofer S. J. Pister},
-  journal={To Appear},
-  year={2021}
-}
-```
