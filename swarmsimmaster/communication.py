@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from scipy.spatial import distance
+import old_comms_test
 
 def assign_agent_neighbors(agents, comms_model = "friis_upper"):
     #Credit to https://www.robots.ox.ac.uk/~albanie/notes/Euclidean_distance_trick.pdf for distance calculation optimization trick
@@ -14,6 +15,7 @@ def assign_agent_neighbors(agents, comms_model = "friis_upper"):
         neighbor_indices = neighbors_matrix[i].nonzero()[0]
         for j in neighbor_indices:
            agent.neighbors[agents[j].get_id()] = agents[j].coordinates
+    old_comms_test.check_neighbor_test(agents, comms_model)
 
 
 SPEED_OF_LIGHT = 3e8  # m / s
@@ -26,9 +28,9 @@ def communication_model(distance_matrix, comms_model="friis_upper", DISK_RANGE_M
     elif comms_model == "disk":
         return np.where(distance_matrix <= DISK_RANGE_M, 1, 0)
     elif comms_model == "los":
-        comms_range = False # TODO: implement line of sight
+        raise Exception("Line of sight comms model not yet implemented ")
     elif comms_model == "los_disk":
-        comms_range = False # FIXME: implement line of sight and ^ with disk
+        raise Exception("Line of sight comms model not yet implemented ")
     elif comms_model == "friis_upper":
         comms_range = rssi_to_pdr_check(friis(distance_matrix))
     elif comms_model == "friis_average":
@@ -108,7 +110,8 @@ def rssi_to_pdr_check(rssi):
     floor_rssi = np.clip(floor_rssi, -97, -79)
     u, inv = np.unique(floor_rssi, return_inverse=True)
     pdr_low = np.array([RSSI_PDR_DICT[x] for x in u])[inv].reshape(floor_rssi.shape)
-    u, inv = np.unique(np.clip(floor_rssi +1,  97, -79 ), return_inverse=True)
+    f1 = np.clip(floor_rssi + 1,  -97, -79 )
+    u, inv = np.unique(f1, return_inverse=True)
     pdr_high = np.array([RSSI_PDR_DICT[x] for x in u])[inv].reshape(floor_rssi.shape)
 
     #  pdr_low    = RSSI_PDR_TABLE[maxRssi - ][1]
@@ -117,4 +120,5 @@ def rssi_to_pdr_check(rssi):
     pdr = (pdr_high - pdr_low) * (rssi - floor_rssi.astype(np.float32)) + pdr_low
     assert np.min(pdr_low) >= 0.0
     assert np.max(pdr) <= 1.0
+
     return np.random.rand(rssi.shape[0], rssi.shape[1]) < pdr

@@ -66,8 +66,8 @@ World:
   size_x: 5.0
   size_y: 5.0
   size_z: 5.0
-  num_agents : 1000
-  comms_model: full
+  num_agents : 10
+  comms_model: friis_lower
   max_agents : 1000
   flock_vel: 1
   flock_rad: 6

@@ -32,7 +32,7 @@ def solution(world):
 
             x1, y1, _ = agent.coordinates
 
-            x2, y2 = neighbor
+            x2, y2 = neighbor[1], neighbor[2]
             x1 = float(x1)
             x2 = float(x2)
             y1 = float(y1)
