@@ -66,8 +66,8 @@ World:
   size_x: 5.0
   size_y: 5.0
   size_z: 5.0
-  num_agents : 10
-  comms_model: friis_lower
+  num_agents : 500
+  comms_model: full
   max_agents : 1000
   flock_vel: 1
   flock_rad: 6
@@ -83,7 +83,7 @@ File:
   #scenario: random_find
   #solution: rl_model
   scenario: timer_sce
-  solution: flock
+  solution: timer_sol
   #scenario: lonely_agent
   #scenario: n_agent_in_line
   #solution: random_walk

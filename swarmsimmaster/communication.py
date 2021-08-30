@@ -15,7 +15,7 @@ def assign_agent_neighbors(agents, comms_model = "friis_upper"):
         neighbor_indices = neighbors_matrix[i].nonzero()[0]
         for j in neighbor_indices:
            agent.neighbors[agents[j].get_id()] = agents[j].coordinates
-    old_comms_test.check_neighbor_test(agents, comms_model)
+
 
 
 SPEED_OF_LIGHT = 3e8  # m / s
@@ -120,5 +120,4 @@ def rssi_to_pdr_check(rssi):
     pdr = (pdr_high - pdr_low) * (rssi - floor_rssi.astype(np.float32)) + pdr_low
     assert np.min(pdr_low) >= 0.0
     assert np.max(pdr) <= 1.0
-
     return np.random.rand(rssi.shape[0], rssi.shape[1]) < pdr

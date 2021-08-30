@@ -14,7 +14,6 @@ def solution(world):
         end_timer(world)
 
     for a in world.get_agent_list():
-        assert isinstance(a.neighbors, list)
         jitter(a)
     # else:
     #     for a in world.get_agent_list():
