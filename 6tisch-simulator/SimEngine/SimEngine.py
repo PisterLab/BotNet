@@ -39,7 +39,7 @@ sys.path.insert(1, SWARM_SIM_MASTER_PATH)
 import comms_env
 import rpyc
 import numpy as np
-
+import time
 import inspect
 # =========================== defines =========================================
 
@@ -129,10 +129,14 @@ class DiscreteEventEngine(threading.Thread):
             self.initialized_network = False
 
             # consume events until self.goOn is False
+            times = []
             while self.goOn:
                 # tell robotic simulator to run for 1 ASN
                 if self.settings.robot_sim_enabled:
+                    before = time.time()
                     self._robo_sim_loop()
+                    robo_sim_time = time.time() - before
+                    times.append(robo_sim_time)
                 with self.dataLock:
 
                     # abort simulation when no more events
@@ -170,7 +174,7 @@ class DiscreteEventEngine(threading.Thread):
 
                 if self.settings.robot_sim_enabled:
                     self._robo_sim_update()
-
+            print(np.mean(times))
         except Exception as e:
             # thread crashed
 
