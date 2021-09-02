@@ -218,6 +218,7 @@ This tool can also be used by networking researchers to add more complex schedul
 ​
 
 ----
+The paper can be found on [Arxiv](https://arxiv.org/abs/2108.13606).
 To cite this work, please use the following citation:
 ```
 @inproceedings{selden2021BotNet,
