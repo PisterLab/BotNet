@@ -78,7 +78,7 @@ def oob_check(world, defense_drones, offense_drones):
             death_routine(o)
         else:
             break
-    
+
     for d in sorted_defense:
         dist = np.linalg.norm(np.array(d.coordinates) - np.array(defense_center))
         if (dist > 40):
@@ -134,7 +134,7 @@ def proximity_death_check(world, defense_drones, offense_drones, chance_func):
     # death check for offense
     for a in offense_drones:
         _, near_defense = get_local_agents(world, a, offense_drones, defense_drones)
-        
+
         # check if dead
         for d in near_defense:
             distance = np.linalg.norm(np.array(d.coordinates) - np.array(a.coordinates))
@@ -219,6 +219,40 @@ def off_p3(world, defense_drones, offense_drones):
         # by default, move towards objective
         else:
             move_toward(a, defense_center)
+
+def off_p4(world, defense_drones, offense_drones):
+    """Offense Policy 4: Make half of the defense drones be equidistant from two closest defense drones. Other half should go towards the target"""
+    obj_vec = np.array(defense_center)
+    dist_to_defense_limit = 2
+    counter = 0
+    dodge_angle = lambda x: min(90, max(80, 3 * 90 / x))
+    crit_dist = 1
+    dive_dist = 4
+    crit_locked_on = 1
+    dodge_dist = 4
+    num_closest_drones = 5
+
+    for offense in offense_drones:
+        closest_drones_arr = []
+        offense_vec = np.array(offense.coordinates)
+        sorted_defense = sorted(defense_drones, key=lambda defense: np.linalg.norm(np.array(defense.coordinates) - offense_vec))
+        for i in range(min(num_closest_drones, len(defense_drones))):
+            closest_drones_arr.append(np.array(sorted_defense[i].coordinates))
+        closest_def_vec = np.array(sorted_defense[0].coordinates)
+        second_closest_def_vec = np.array(sorted_defense[1].coordinates)
+        obj_dist = np.linalg.norm(obj_vec - offense_vec)
+        # if close enough to objective or at least closer to objective than closest defense drone, move toward objective
+        if obj_dist < dive_dist or obj_dist < np.linalg.norm(obj_vec - closest_def_vec):
+            move_toward(offense, defense_center)
+        # if there are more than CRIT_LOCKED_ON defense drones within a CRIT_DIST distance, start moving away
+        elif num_in_range(offense, sorted_defense, crit_dist) >= crit_locked_on:
+            move_toward(offense, 2 * offense_vec - closest_def_vec)
+        #make the offense go to the midpoint of closest_def_vec and second_closest_def_vec
+        elif np.linalg.norm(closest_def_vec - offense_vec) <= dodge_dist:
+            mid_loc_between_defense_drones = sum(closest_drones_arr) / len(closest_drones_arr)
+            move_toward(offense, mid_loc_between_defense_drones)
+        else:
+            move_toward(offense, defense_center)
 
 #######
 def dodge_vec(agent, sorted_agents, angle=90):
@@ -355,10 +389,10 @@ def def_p4(world, defense_drones, offense_drones):
 
     for i in range(len(defense_drones)//2):
         patrollers.append(defense_drones[i])
-    
+
     near_offense = list(filter(lambda x: (np.linalg.norm(np.array(x.coordinates) - np.array(defense_center))) < def_radius, offense_drones))
     far_offense = list(filter(lambda x: (np.linalg.norm(np.array(x.coordinates) - np.array(defense_center))) >= def_radius, offense_drones))
-    
+
     for a in patrollers:
         sorted_near_offense = sorted(near_offense, key=lambda x: np.linalg.norm(
             np.array(x.coordinates) - np.array(a.coordinates)))
@@ -553,5 +587,5 @@ def get_local_agents(world, agent, offense_drones, defense_drones, disk_range=DI
         dist, comm_range = communication_model(x1, y1, x2, y2, comms_model=comms_model, DISK_RANGE_M = disk_range)
         if (comm_range):
             local_defense.append(d)
-    
+
     return local_offense, local_defense
