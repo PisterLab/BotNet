@@ -12,14 +12,14 @@ Simulator:
   agent_random_order_always: False
   window_size_x: 1920
   window_size_y: 1080
-  close_at_end: True
+  close_at_end: False
   plot_generator: plot_generator
   csv_generator: agent_tracking_generator
   follow_the_leader: True
   run_only_propagation: True
 Visualization:
   # Visualization 2 = Visualization with 6tisch Sync,  1 = Swarm Sim only Visualization, 0: Off
-  visualization: 0
+  visualization: 1
   gui: default
   grid_class: quadratic.QuadraticGrid
   agent_model_file: 2d_agent.obj
@@ -82,14 +82,16 @@ File:
   #solution: post_viz
   #scenario: random_find
   #solution: rl_model
-  scenario: timer_sce
-  solution: timer_sol
+  # scenario: timer_sce
+  # scenario: formation_ctrl
+  # solution: formation_circ
+  # solution: timer_sol
   #scenario: lonely_agent
   #scenario: n_agent_in_line
-  #solution: random_walk
-  #solution: triangular_round_walk
+  solution: random_walk
+  # solution: triangular_round_walk
   #solution: random_walk_with_take_and_drop
-  #scenario: lonely_agent
+  scenario: lonely_agent
   #solution: create_delete
   #scenario: two_agents_items_locations
   #solution: take_drop_aims

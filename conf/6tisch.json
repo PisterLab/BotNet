@@ -19,8 +19,8 @@
             "exec_randomSeed":                             [0]
         },
         "regular": {
-            "exec_numSlotframesBeforeNetwork":                    1000,
-            "exec_numSlotframesAfterNetwork":                             250,
+            "exec_numSlotframesBeforeNetwork":             1000,
+            "exec_numSlotframesAfterNetwork":              250,
             "exec_minutesPerRun":                          null,
 
 
@@ -79,7 +79,7 @@
 
             "exec_numSlotframesPerRun":                     1000,
 
-            "dual_vis":                                    false
+            "dual_vis":                                    true
         }
     },
     "logging":                                             "all",

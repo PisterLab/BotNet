@@ -2,5 +2,5 @@
 # TODO integrate into functionality
 viz: "full"
 agent: "default"
-scenario: ???
-solution: ???
+scenario: formation_ctrl
+solution: formation_circ

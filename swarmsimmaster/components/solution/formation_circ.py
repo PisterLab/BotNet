@@ -1,5 +1,5 @@
 import numpy as np
-from swarmsimmaster.components.scenario.formation_ctrl import move_toward, log_data
+from ..scenario.formation_ctrl import move_toward, log_data
 import time
 
 r = 10
