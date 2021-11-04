@@ -143,10 +143,19 @@ Example of the Environment Visualization.
 ![](./botnet/assets/sim-dynam.png)
 
 ### Running on Windows
-Running on Windows may encounter other issues, particularly with syncrhonized visualization. 
+Running on Windows may encounter other issues, particularly with synchronized visualization. 
 We are finalizing supporting this platform.
 
-​
+Windows users may encounter the following Qt error:
+```
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+```
+This may be resolved by updating the following packages:
+```sh
+conda install python=3.7.10 pip=21.2.2 pyqt=5.9.2
+pip install opencv-python==4.5.4.58
+```
+
 ### Logging
 Basic data for experiments is logged in a directory `simData/` that is not tracked on git.
 Additional logging can be performed by adding logic at the send of a solution.
