@@ -29,7 +29,9 @@ class ConfigData:
         },
         "Visualization": {
             "visualization": ConfigType.INTEGER,
-            "agent_color": ConfigType.TUPLE,
+            "swarm_agent_color": ConfigType.TUPLE,
+            "off_agent_color": ConfigType.TUPLE,
+            "def_agent_color": ConfigType.TUPLE,
             "agent_scaling": ConfigType.TUPLE,
             "item_color": ConfigType.TUPLE,
             "item_scaling": ConfigType.TUPLE,
@@ -67,7 +69,8 @@ class ConfigData:
             "size_x": ConfigType.FLOAT,
             "size_y": ConfigType.FLOAT,
             "size_z": ConfigType.FLOAT,
-            "max_agents": ConfigType.INTEGER
+            "max_agents": ConfigType.INTEGER,
+            "goal_center": ConfigType.TUPLE
         },
         "Matter": {
             "memory_limitation": ConfigType.BOOLEAN,

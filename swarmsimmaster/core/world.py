@@ -426,7 +426,7 @@ class World:
             if self.grid.are_valid_coordinates(coordinates):
                 if coordinates not in self.get_agent_map_coordinates():
                     if color is None:
-                        color = self.config_data.agent_color
+                        color = self.config_data.swarm_agent_color
                     self.agent_id_counter += 1
                     if self.config_data.agent_type == 1:
                         self.new_agent = new_class(self, coordinates, color, self.agent_id_counter, velocities)

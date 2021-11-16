@@ -19,14 +19,16 @@ Simulator:
   run_only_propagation: True
 Visualization:
   # Visualization 2 = Visualization with 6tisch Sync,  1 = Swarm Sim only Visualization, 0: Off
-  visualization: 0
+  visualization: 1
   gui: default
   grid_class: quadratic.QuadraticGrid
   agent_model_file: 2d_agent.obj
   item_model_file: 2d_quad_item.obj
   location_model_file: 2d_location.obj
   grid_size: 25
-  agent_color: [0.8, 0.3, 0.3, 1.0]
+  swarm_agent_color: [0.8, 0.3, 0.3, 1.0]
+  off_agent_color: [0, 0, 255.0, 1.0]
+  def_agent_color: [255.0, 0, 0, 1.0]
   agent_scaling: [1.0, 1.0, 1.0]
   item_color: [0.3, 0.3, 0.8, 1.0]
   item_scaling: [1.0, 1.0, 1.0]
@@ -69,6 +71,7 @@ World:
   num_agents : 500
   comms_model: full
   max_agents : 1000
+  goal_center : [-10, 0, 0]
   flock_vel: 1
   flock_rad: 6
 Matter:
@@ -82,8 +85,8 @@ File:
   #solution: post_viz
   #scenario: random_find
   #solution: rl_model
-  scenario: timer_sce
-  solution: timer_sol
+  scenario: test_svs_sce
+  solution: test_svs_sol
   #scenario: lonely_agent
   #scenario: n_agent_in_line
   #solution: random_walk
