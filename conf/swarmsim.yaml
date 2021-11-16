@@ -3,7 +3,7 @@ Simulator:
   id: 80085
   seed_value: 122
   ## Maximum round number in swarm-world, 0: infinite
-  max_round: 200
+  max_round: 0
   ## 1/True: Call of agents in random order
   ## 0/False: Call of agents in added order in scenario
   agent_random_order: False
@@ -12,7 +12,7 @@ Simulator:
   agent_random_order_always: False
   window_size_x: 1920
   window_size_y: 1080
-  close_at_end: True
+  close_at_end: False
   plot_generator: plot_generator
   csv_generator: agent_tracking_generator
   follow_the_leader: True
@@ -67,7 +67,7 @@ World:
   size_y: 5.0
   size_z: 5.0
   num_agents : 500
-  comms_model: full
+  comms_model: disk
   max_agents : 1000
   flock_vel: 1
   flock_rad: 6
@@ -80,14 +80,14 @@ Matter:
 File:
   #scenario: post_viz
   #solution: post_viz
-  #scenario: random_find
-  #solution: rl_model
-  scenario: timer_sce
-  solution: timer_sol
-  #scenario: lonely_agent
-  #scenario: n_agent_in_line
-  #solution: random_walk
-  #solution: triangular_round_walk
+  # scenario: random_find
+  # solution: rl_model
+  # scenario: timer_sce
+  # solution: timer_sol
+  # scenario: lonely_agent
+  # scenario: n_agent_in_line
+  # solution: random_walk
+  # solution: triangular_round_walk
   #solution: random_walk_with_take_and_drop
   #scenario: lonely_agent
   #solution: create_delete
@@ -95,6 +95,8 @@ File:
   #solution: take_drop_aims
   #scenario: two_agents_items_markers
   #solution: read_write
+  scenario: svs_scenario
+  solution: svs_simulation
   name: default
   server:
     host: localhost
