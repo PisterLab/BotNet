@@ -11,8 +11,8 @@ class SVSStrategy:
         self.OFFENSE_CLR = off_clr
         self.DEFENSE_CENTER = def_center
         self.OFFENSE_CENTER = off_center
-        self.DEFENSE_MAX_SPEED = 1
-        self.OFFENSE_MAX_SPEED = 1
+        self.DEFENSE_MAX_SPEED = 0.1
+        self.OFFENSE_MAX_SPEED = 0.1
         self.DISK_RANGE = disk_range
         self.EPS = 10e-8
 
