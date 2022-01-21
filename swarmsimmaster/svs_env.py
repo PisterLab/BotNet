@@ -7,46 +7,6 @@ import numpy as np
 import torch
 
 class SwarmEnv(gym.Env):
-  """
-    Description:
-        Swarm
-
-    Observation:
-        Type: Dict{Attackers: Box(N, 3), Defenders: Box(N, 3)}
-        
-        For each box space:
-        Num     Observation         Min X   Max X   Min Y   Max Y
-        0       Agent 0 Position    -40     40      -40     40   
-        1       Agent 1 Position    -40     40      -40     40   
-        ...     ...                 ...     ...     ...     ...  
-        N       Agent N Position    -40     40      -40     40   
-
-    Actions:
-        Type: Discrete(N, 2)
-        Num   Action
-        0     Push cart to the left
-        1     Push cart to the right
-
-        Note: The amount the velocity that is reduced or increased is not
-        fixed; it depends on the angle the pole is pointing. This is because
-        the center of gravity of the pole increases the amount of energy needed
-        to move the cart underneath it
-
-    Reward:
-        Reward is 1 for every step taken, including the termination step
-
-    Starting State:
-        All agents spawn in random positions.
-
-    Episode Termination:
-        Pole Angle is more than 12 degrees.
-        Cart Position is more than 2.4 (center of the cart reaches the edge of
-        the display).
-        Episode length is greater than 200.
-        Solved Requirements:
-        Considered solved when the average return is greater than or equal to
-        195.0 over 100 consecutive trials.
-    """
   defense_clr = [0, 0, 255, 1]
   offense_clr = [255, 0, 0, 1]
   DEFENSE_CENTER = [-10, 0, 0]
@@ -55,10 +15,6 @@ class SwarmEnv(gym.Env):
 
   def __init__(self):
     super(SwarmEnv, self).__init__()
-    # Define action and observation space
-    # They must be gym.spaces objects
-    # Example when using discrete actions:
-    ##may need to alter configdata to be closer to fit our needs.
     config_data = config.ConfigData()
     config_data.visualization = False
     unique_descriptor = "%s_%s_%s" % (config_data.local_time,
@@ -81,63 +37,95 @@ class SwarmEnv(gym.Env):
     self.NUM_AGENTS = self.WORLD.get_amount_of_agents()
 
     # each agent may move UP, DOWN, LEFT, RIGHT
-    # self.action_space = spaces.MultiDiscrete(np.full_like(self.NUM_AGENTS, 4)) # xy motion
-    self.action_space = spaces.Discrete(4)
+    # self.action_space = spaces.MultiDiscrete([4] * len(self.offense_drones))
+    self.action_space = spaces.Box(low=0, high=3.99, shape=(len(self.offense_drones),))
     
-    # The coordinates of each agent
-    self.observation_space = spaces.Box(low=-40, high=40, shape=(7,))
+    # XY of defenders, XY of attackers, XY of defense goal, timestep
+    self.obs_size = self.NUM_AGENTS * 2 + 3
+    self.observation_space = spaces.Box(low=-40, high=40, shape=(self.obs_size,))
 
   def step(self, action):
-    # Execute one time step within the environment
-    obs = np.zeros(7)
+    obs = np.zeros(self.obs_size)
+    obs_i = 0
     reward = 0
     done = False
+    print(action)
+    # if (not isinstance(action, int)):
+    #   action = int(np.rint(action.squeeze()))
 
-    if (not isinstance(action, int)):
-      action = int(np.rint(action.squeeze()))
+    # Defenders move
+    sorted_offense = sorted(self.offense_drones,
+                            key=lambda x: np.linalg.norm(np.array(x.coordinates) - np.array(self.DEFENSE_CENTER)))
+    for a in self.defense_drones:
+        closest_offense = sorted_offense[0]
+        self.move_toward(a, closest_offense.coordinates)
+        obs[obs_i:obs_i + 2] = a.coordinates[0:2]
+        obs_i += 2
 
-    # Attackers move
-    agent = self.offense_drones[0]
-    move = self.WORLD.grid.get_directions_list()[action]
-    agent.move_to(self.speed_limit(move, agent))
-    print(agent.coordinates)
-    dist_from_goal = np.linalg.norm(np.array(agent.coordinates) - np.array(self.DEFENSE_CENTER))
-    if dist_from_goal < 0.5:
-      reward += 100
-      done = True
-    elif dist_from_goal > 40:
-      reward = 0
-      done = True
-      return obs, reward, done, {}
-    else:
-      reward += (1 - dist_from_goal) / 100
-    # obs["offense"].append(agent.coordinates)
-    obs[0:3] = agent.coordinates
-
-    # if not done:
-    #   sorted_offense = sorted(self.offense_drones, key=lambda x: np.linalg.norm(np.array(x.coordinates) - np.array(self.DEFENSE_CENTER)))
-    #   closest_offense = sorted_offense[0]
-    #   for agent in self.defense_drones:
-    #     if (agent.alive):
-    #       self.move_toward(agent, closest_offense.coordinates)
-    agent = self.defense_drones[0]
-    obs[3:6] = agent.coordinates
-
-    # Offense death check
-    if not done:
-      # death check for offense
-      for agent in self.offense_drones:
+    # death check for offense
+    for a in self.offense_drones:
         sorted_defense = sorted(self.defense_drones,
-                                key=lambda x: np.linalg.norm(np.array(x.coordinates) - np.array(agent.coordinates)))
+                                key=lambda x: np.linalg.norm(np.array(x.coordinates) - np.array(a.coordinates)))
         closest_defense = sorted_defense[0]
         # check if dead
-        if np.linalg.norm(np.array(closest_defense.coordinates) - np.array(agent.coordinates)) < 0.1:
-          done = True
-          reward -= 100
+        if np.linalg.norm(np.array(closest_defense.coordinates) - np.array(a.coordinates)) < 0.1:
+            a.alive = False
+            a.update_agent_coordinates(a, (100, 100, 0))
+            reward -= 5
+
+    if not list(filter(lambda e: e.alive, self.offense_drones)):
+      reward -= 100
+      done = True
+
+    # Attackers move
+    for i in range(len(self.offense_drones)):
+      agent = self.offense_drones[i]
+      move = self.WORLD.grid.get_directions_list()[(int)(action[i])]
+      if not agent.alive:
+        obs[obs_i:obs_i + 2] = agent.coordinates[0:2]
+        obs_i += 2
+        continue
+      agent.move_to(self.speed_limit(move, agent))
+      obs[obs_i:obs_i + 2] = agent.coordinates[0:2]
+      obs_i += 2
+      dist_from_goal = np.linalg.norm(np.array(agent.coordinates) - np.array(self.DEFENSE_CENTER))
+      if dist_from_goal < 0.1:
+        reward += 100
+        done = True
+      else:
+        # def_dist = np.linalg.norm(np.array(agent.coordinates) - np.array(defender.coordinates))
+        # if (def_dist < 1):
+        #   reward -= def_dist
+        reward += (1 - dist_from_goal) / 100
+
+    # agent = self.offense_drones[0]
+    # defender = self.defense_drones[0]
+    # move = self.WORLD.grid.get_directions_list()[action]
+    # agent.move_to(self.speed_limit(move, agent))
+    # print(agent.coordinates)
+    # dist_from_goal = np.linalg.norm(np.array(agent.coordinates) - np.array(self.DEFENSE_CENTER))
+    # if dist_from_goal < 0.1:
+    #   reward += 100
+    #   done = True
+    # elif dist_from_goal > 40:
+    #   reward = 0
+    #   done = True
+    #   return obs, reward, done, {}
+    # else:
+    #   def_dist = np.linalg.norm(np.array(agent.coordinates) - np.array(defender.coordinates))
+    #   if (def_dist < 1):
+    #     reward -= def_dist
+    #   reward += (1 - dist_from_goal) / 100
     
+    # obs[0:3] = agent.coordinates
+    # obs[3:6] = defender.coordinates
+    # obs[6:9] = self.DEFENSE_CENTER
+
+    obs[obs_i:obs_i + 2] = self.DEFENSE_CENTER[0:2]
     self.ts += 1
-    obs[6] = self.ts
-    if (self.ts > 500):
+    obs[-1] = self.ts
+    print(obs)
+    if (self.ts > 750):
       done = True
     return obs, reward, done, {}
 
@@ -146,13 +134,16 @@ class SwarmEnv(gym.Env):
     self.WORLD.reset()
     self.WORLD.init_scenario(self.SCENARIO)
     self.ts = 0
-    obs = np.zeros(7)
-    # for agent in self.WORLD.agents:
-    #   obs += agent.coordinates
+    obs = []
     self.offense_drones = self.get_drones(self.WORLD, clr=self.offense_clr)
     self.defense_drones = self.get_drones(self.WORLD, clr=self.defense_clr)
-    obs[0:3] = self.offense_drones[0].coordinates
-    obs[3:6] = self.defense_drones[0].coordinates
+    for agent in self.defense_drones:
+      obs.extend(agent.coordinates[0:2])
+    for agent in self.offense_drones:
+      obs.extend(agent.coordinates[0:2])
+  
+    obs.extend(self.DEFENSE_CENTER[0:2])
+    obs.append(self.ts)
     return obs
   
   def render(self, mode='human', close=False):
@@ -188,17 +179,17 @@ class SwarmEnv(gym.Env):
     return speed_vec
 
 def termination_fn(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
-  # print(next_obs)
-  offense = next_obs[:, 0:3]
-  distance = torch.linalg.norm(offense - torch.tensor([-10, 0, 0], device='cuda:0'), dim=1)
+  print(next_obs)
+  offense = next_obs[:, 0:2]
+  distance = torch.linalg.norm(offense - torch.tensor([-10, 0], device='cuda:0'), dim=1)
   done = torch.logical_or(torch.linalg.norm(offense, dim=1) > 40, distance < 0.1)
   return done.view(-1, 1)
 
 def reward_fn(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
-  # print(next_obs)
-  offense = next_obs[:, 0:3]
+  print(next_obs)
+  offense = next_obs[:, 0:2]
   # print(offense)
-  distance = torch.linalg.norm(offense - torch.tensor([-10, 0, 0], device='cuda:0'), dim=1)
+  distance = torch.linalg.norm(offense - torch.tensor([-10, 0], device='cuda:0'), dim=1)
   return (1 - distance.view(-1, 1)) / 100 + (distance.view(-1, 1) < 0.1).float()
   # if (distance < 0.1):
   #   return 1

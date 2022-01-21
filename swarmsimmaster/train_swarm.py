@@ -21,7 +21,7 @@ rng = np.random.default_rng(seed=0)
 generator = torch.Generator(device=device)
 generator.manual_seed(seed)
 obs_shape = env.observation_space.shape
-act_shape = (1,)
+act_shape = (len(env.offense_drones),)
 
 
 # Configure dynamics model
@@ -65,7 +65,7 @@ cfg_dict = {
 cfg = omegaconf.OmegaConf.create(cfg_dict)
 
 # Create a 1-D dynamics model for this environment
-dynamics_model = common_util.create_one_dim_tr_model(cfg, obs_shape, act_shape, model_dir="/home/jennomai/code/BotNet/swarmsimmaster/outputs/models/model 2021-11-30 14:05:10.898003")
+dynamics_model = common_util.create_one_dim_tr_model(cfg, obs_shape, act_shape)
 
 # Create a gym-like environment to encapsulate the model
 model_env = models.ModelEnv(env, dynamics_model, svs_env.termination_fn, svs_env.reward_fn, generator=generator)
@@ -111,6 +111,7 @@ agent = planning.create_trajectory_optim_agent_for_model(
     agent_cfg,
     num_particles=20
 )
+# agent = planning.RandomAgent(env)
 
 train_losses = []
 val_scores = []
@@ -162,6 +163,7 @@ for trial in range(num_trials):
                 dataset_val=dataset_val, 
                 patience=50, 
                 callback=train_callback)
+            print("finished trial 0")
 
         # --- Doing env step using the agent and adding to model dataset ---
         next_obs, reward, done, _ = common_util.step_env_and_add_to_buffer(
