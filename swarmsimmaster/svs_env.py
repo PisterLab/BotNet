@@ -37,8 +37,8 @@ class SwarmEnv(gym.Env):
     self.NUM_AGENTS = self.WORLD.get_amount_of_agents()
 
     # each agent may move UP, DOWN, LEFT, RIGHT
-    # self.action_space = spaces.MultiDiscrete([4] * len(self.offense_drones))
-    self.action_space = spaces.Box(low=0, high=3.99, shape=(len(self.offense_drones),))
+    self.action_space = spaces.MultiDiscrete([4] * len(self.offense_drones))
+    # self.action_space = spaces.Box(low=0, high=3.99, shape=(len(self.offense_drones),))
     
     # XY of defenders, XY of attackers, XY of defense goal, timestep
     self.obs_size = self.NUM_AGENTS * 2 + 3
@@ -80,7 +80,7 @@ class SwarmEnv(gym.Env):
     # Attackers move
     for i in range(len(self.offense_drones)):
       agent = self.offense_drones[i]
-      move = self.WORLD.grid.get_directions_list()[(int)(action[i])]
+      move = self.WORLD.grid.get_directions_list()[action[i]]
       if not agent.alive:
         obs[obs_i:obs_i + 2] = agent.coordinates[0:2]
         obs_i += 2
